@@ -8,7 +8,7 @@ export class CpmEngine extends BaseTestEngine {
 
   async calculateScores(answers: any[], clientData?: any): Promise<AssessmentResult> {
     // 1. Fetch kunci jawaban dari Supabase
-    const { supabase } = await import('@/lib/supabase');
+    const { supabaseAdmin: supabase } = await import('@/lib/supabase-admin');
     const { data: qData } = await supabase.from('questionnaires').select('id').eq('code', 'CPM').single();
     if (qData) {
       const { data: questions } = await supabase.from('questions').select('question_number, correct_answer').eq('questionnaire_id', qData.id);

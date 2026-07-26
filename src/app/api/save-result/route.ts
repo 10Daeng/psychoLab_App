@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
+import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
@@ -19,6 +21,20 @@ export async function POST(request: Request) {
 
     if (fetchErr || !currentTestResult) {
       throw new Error("Gagal mengambil data test result: " + (fetchErr?.message || "Data tidak ditemukan"));
+    }
+
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("client_session");
+    if (!sessionCookie) return NextResponse.json({ error: "Sesi tidak valid. Silakan login kembali dengan token Anda." }, { status: 401 });
+    
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || "");
+      const { payload: jwtPayload } = await jwtVerify(sessionCookie.value, secret);
+      if (jwtPayload.token_id !== currentTestResult.token_id) {
+        return NextResponse.json({ error: "Akses ditolak. Token ID tidak sesuai dengan sesi Anda." }, { status: 403 });
+      }
+    } catch (e) {
+      return NextResponse.json({ error: "Sesi tidak valid atau telah kedaluwarsa." }, { status: 401 });
     }
 
     const testsRef = currentTestResult.tests as any;
@@ -77,6 +93,7 @@ export async function POST(request: Request) {
     });
     
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("save-result error:", err);
+    return NextResponse.json({ error: "Terjadi kesalahan internal saat menyimpan hasil" }, { status: 500 });
   }
 }

@@ -67,7 +67,7 @@ export class Raven2Engine extends BaseTestEngine {
   }
 
   async calculateScores(answers: Raven2Answer[], clientData?: any): Promise<AssessmentResult> {
-    const { supabase } = await import('@/lib/supabase');
+    const { supabaseAdmin: supabase } = await import('@/lib/supabase-admin');
     const { data: qData } = await supabase.from('questionnaires').select('id').eq('code', 'RAVEN2').single();
     
     let answerKey = new Map();

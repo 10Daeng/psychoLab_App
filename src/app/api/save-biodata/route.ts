@@ -1,10 +1,26 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
+import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
     const payload = await request.json();
     const { token_id, client_id, name, birth_date, gender, school_or_institution, grade, parent_name, parent_phone, address, registration_number, test_registration_number, target_institution, test_purpose, birth_place, birth_order, special_needs, parent_job, parent_education } = payload;
+
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("client_session");
+    if (!sessionCookie) return NextResponse.json({ error: "Sesi tidak valid. Silakan login kembali dengan token Anda." }, { status: 401 });
+    
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || "");
+      const { payload: jwtPayload } = await jwtVerify(sessionCookie.value, secret);
+      if (jwtPayload.token_id !== token_id) {
+        return NextResponse.json({ error: "Akses ditolak. Token ID tidak sesuai dengan sesi Anda." }, { status: 403 });
+      }
+    } catch (e) {
+      return NextResponse.json({ error: "Sesi tidak valid atau telah kedaluwarsa." }, { status: 401 });
+    }
 
     if (!token_id || !name || !birth_date) {
       return NextResponse.json({ error: "Data wajib (Nama, Tanggal Lahir) tidak lengkap" }, { status: 400 });
@@ -46,6 +62,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, client: finalClient });
     
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("save-biodata error:", err);
+    return NextResponse.json({ success: false, error: "Terjadi kesalahan internal saat menyimpan biodata" }, { status: 500 });
   }
 }

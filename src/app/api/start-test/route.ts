@@ -1,9 +1,25 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
+import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
     const { token_id, client_id, test_code } = await request.json();
+
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("client_session");
+    if (!sessionCookie) return NextResponse.json({ error: "Sesi tidak valid. Silakan login kembali dengan token Anda." }, { status: 401 });
+    
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || "");
+      const { payload: jwtPayload } = await jwtVerify(sessionCookie.value, secret);
+      if (jwtPayload.token_id !== token_id) {
+        return NextResponse.json({ error: "Akses ditolak. Token ID tidak sesuai dengan sesi Anda." }, { status: 403 });
+      }
+    } catch (e) {
+      return NextResponse.json({ error: "Sesi tidak valid atau telah kedaluwarsa." }, { status: 401 });
+    }
 
     if (!token_id || !client_id) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
@@ -44,6 +60,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, test_result_id: testResult.id });
     
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("start-test error:", err);
+    return NextResponse.json({ error: "Terjadi kesalahan internal saat memulai tes" }, { status: 500 });
   }
 }

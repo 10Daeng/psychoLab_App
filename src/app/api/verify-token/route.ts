@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import { SignJWT } from "jose";
 
 export async function POST(request: Request) {
   try {
@@ -41,7 +42,13 @@ export async function POST(request: Request) {
 
     if (tokenData.client_id && tokenData.client) {
       // Skema Tertutup (Closed Token) - Data anak sudah diimport dari Excel
-      return NextResponse.json({
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
+      const jwt = await new SignJWT({ token_id: tokenData.id })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setExpirationTime('12h')
+        .sign(secret);
+
+      const response = NextResponse.json({
         success: true,
         type: "CLOSED",
         token_id: tokenData.id,
@@ -49,22 +56,45 @@ export async function POST(request: Request) {
         client: tokenData.client,
         status: tokenData.status
       });
+
+      response.cookies.set('client_session', jwt, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 12
+      });
+
+      return response;
     } else {
       // Skema Terbuka (Open Token) - Butuh isi biodata
-      return NextResponse.json({
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
+      const jwt = await new SignJWT({ token_id: tokenData.id })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setExpirationTime('12h')
+        .sign(secret);
+
+      const response = NextResponse.json({
         success: true,
         type: "OPEN",
         token_id: tokenData.id,
         test_code: testCode,
         status: tokenData.status
       });
+
+      response.cookies.set('client_session', jwt, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 12
+      });
+
+      return response;
     }
     
   } catch (err: any) {
-    console.error(err);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan sistem: " + err.message },
-      { status: 500 }
-    );
+    console.error("verify-token error:", err);
+    return NextResponse.json({ success: false, error: "Terjadi kesalahan internal server" }, { status: 500 });
   }
 }

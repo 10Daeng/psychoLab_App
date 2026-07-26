@@ -1,0 +1,221 @@
+{
+  "labels": {
+    "R": "Realistic",
+    "I": "Investigative",
+    "A": "Artistic",
+    "S": "Social",
+    "E": "Enterprising",
+    "C": "Conventional"
+  },
+  "descriptions": {
+    "R": "Minat pada pekerjaan praktis, alat, mesin, teknologi, lapangan, mekanik, bangunan, dan aktivitas konkret.",
+    "I": "Minat pada sains, riset, analisis, matematika, pemecahan masalah, laboratorium, data, dan kajian ilmiah.",
+    "A": "Minat pada seni, musik, desain, menulis, sastra, performa, media, dan ekspresi kreatif.",
+    "S": "Minat pada membantu, mengajar, mendampingi, merawat, memahami masalah orang lain, dan layanan sosial.",
+    "E": "Minat pada kepemimpinan, bisnis, persuasi, organisasi, public speaking, politik, dan pengaruh sosial.",
+    "C": "Minat pada administrasi, data, arsip, akuntansi, keuangan, prosedur, ketelitian, dan kerja terstruktur."
+  },
+  "clustersByCode": {
+    "R": [
+      "Teknik Mesin",
+      "Teknik Elektro",
+      "Teknik Sipil",
+      "Teknik Industri",
+      "Arsitektur",
+      "Teknik Lingkungan",
+      "Teknik Perkapalan",
+      "Teknik Otomotif",
+      "Vokasi Teknik",
+      "Agroteknologi",
+      "Agribisnis"
+    ],
+    "I": [
+      "Kedokteran",
+      "Farmasi",
+      "Biologi",
+      "Kimia",
+      "Fisika",
+      "Matematika",
+      "Statistika",
+      "Data Science",
+      "Informatika",
+      "Teknologi Pangan",
+      "Psikologi berbasis riset",
+      "Kesehatan Masyarakat"
+    ],
+    "A": [
+      "Desain Komunikasi Visual",
+      "Seni Rupa",
+      "Seni Musik",
+      "Film dan Televisi",
+      "Sastra",
+      "Ilmu Komunikasi",
+      "Jurnalistik",
+      "Desain Produk",
+      "Animasi",
+      "Arsitektur"
+    ],
+    "S": [
+      "Psikologi",
+      "Bimbingan dan Konseling",
+      "Pendidikan",
+      "PGSD/PAUD",
+      "Keperawatan",
+      "Kesehatan Masyarakat",
+      "Ilmu Gizi",
+      "Pekerjaan Sosial",
+      "Ilmu Kesejahteraan Sosial",
+      "Komunikasi Penyuluhan"
+    ],
+    "E": [
+      "Manajemen",
+      "Bisnis Digital",
+      "Kewirausahaan",
+      "Administrasi Bisnis",
+      "Ilmu Komunikasi Strategis",
+      "Public Relations",
+      "Hukum",
+      "Hubungan Internasional",
+      "Ilmu Politik",
+      "Manajemen SDM"
+    ],
+    "C": [
+      "Akuntansi",
+      "Perpajakan",
+      "Administrasi Perkantoran",
+      "Sistem Informasi",
+      "Manajemen Keuangan",
+      "Statistika Terapan",
+      "Manajemen Operasional",
+      "Administrasi Publik",
+      "Perbankan",
+      "Rekam Medis"
+    ]
+  },
+  "clustersByCombo": {
+    "RI": [
+      "Teknik Mesin",
+      "Teknik Elektro",
+      "Teknik Sipil",
+      "Teknik Industri",
+      "Teknik Lingkungan",
+      "Teknik Informatika",
+      "Rekayasa Pertanian"
+    ],
+    "IR": [
+      "Teknik Informatika",
+      "Data Science",
+      "Statistika",
+      "Fisika",
+      "Kimia",
+      "Bioteknologi",
+      "Teknologi Pangan"
+    ],
+    "IA": [
+      "Arsitektur",
+      "Desain Produk berbasis teknologi",
+      "Game Development",
+      "Data Visualization",
+      "Jurnalistik Sains"
+    ],
+    "AI": [
+      "Desain Komunikasi Visual",
+      "UX Research",
+      "Film Dokumenter",
+      "Penulisan Sains Populer",
+      "Linguistik Komputasional"
+    ],
+    "IS": [
+      "Psikologi",
+      "Kedokteran",
+      "Kesehatan Masyarakat",
+      "Keperawatan",
+      "Ilmu Gizi",
+      "Pendidikan Sains",
+      "Bimbingan Konseling berbasis asesmen"
+    ],
+    "SI": [
+      "Psikologi",
+      "Bimbingan dan Konseling",
+      "Pendidikan",
+      "Kesehatan Masyarakat",
+      "Keperawatan",
+      "Ilmu Gizi"
+    ],
+    "SE": [
+      "Ilmu Komunikasi",
+      "Public Relations",
+      "Pendidikan",
+      "Manajemen SDM",
+      "Konseling Karier",
+      "Administrasi Pendidikan"
+    ],
+    "ES": [
+      "Manajemen SDM",
+      "Ilmu Komunikasi Strategis",
+      "Hukum",
+      "Hubungan Internasional",
+      "Administrasi Publik",
+      "Public Relations"
+    ],
+    "SC": [
+      "Administrasi Pendidikan",
+      "Manajemen Layanan Kesehatan",
+      "Rekam Medis",
+      "Administrasi Publik",
+      "Perpustakaan dan Sains Informasi"
+    ],
+    "CS": [
+      "Sistem Informasi",
+      "Administrasi Publik",
+      "Manajemen Pendidikan",
+      "Manajemen Rumah Sakit",
+      "Akuntansi sektor sosial"
+    ],
+    "EC": [
+      "Manajemen",
+      "Akuntansi",
+      "Bisnis Digital",
+      "Administrasi Bisnis",
+      "Manajemen Keuangan",
+      "Perpajakan"
+    ],
+    "CE": [
+      "Akuntansi",
+      "Manajemen Keuangan",
+      "Perbankan",
+      "Administrasi Bisnis",
+      "Sistem Informasi Bisnis"
+    ],
+    "IC": [
+      "Statistika",
+      "Data Science",
+      "Sistem Informasi",
+      "Aktuaria",
+      "Matematika Terapan",
+      "Informatika"
+    ],
+    "CI": [
+      "Sistem Informasi",
+      "Statistika Terapan",
+      "Akuntansi Data",
+      "Administrasi Data",
+      "Business Analytics"
+    ],
+    "AE": [
+      "Ilmu Komunikasi",
+      "DKV",
+      "Advertising",
+      "Public Relations",
+      "Bisnis Kreatif",
+      "Kewirausahaan Kreatif"
+    ],
+    "EA": [
+      "Branding",
+      "Marketing Communication",
+      "Ilmu Komunikasi",
+      "Bisnis Kreatif",
+      "Event Management"
+    ]
+  }
+}

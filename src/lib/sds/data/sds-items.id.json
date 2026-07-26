@@ -1,0 +1,1580 @@
+[
+  {
+    "id": "act_r_01",
+    "section": "activities",
+    "code": "R",
+    "text": "Memperbaiki peralatan listrik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_02",
+    "section": "activities",
+    "code": "R",
+    "text": "Memperbaiki kendaraan bermotor",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_03",
+    "section": "activities",
+    "code": "R",
+    "text": "Memperbaiki alat-alat mekanik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_04",
+    "section": "activities",
+    "code": "R",
+    "text": "Membuat sesuatu dari kayu",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_05",
+    "section": "activities",
+    "code": "R",
+    "text": "Mengikuti kursus teknologi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_06",
+    "section": "activities",
+    "code": "R",
+    "text": "Mengikuti kursus menggambar mesin",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_07",
+    "section": "activities",
+    "code": "R",
+    "text": "Mengikuti kursus keterampilan konstruksi bangunan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_08",
+    "section": "activities",
+    "code": "R",
+    "text": "Bekerja dengan mekanik atau teknisi terkenal",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_09",
+    "section": "activities",
+    "code": "R",
+    "text": "Bekerja diluar ruangan (outdoor)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_r_10",
+    "section": "activities",
+    "code": "R",
+    "text": "Mengoperasikan mesin",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_01",
+    "section": "activities",
+    "code": "I",
+    "text": "Membaca buku atau majalah ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_02",
+    "section": "activities",
+    "code": "I",
+    "text": "Bekerja di ruang penelitian atau laboratorium",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_03",
+    "section": "activities",
+    "code": "I",
+    "text": "Mengerjakan proyek ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_04",
+    "section": "activities",
+    "code": "I",
+    "text": "Mengkaji teori ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_05",
+    "section": "activities",
+    "code": "I",
+    "text": "Bekerja dengan bahan kimia",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_06",
+    "section": "activities",
+    "code": "I",
+    "text": "Menerapkan ilmu matematika pada persoalan praktis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_07",
+    "section": "activities",
+    "code": "I",
+    "text": "Ikut kursus sains dan teknologi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_08",
+    "section": "activities",
+    "code": "I",
+    "text": "Belajar Ilmu sains seperti Matematika dan Ilmu Pengetahuan Alam",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_09",
+    "section": "activities",
+    "code": "I",
+    "text": "Ikut membantu memecahkan kasus kriminal",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_i_10",
+    "section": "activities",
+    "code": "I",
+    "text": "Mengkaji masalah ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_01",
+    "section": "activities",
+    "code": "A",
+    "text": "Membuat sketsa, menggambar , melukis atau bermain musik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_02",
+    "section": "activities",
+    "code": "A",
+    "text": "Merancang pakaian",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_03",
+    "section": "activities",
+    "code": "A",
+    "text": "Bermain dalam kelompok music seperti band atau orchestra",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_04",
+    "section": "activities",
+    "code": "A",
+    "text": "Berlatih alat musik atau menggambar",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_05",
+    "section": "activities",
+    "code": "A",
+    "text": "Menulis novel atau skenario drama",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_06",
+    "section": "activities",
+    "code": "A",
+    "text": "Ikut kursus seni",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_07",
+    "section": "activities",
+    "code": "A",
+    "text": "Menciptakan lagu atau aransemen musik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_08",
+    "section": "activities",
+    "code": "A",
+    "text": "Bekerja dengan seniman atau pematung berbakat",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_09",
+    "section": "activities",
+    "code": "A",
+    "text": "Tampil untuk orang lain (menari, menyanyi, berakting, dll.)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_a_10",
+    "section": "activities",
+    "code": "A",
+    "text": "Membaca tentang seni, sastra, atau musik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_01",
+    "section": "activities",
+    "code": "S",
+    "text": "Menjumpai guru terkenal",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_02",
+    "section": "activities",
+    "code": "S",
+    "text": "Membaca tulisan tentang sosiologi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_03",
+    "section": "activities",
+    "code": "S",
+    "text": "Bekerja dalam kegiatan amal",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_04",
+    "section": "activities",
+    "code": "S",
+    "text": "Membantu orang lain yang memiliki masalah pribadi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_05",
+    "section": "activities",
+    "code": "S",
+    "text": "Mempelajari masalah kenakalan remaja",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_06",
+    "section": "activities",
+    "code": "S",
+    "text": "Membaca buku-buku psikologi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_07",
+    "section": "activities",
+    "code": "S",
+    "text": "Mengajar di sekolah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_08",
+    "section": "activities",
+    "code": "S",
+    "text": "Menjadi terapis bagi yang mengalami masalah mental",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_09",
+    "section": "activities",
+    "code": "S",
+    "text": "Bekerja menjadi sukarelawan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_s_10",
+    "section": "activities",
+    "code": "S",
+    "text": "Bermain dengan anak-anak pasca trauma bencana",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_01",
+    "section": "activities",
+    "code": "E",
+    "text": "Mempelajari strategi untuk keberhasilan usaha",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_02",
+    "section": "activities",
+    "code": "E",
+    "text": "Menjalankan jasa atau usaha saya sendiri",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_03",
+    "section": "activities",
+    "code": "E",
+    "text": "Menghadiri pertemuan para pengusaha",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_04",
+    "section": "activities",
+    "code": "E",
+    "text": "Ikut kursus tentang bisnis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_05",
+    "section": "activities",
+    "code": "E",
+    "text": "Mengikuti pelatihan kepemimpinan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_06",
+    "section": "activities",
+    "code": "E",
+    "text": "Menjadi pengawas (supervisor) dalam pekerjaan orang lain",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_07",
+    "section": "activities",
+    "code": "E",
+    "text": "Menjumpai para eksekutif dan pemimpin-pemimpin penting",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_08",
+    "section": "activities",
+    "code": "E",
+    "text": "Menjadi pengusaha muda",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_09",
+    "section": "activities",
+    "code": "E",
+    "text": "Berpartisipasi dalam politik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_e_10",
+    "section": "activities",
+    "code": "E",
+    "text": "Bertindak sebagai konsultan organisasi atau usaha",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_01",
+    "section": "activities",
+    "code": "C",
+    "text": "Mengisi formulir pajak penghasilan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_02",
+    "section": "activities",
+    "code": "C",
+    "text": "Mengelola data-data atau pembukuan usaha",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_03",
+    "section": "activities",
+    "code": "C",
+    "text": "Mengoperasikan mesin kantor",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_04",
+    "section": "activities",
+    "code": "C",
+    "text": "Menyimpan catatan rinci tentang pengeluaran dan pemasukan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_05",
+    "section": "activities",
+    "code": "C",
+    "text": "Membuat sistem penataan admnistrasi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_06",
+    "section": "activities",
+    "code": "C",
+    "text": "Ikut kursus akuntansi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_07",
+    "section": "activities",
+    "code": "C",
+    "text": "Ikut kursus matematika dagang",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_08",
+    "section": "activities",
+    "code": "C",
+    "text": "Ikut kursus administrasi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_09",
+    "section": "activities",
+    "code": "C",
+    "text": "Menyimpan dan mencatat persediaan atau barang",
+    "scoringType": "binary"
+  },
+  {
+    "id": "act_c_10",
+    "section": "activities",
+    "code": "C",
+    "text": "Bekerja didalam kantor (kantoran)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_01",
+    "section": "competencies",
+    "code": "R",
+    "text": "Menggunakan alat mesin perkayuan (gergaji, pahat, paku, kapak)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_02",
+    "section": "competencies",
+    "code": "R",
+    "text": "Membuat gambar berskala",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_03",
+    "section": "competencies",
+    "code": "R",
+    "text": "Mengganti oli kendaraan bermotor",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_04",
+    "section": "competencies",
+    "code": "R",
+    "text": "Memakai peralatan listrik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_05",
+    "section": "competencies",
+    "code": "R",
+    "text": "Memplitur ulang furniture atau kerajinan kayu",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_06",
+    "section": "competencies",
+    "code": "R",
+    "text": "Membuat perbaikan listrik sederhana",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_07",
+    "section": "competencies",
+    "code": "R",
+    "text": "Memberbaiki alat elektronik sederhana",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_08",
+    "section": "competencies",
+    "code": "R",
+    "text": "Menggunakan berbagai macam alat pertukangan (bangunan)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_09",
+    "section": "competencies",
+    "code": "R",
+    "text": "Memperbaiki pompa air",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_r_10",
+    "section": "competencies",
+    "code": "R",
+    "text": "Membuat sesuatu dari bahan-bahan kayu sederhana",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_01",
+    "section": "competencies",
+    "code": "I",
+    "text": "Menggunakan aljabar untuk menyelesaikan soal matematika",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_02",
+    "section": "competencies",
+    "code": "I",
+    "text": "Melakukan percobaan ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_03",
+    "section": "competencies",
+    "code": "I",
+    "text": "Memahami konsep paruh waktu dari unsur radioaktif",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_04",
+    "section": "competencies",
+    "code": "I",
+    "text": "Menggunakan table logaritma",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_05",
+    "section": "competencies",
+    "code": "I",
+    "text": "Menggunakan komputer untuk mengkaji masalah ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_06",
+    "section": "competencies",
+    "code": "I",
+    "text": "Dapat menafsirkan rumus kimia sederhana",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_07",
+    "section": "competencies",
+    "code": "I",
+    "text": "Memahami mengapa satelit buatan manusia tidak jatuh ke bumi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_08",
+    "section": "competencies",
+    "code": "I",
+    "text": "Dapat menulis laporan ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_09",
+    "section": "competencies",
+    "code": "I",
+    "text": "Memahami teori “Big Bang” tentang alam semesta",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_i_10",
+    "section": "competencies",
+    "code": "I",
+    "text": "Memahami peran DNA dalam genetika.",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_01",
+    "section": "competencies",
+    "code": "A",
+    "text": "Dapat bermain satu alat musik atau lebih",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_02",
+    "section": "competencies",
+    "code": "A",
+    "text": "Dapat ikut serta dalam paduan suara",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_03",
+    "section": "competencies",
+    "code": "A",
+    "text": "Tampil sebagai penyanyi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_04",
+    "section": "competencies",
+    "code": "A",
+    "text": "Dapat bermain drama",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_05",
+    "section": "competencies",
+    "code": "A",
+    "text": "Dapat melukis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_06",
+    "section": "competencies",
+    "code": "A",
+    "text": "Menciptakan lagu",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_07",
+    "section": "competencies",
+    "code": "A",
+    "text": "Merancang pakaian atau poster",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_08",
+    "section": "competencies",
+    "code": "A",
+    "text": "Dapat menulis cerita atau puisi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_09",
+    "section": "competencies",
+    "code": "A",
+    "text": "dapat mengambil foto-foto yang bagus",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_a_10",
+    "section": "competencies",
+    "code": "A",
+    "text": "Membuat gambar bangunan atau gambar tokoh komik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_01",
+    "section": "competencies",
+    "code": "S",
+    "text": "Mudah berbicara dengan semua jenis sifat orang",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_02",
+    "section": "competencies",
+    "code": "S",
+    "text": "Mudah dalam menjelaskan sesuatu hal pada orang lain",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_03",
+    "section": "competencies",
+    "code": "S",
+    "text": "Saya dapat bekerja jika menjadi pengurus RT/RW/Desa",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_04",
+    "section": "competencies",
+    "code": "S",
+    "text": "Orang mencari saya untuk menceritakan kesulitan mereka",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_05",
+    "section": "competencies",
+    "code": "S",
+    "text": "Dapat mengajar anak-anak dengan baik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_06",
+    "section": "competencies",
+    "code": "S",
+    "text": "Mahir menolong orang yang marah atau bermasalah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_07",
+    "section": "competencies",
+    "code": "S",
+    "text": "Memiliki pemahaman mengenai hubungan sosial",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_08",
+    "section": "competencies",
+    "code": "S",
+    "text": "Mudah dalam mengajar orang lain",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_09",
+    "section": "competencies",
+    "code": "S",
+    "text": "Mudah membuat orang merasa terhibur",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_s_10",
+    "section": "competencies",
+    "code": "S",
+    "text": "Jauh lebih baik bekerja dengan orang daripada barang",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_01",
+    "section": "competencies",
+    "code": "E",
+    "text": "Mengetahui cara untuk menjadi pemimpin yang sukses",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_02",
+    "section": "competencies",
+    "code": "E",
+    "text": "Bagus dalam berbicara dihadapan umum",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_03",
+    "section": "competencies",
+    "code": "E",
+    "text": "Dapat membuat strategi dagang",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_04",
+    "section": "competencies",
+    "code": "E",
+    "text": "Dapat mengorganisir pekerjaan orang lain",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_05",
+    "section": "competencies",
+    "code": "E",
+    "text": "Saya orang yang ambisius dan berprinsip",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_06",
+    "section": "competencies",
+    "code": "E",
+    "text": "Pandai mengajak orang melakukan hal yang sesuai cara saya",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_07",
+    "section": "competencies",
+    "code": "E",
+    "text": "Seorang pendebat yang handal",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_08",
+    "section": "competencies",
+    "code": "E",
+    "text": "Dapat memimpin suatu kelompok",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_09",
+    "section": "competencies",
+    "code": "E",
+    "text": "Dapat membuat strategi politik dalam memenangkan pemilu pemimpin organisasi.",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_e_10",
+    "section": "competencies",
+    "code": "E",
+    "text": "Memiliki keterampilan mempengaruhi orang lain",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_01",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat menyimpan surat menyurat dan berkas apapun secara teratur",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_02",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat menyelesaikan pekerjaan administrasi perkantoran",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_03",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat memakai mesin hitung",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_04",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat menggunakan alat pemrosesan data yang sederhana seperti komputer.",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_05",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat menempatkan kredit dan debit",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_06",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat menjaga catatan pembayaran atau penjualan dengan rapi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_07",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat melakukan aktifitas kantor yang rutin",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_08",
+    "section": "competencies",
+    "code": "C",
+    "text": "Saya orang yang rapi dan hati-hati",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_09",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat membuat catatan rencana esok dan mengerjakan rencananya",
+    "scoringType": "binary"
+  },
+  {
+    "id": "comp_c_10",
+    "section": "competencies",
+    "code": "C",
+    "text": "Dapat membuat laporan keuangan sederhana",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_01",
+    "section": "occupations",
+    "code": "R",
+    "text": "Teknisi Pesawat",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_02",
+    "section": "occupations",
+    "code": "R",
+    "text": "Teknisi otomotif",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_03",
+    "section": "occupations",
+    "code": "R",
+    "text": "Perancang Mesin",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_04",
+    "section": "occupations",
+    "code": "R",
+    "text": "Pengawas Proyek Tambang",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_05",
+    "section": "occupations",
+    "code": "R",
+    "text": "Teknisi Bangunan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_06",
+    "section": "occupations",
+    "code": "R",
+    "text": "Teknisi Radio",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_07",
+    "section": "occupations",
+    "code": "R",
+    "text": "Ahli mesin lokomotif",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_08",
+    "section": "occupations",
+    "code": "R",
+    "text": "Masinis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_09",
+    "section": "occupations",
+    "code": "R",
+    "text": "Teknisi Listrik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_10",
+    "section": "occupations",
+    "code": "R",
+    "text": "Perancang alat-alat Pabrik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_11",
+    "section": "occupations",
+    "code": "R",
+    "text": "Petani",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_12",
+    "section": "occupations",
+    "code": "R",
+    "text": "Pilot",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_13",
+    "section": "occupations",
+    "code": "R",
+    "text": "Perancang mesin motor",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_14",
+    "section": "occupations",
+    "code": "R",
+    "text": "Nahkoda",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_r_15",
+    "section": "occupations",
+    "code": "R",
+    "text": "Operator alat berat",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_01",
+    "section": "occupations",
+    "code": "I",
+    "text": "Astronom",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_02",
+    "section": "occupations",
+    "code": "I",
+    "text": "Meteorolog",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_03",
+    "section": "occupations",
+    "code": "I",
+    "text": "Ahli Biologi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_04",
+    "section": "occupations",
+    "code": "I",
+    "text": "Laboran (pekerja Laboratorium)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_05",
+    "section": "occupations",
+    "code": "I",
+    "text": "Matematikawan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_06",
+    "section": "occupations",
+    "code": "I",
+    "text": "Arkeolog",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_07",
+    "section": "occupations",
+    "code": "I",
+    "text": "Peneliti",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_08",
+    "section": "occupations",
+    "code": "I",
+    "text": "Penulis artikel ilmiah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_09",
+    "section": "occupations",
+    "code": "I",
+    "text": "Ahli geologi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_10",
+    "section": "occupations",
+    "code": "I",
+    "text": "Fisikawan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_11",
+    "section": "occupations",
+    "code": "I",
+    "text": "Ahli di Badan Meteorologi, Kllimatologi dan Geofisika (BMKG)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_12",
+    "section": "occupations",
+    "code": "I",
+    "text": "Ahli Botani",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_13",
+    "section": "occupations",
+    "code": "I",
+    "text": "Ahli riset ilmu sosial",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_14",
+    "section": "occupations",
+    "code": "I",
+    "text": "Ahli analis lingkungan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_i_15",
+    "section": "occupations",
+    "code": "I",
+    "text": "Kriminolog",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_01",
+    "section": "occupations",
+    "code": "A",
+    "text": "Penyair",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_02",
+    "section": "occupations",
+    "code": "A",
+    "text": "Musisi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_03",
+    "section": "occupations",
+    "code": "A",
+    "text": "Novelis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_04",
+    "section": "occupations",
+    "code": "A",
+    "text": "Aktor/ Aktris",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_05",
+    "section": "occupations",
+    "code": "A",
+    "text": "Penulis lepas",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_06",
+    "section": "occupations",
+    "code": "A",
+    "text": "Pencipta lagu",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_07",
+    "section": "occupations",
+    "code": "A",
+    "text": "Wartawan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_08",
+    "section": "occupations",
+    "code": "A",
+    "text": "Seniman lukis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_09",
+    "section": "occupations",
+    "code": "A",
+    "text": "Pembuat patung",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_10",
+    "section": "occupations",
+    "code": "A",
+    "text": "Penulis drama",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_11",
+    "section": "occupations",
+    "code": "A",
+    "text": "Sutradara",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_12",
+    "section": "occupations",
+    "code": "A",
+    "text": "Membuat komik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_13",
+    "section": "occupations",
+    "code": "A",
+    "text": "Artis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_14",
+    "section": "occupations",
+    "code": "A",
+    "text": "Penyanyi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_a_15",
+    "section": "occupations",
+    "code": "A",
+    "text": "Penari",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_01",
+    "section": "occupations",
+    "code": "S",
+    "text": "Konsultan Karier",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_02",
+    "section": "occupations",
+    "code": "S",
+    "text": "Pekerja sosial",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_03",
+    "section": "occupations",
+    "code": "S",
+    "text": "Guru Sekolah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_04",
+    "section": "occupations",
+    "code": "S",
+    "text": "Terapis adiksi narkoba",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_05",
+    "section": "occupations",
+    "code": "S",
+    "text": "Psikolog Klinis",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_06",
+    "section": "occupations",
+    "code": "S",
+    "text": "Konselor kesehatan mental",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_07",
+    "section": "occupations",
+    "code": "S",
+    "text": "Penasihat pribadi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_08",
+    "section": "occupations",
+    "code": "S",
+    "text": "Psikiater",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_09",
+    "section": "occupations",
+    "code": "S",
+    "text": "Kepala taman kanak-kanak",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_10",
+    "section": "occupations",
+    "code": "S",
+    "text": "Pengajar privat",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_11",
+    "section": "occupations",
+    "code": "S",
+    "text": "Pendamping anak berkebutuhan khusus",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_12",
+    "section": "occupations",
+    "code": "S",
+    "text": "Relawan panti asuhan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_13",
+    "section": "occupations",
+    "code": "S",
+    "text": "Relawan siaga Bencana",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_14",
+    "section": "occupations",
+    "code": "S",
+    "text": "Penyuluh Kesehatan Keluarga",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_s_15",
+    "section": "occupations",
+    "code": "S",
+    "text": "Dokter",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_01",
+    "section": "occupations",
+    "code": "E",
+    "text": "Perwakilan Perusahaan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_02",
+    "section": "occupations",
+    "code": "E",
+    "text": "Sales Manager",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_03",
+    "section": "occupations",
+    "code": "E",
+    "text": "Staf Public Relation",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_04",
+    "section": "occupations",
+    "code": "E",
+    "text": "Staf kedutaan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_05",
+    "section": "occupations",
+    "code": "E",
+    "text": "Pemilik usaha mikro",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_06",
+    "section": "occupations",
+    "code": "E",
+    "text": "Marketing",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_07",
+    "section": "occupations",
+    "code": "E",
+    "text": "Manajer minimarket",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_08",
+    "section": "occupations",
+    "code": "E",
+    "text": "Manajer stasiun TV",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_09",
+    "section": "occupations",
+    "code": "E",
+    "text": "Anggota DPR",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_10",
+    "section": "occupations",
+    "code": "E",
+    "text": "Pemimpin Perusahaan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_11",
+    "section": "occupations",
+    "code": "E",
+    "text": "Manajer Sumber Daya Manusia",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_12",
+    "section": "occupations",
+    "code": "E",
+    "text": "Pemimpin daerah",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_13",
+    "section": "occupations",
+    "code": "E",
+    "text": "Manager marketing",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_14",
+    "section": "occupations",
+    "code": "E",
+    "text": "Pengawas (supervisor)",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_e_15",
+    "section": "occupations",
+    "code": "E",
+    "text": "Ketua tim konsultan politik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_01",
+    "section": "occupations",
+    "code": "C",
+    "text": "Staf Administrasi Perkantoran",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_02",
+    "section": "occupations",
+    "code": "C",
+    "text": "Pemeriksa Keuangan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_03",
+    "section": "occupations",
+    "code": "C",
+    "text": "Akuntan Publik",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_04",
+    "section": "occupations",
+    "code": "C",
+    "text": "Teller Bank",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_05",
+    "section": "occupations",
+    "code": "C",
+    "text": "Ahli Pajak",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_06",
+    "section": "occupations",
+    "code": "C",
+    "text": "Analis keuangan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_07",
+    "section": "occupations",
+    "code": "C",
+    "text": "Pustakawan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_08",
+    "section": "occupations",
+    "code": "C",
+    "text": "Staf Akuntan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_09",
+    "section": "occupations",
+    "code": "C",
+    "text": "Staf audit",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_10",
+    "section": "occupations",
+    "code": "C",
+    "text": "Pengolah data base",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_11",
+    "section": "occupations",
+    "code": "C",
+    "text": "Pelaksana Tugas Tata Usaha",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_12",
+    "section": "occupations",
+    "code": "C",
+    "text": "Bendahara",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_13",
+    "section": "occupations",
+    "code": "C",
+    "text": "Sekretaris Pribadi",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_14",
+    "section": "occupations",
+    "code": "C",
+    "text": "Notulis rapat",
+    "scoringType": "binary"
+  },
+  {
+    "id": "occ_c_15",
+    "section": "occupations",
+    "code": "C",
+    "text": "Petugas keuangan",
+    "scoringType": "binary"
+  },
+  {
+    "id": "self_r_teknik_mekanis",
+    "section": "selfEstimates",
+    "code": "R",
+    "text": "Teknik Mekanis",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_i_ilmu_pengetahuan_sains",
+    "section": "selfEstimates",
+    "code": "I",
+    "text": "Ilmu pengetahuan/ sains",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_a_seni_artistik",
+    "section": "selfEstimates",
+    "code": "A",
+    "text": "Seni / Artistik",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_s_bergaul",
+    "section": "selfEstimates",
+    "code": "S",
+    "text": "Bergaul",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_e_menjual",
+    "section": "selfEstimates",
+    "code": "E",
+    "text": "Menjual",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_c_mengarsipkan",
+    "section": "selfEstimates",
+    "code": "C",
+    "text": "Mengarsipkan",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_r_keterampilan_tangan",
+    "section": "selfEstimates",
+    "code": "R",
+    "text": "Keterampilan tangan",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_i_matematika",
+    "section": "selfEstimates",
+    "code": "I",
+    "text": "Matematika",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_a_musik",
+    "section": "selfEstimates",
+    "code": "A",
+    "text": "Musik",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_s_memahami_orang_lain",
+    "section": "selfEstimates",
+    "code": "S",
+    "text": "Memahami orang lain",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_e_mengorganisasikan",
+    "section": "selfEstimates",
+    "code": "E",
+    "text": "Mengorganisasikan",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  },
+  {
+    "id": "self_c_administrasi",
+    "section": "selfEstimates",
+    "code": "C",
+    "text": "Administrasi",
+    "scoringType": "rating",
+    "minValue": 1,
+    "maxValue": 10
+  }
+]

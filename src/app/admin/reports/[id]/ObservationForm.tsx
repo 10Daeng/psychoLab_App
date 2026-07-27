@@ -8,7 +8,9 @@ export default function ObservationForm({ initialData, onSave }: { initialData: 
   // Parse initialData (bisa string biasa peninggalan lama, atau JSON string)
   let parsed = { notes: '', observation: {} as any, interview: {} as any };
   try {
-    if (initialData && typeof initialData === 'string' && initialData.startsWith('{')) {
+    if (initialData && typeof initialData === 'object') {
+      parsed = { ...parsed, ...initialData };
+    } else if (initialData && typeof initialData === 'string' && initialData.startsWith('{')) {
       parsed = JSON.parse(initialData);
     } else {
       parsed.notes = initialData || '';

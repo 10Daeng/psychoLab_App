@@ -2,12 +2,10 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
 const generateTokenString = (prefix: string) => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `${prefix}-${result}`;
+  const array = new Uint8Array(4);
+  crypto.getRandomValues(array);
+  const randomStr = Array.from(array, byte => byte.toString(36).padStart(2, '0')).join('').substring(0, 6).toUpperCase();
+  return `${prefix}-${randomStr}`;
 };
 
 export async function POST(request: Request) {
@@ -124,6 +122,6 @@ export async function POST(request: Request) {
 
   } catch (err: any) {
     console.error('generate-paired-token error:', err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Terjadi kesalahan internal saat membuat token.' }, { status: 500 });
   }
 }

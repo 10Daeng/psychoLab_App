@@ -36,20 +36,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Test Code tidak valid" }, { status: 400 });
     }
 
-    // Buat sesi Test Results
-    const { data: testResult, error: resultError } = await supabase
+    // Cek Idempotency: Mencegah duplikasi data jika tombol ditekan berkali-kali
+    const { data: existingResult } = await supabase
       .from("test_results")
-      .insert({
-        client_id: client_id,
-        test_id: testData.id,
-        token_id: token_id,
-        start_time: new Date().toISOString(),
-        raw_data: []
-      })
-      .select("id")
-      .single();
+      .select("id, end_time")
+      .eq("token_id", token_id)
+      .eq("test_id", testData.id)
+      .maybeSingle();
 
-    if (resultError) throw resultError;
+    let testResultId = null;
+
+    if (existingResult) {
+      if (existingResult.end_time) {
+        return NextResponse.json({ error: "Tes ini sudah diselesaikan." }, { status: 400 });
+      }
+      testResultId = existingResult.id;
+    } else {
+      // Buat sesi Test Results
+      const { data: newTestResult, error: resultError } = await supabase
+        .from("test_results")
+        .insert({
+          client_id: client_id,
+          test_id: testData.id,
+          token_id: token_id,
+          start_time: new Date().toISOString(),
+          raw_data: []
+        })
+        .select("id")
+        .single();
+
+      if (resultError) throw resultError;
+      testResultId = newTestResult.id;
+    }
 
     // Update token status
     await supabase
@@ -57,7 +75,7 @@ export async function POST(request: Request) {
       .update({ is_used: true, client_id: client_id, status: 'IN_PROGRESS' })
       .eq("id", token_id);
 
-    return NextResponse.json({ success: true, test_result_id: testResult.id });
+    return NextResponse.json({ success: true, test_result_id: testResultId });
     
   } catch (err: any) {
     console.error("start-test error:", err);

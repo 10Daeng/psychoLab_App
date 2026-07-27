@@ -29,7 +29,7 @@ export default function LenteraReportPage() {
     try {
       const { data: tokenData, error } = await supabase
         .from("tokens")
-        .select("*, clients(*)")
+        .select("*, clients(*), observations(*)")
         .eq("id", reportId)
         .single();
 

@@ -2,15 +2,17 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { saveResultSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
   try {
-    const payload = await request.json();
-    const { test_result_id, resultsLog } = payload;
-
-    if (!test_result_id || !resultsLog) {
-      return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
+    const body = await request.json();
+    const parseResult = saveResultSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json({ error: parseResult.error.errors[0].message }, { status: 400 });
     }
+    const payload = parseResult.data;
+    const { test_result_id, resultsLog } = payload;
 
     // 1. Ambil data current test_result untuk mengetahui test_id dan token_id
     const { data: currentTestResult, error: fetchErr } = await supabase
@@ -71,7 +73,10 @@ export async function POST(request: Request) {
         
       const testIds = parentQTest ? [parentQTest.id] : [];
 
-      parentTokenCode = "PRT-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+      const array = new Uint8Array(4);
+      crypto.getRandomValues(array);
+      const randomHex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('').substring(0, 6).toUpperCase();
+      parentTokenCode = "PRT-" + randomHex;
       
       await supabase
         .from('tokens')

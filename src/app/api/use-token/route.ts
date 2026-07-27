@@ -1,12 +1,35 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
+import { z } from "zod";
+
+const startTestSchema = z.object({
+  token_id: z.string().uuid("ID Token tidak valid")
+});
 
 export async function POST(request: Request) {
   try {
-    const { token_id } = await request.json();
+    const body = await request.json();
+    const parseResult = startTestSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json({ success: false, error: parseResult.error.errors[0].message }, { status: 400 });
+    }
+    const { token_id } = parseResult.data;
 
-    if (!token_id) {
-      return NextResponse.json({ success: false, error: "Token ID required" }, { status: 400 });
+    // Proteksi IDOR: Pastikan user memiliki sesi untuk token ini
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("client_session");
+    if (!sessionCookie) return NextResponse.json({ success: false, error: "Sesi tidak valid." }, { status: 401 });
+    
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || "");
+      const { payload: jwtPayload } = await jwtVerify(sessionCookie.value, secret);
+      if (jwtPayload.token_id !== token_id) {
+        return NextResponse.json({ success: false, error: "Akses ditolak." }, { status: 403 });
+      }
+    } catch (e) {
+      return NextResponse.json({ success: false, error: "Sesi tidak valid." }, { status: 401 });
     }
 
     // Mengunci token (is_used = true, status = IN_PROGRESS)
@@ -22,11 +45,21 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      console.error('use-token db error:', error);
+      return NextResponse.json({ success: false, error: "Gagal memulai tes." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, token: data });
+    // Filter token data before returning to client (don't send notes or sensitive info)
+    const safeData = {
+      id: data.id,
+      token_code: data.token_code,
+      status: data.status,
+      purpose: data.purpose
+    };
+
+    return NextResponse.json({ success: true, token: safeData });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    console.error('use-token error:', err);
+    return NextResponse.json({ success: false, error: "Terjadi kesalahan internal." }, { status: 500 });
   }
 }

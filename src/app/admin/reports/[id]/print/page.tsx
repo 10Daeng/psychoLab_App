@@ -31,7 +31,7 @@ export default function PrintReportPage() {
       try {
         const { data: tokenData, error: tokenErr } = await supabase
           .from("tokens")
-          .select("*, clients(*)")
+          .select("*, clients(*), observations(*)")
           .eq("id", reportId)
           .single();
         
@@ -85,9 +85,17 @@ export default function PrintReportPage() {
                    || riasecResult?.calculated_score?.ai_narrative 
                    || null;
 
+  const initialObs = report.observations?.[0] || report.observations;
   let notesData = { isJson: false, notes: report.psychologist_notes || "", obs: {} as any, inv: {} as any };
   try {
-    if (report.psychologist_notes?.startsWith('{')) {
+    if (initialObs) {
+      notesData = { 
+        isJson: true, 
+        notes: initialObs.notes || "", 
+        obs: initialObs.observation_data || {}, 
+        inv: initialObs.interview_data || {} 
+      };
+    } else if (report.psychologist_notes?.startsWith('{')) {
       const parsed = JSON.parse(report.psychologist_notes);
       notesData = { isJson: true, notes: parsed.notes, obs: parsed.observation || {}, inv: parsed.interview || {} };
     }

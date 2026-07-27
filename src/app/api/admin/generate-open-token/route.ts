@@ -22,11 +22,13 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      console.error("generate-open-token db error:", error);
+      return NextResponse.json({ success: false, error: "Gagal membuat token di database." }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, token: data });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("generate-open-token error:", error);
+    return NextResponse.json({ success: false, error: "Terjadi kesalahan internal." }, { status: 500 });
   }
 }

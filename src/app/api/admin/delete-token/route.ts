@@ -16,11 +16,13 @@ export async function DELETE(request: Request) {
       .eq('id', id);
 
     if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      console.error('delete-token db error:', error);
+      return NextResponse.json({ success: false, error: 'Gagal menghapus token di database.' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: "Token berhasil dihapus" });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('delete-token error:', error);
+    return NextResponse.json({ success: false, error: 'Terjadi kesalahan internal.' }, { status: 500 });
   }
 }

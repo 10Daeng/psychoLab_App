@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { saveBiodataSchema } from "@/lib/validations";
 
 export async function POST(request: Request) {
   try {
-    const payload = await request.json();
+    const body = await request.json();
+    const parseResult = saveBiodataSchema.safeParse(body);
+    if (!parseResult.success) {
+      return NextResponse.json({ error: parseResult.error.errors[0].message }, { status: 400 });
+    }
+    const payload = parseResult.data;
     const { token_id, client_id, name, birth_date, gender, school_or_institution, grade, parent_name, parent_phone, address, registration_number, test_registration_number, target_institution, test_purpose, birth_place, birth_order, special_needs, parent_job, parent_education } = payload;
 
     const cookieStore = await cookies();
@@ -22,9 +28,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Sesi tidak valid atau telah kedaluwarsa." }, { status: 401 });
     }
 
-    if (!token_id || !name || !birth_date) {
-      return NextResponse.json({ error: "Data wajib (Nama, Tanggal Lahir) tidak lengkap" }, { status: 400 });
-    }
 
     let finalClient: any;
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
+import { loginSchema } from '@/lib/validations';
 
 // Basic in-memory rate limiter for login
 const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
@@ -20,11 +21,14 @@ export async function POST(request: Request) {
       rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 }); // 1 menit
     }
 
-    const { password } = await request.json();
+    const body = await request.json();
+    const parseResult = loginSchema.safeParse(body);
     
-    if (!password) {
-      return NextResponse.json({ success: false, error: 'Password is required' }, { status: 400 });
+    if (!parseResult.success) {
+      return NextResponse.json({ success: false, error: parseResult.error.errors[0].message }, { status: 400 });
     }
+
+    const { password } = parseResult.data;
 
     const correctPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const jwtSecret = process.env.JWT_SECRET;

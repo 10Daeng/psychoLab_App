@@ -13,7 +13,6 @@
     "@supabase/supabase-js": "^2.109.0",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.42.2",
-    "html2canvas": "^1.4.1",
     "html2canvas-pro": "^2.2.3",
     "jose": "^6.2.4",
     "jspdf": "^4.2.1",
@@ -25,7 +24,8 @@
     "react-hot-toast": "^2.6.0",
     "react-to-print": "^3.3.0",
     "recharts": "^3.9.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

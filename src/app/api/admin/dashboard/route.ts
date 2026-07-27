@@ -16,8 +16,10 @@ export async function GET() {
         clients (name)
       `)
       .order("created_at", { ascending: false });
-
-    if (tokensError) throw tokensError;
+    if (tokensError) {
+      console.error('dashboard db error:', tokensError);
+      throw new Error('Gagal mengambil data dashboard');
+    }
 
     // 3. Olah data agregat
     let completedCount = 0;
@@ -78,6 +80,7 @@ export async function GET() {
       recentActivity
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('dashboard error:', error);
+    return NextResponse.json({ success: false, error: 'Terjadi kesalahan internal.' }, { status: 500 });
   }
 }

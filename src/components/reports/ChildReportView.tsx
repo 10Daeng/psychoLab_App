@@ -11,7 +11,12 @@ const config = { label: "Anak", color: "orange", accent: "bg-orange-500", light:
 
 export default function ChildReportView({ report, testResults }: { report: any, testResults: any[] }) {
   const [activeTab, setActiveTab] = useState<"profile" | "cognitive" | "parentq" | "ai" | "notes">("profile");
-  const [notes, setNotes] = useState(report?.psychologist_notes || "");
+  
+  const initialObs = report?.observations?.[0] || report?.observations; // handles array or object depending on select statement
+  const initialNotesString = initialObs 
+    ? JSON.stringify({ notes: initialObs.notes || "", observation: initialObs.observation_data || {}, interview: initialObs.interview_data || {} }) 
+    : (report?.psychologist_notes || "");
+  const [notes, setNotes] = useState(initialNotesString);
   const [aiNarrative, setAiNarrative] = useState<any>(null);
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiError, setAiError] = useState("");

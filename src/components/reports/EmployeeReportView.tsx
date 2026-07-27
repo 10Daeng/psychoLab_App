@@ -12,7 +12,12 @@ const config = { label: "Karyawan", color: "violet", accent: "bg-violet-600", li
 
 export default function EmployeeReportView({ report, testResults }: { report: any, testResults: any[] }) {
   const [activeTab, setActiveTab] = useState<"profile" | "cognitive" | "personality" | "ai" | "notes">("profile");
-  const [notes, setNotes] = useState(report?.psychologist_notes || "");
+  
+  const initialObs = report?.observations?.[0] || report?.observations;
+  const initialNotesString = initialObs 
+    ? JSON.stringify({ notes: initialObs.notes || "", observation: initialObs.observation_data || {}, interview: initialObs.interview_data || {} }) 
+    : (report?.psychologist_notes || "");
+  const [notes, setNotes] = useState(initialNotesString);
   const [aiNarrative, setAiNarrative] = useState<any>(null);
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiError, setAiError] = useState("");

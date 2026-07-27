@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, KeySquare, Users, FileBarChart2, Menu, X, Rocket, ShieldAlert, LogOut, Activity } from "lucide-react";
+import { Home, KeySquare, Users, FileBarChart2, Menu, X, Rocket, ShieldAlert, LogOut, Activity, ClipboardCheck } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -34,6 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       links: [
         { href: "/admin/clients/list/child", icon: <Users className="w-4 h-4" />, label: "Direktori Klien" },
         { href: "/admin/reports/list/child", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan Asesmen" },
+        { href: "/admin/observation/child", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi & Wawancara" },
         { href: "/admin/tracking", icon: <Activity className="w-4 h-4" />, label: "Tracking Progres Ortu" },
       ]
     },
@@ -42,6 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       links: [
         { href: "/admin/clients/list/student", icon: <Users className="w-4 h-4" />, label: "Direktori Klien" },
         { href: "/admin/reports/list/student", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan Asesmen" },
+        { href: "/admin/observation/student", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi & Wawancara" },
       ]
     },
     {
@@ -49,6 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       links: [
         { href: "/admin/clients/list/employee", icon: <Users className="w-4 h-4" />, label: "Direktori Klien" },
         { href: "/admin/reports/list/employee", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan Asesmen" },
+        { href: "/admin/observation/employee", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi & Wawancara" },
       ]
     }
   ];

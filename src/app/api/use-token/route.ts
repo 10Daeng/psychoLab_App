@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const parseResult = startTestSchema.safeParse(body);
     if (!parseResult.success) {
-      return NextResponse.json({ success: false, error: parseResult.error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ success: false, error: parseResult.error.issues[0].message }, { status: 400 });
     }
     const { token_id } = parseResult.data;
 

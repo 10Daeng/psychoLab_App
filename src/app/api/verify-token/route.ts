@@ -2,8 +2,24 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { SignJWT } from "jose";
 
+// Rate limiter untuk mencegah brute-force token
+const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
+
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1';
+    const now = Date.now();
+    const limitRecord = rateLimitMap.get(ip);
+    
+    if (limitRecord && now < limitRecord.resetTime) {
+      if (limitRecord.count >= 10) {
+        return NextResponse.json({ error: 'Terlalu banyak percobaan. Silakan coba lagi dalam 1 menit.' }, { status: 429 });
+      }
+      limitRecord.count += 1;
+    } else {
+      rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+    }
+
     const payload = await request.json();
     const { token } = payload;
 
@@ -48,12 +64,23 @@ export async function POST(request: Request) {
         .setExpirationTime('12h')
         .sign(secret);
 
+      // Filter data klien: hanya kirim field yang dibutuhkan frontend
+      const clientData = tokenData.client as any;
+      const safeClient = {
+        id: clientData.id,
+        name: clientData.name,
+        birth_date: clientData.birth_date,
+        gender: clientData.gender,
+        school_or_institution: clientData.school_or_institution,
+        grade: clientData.grade,
+      };
+
       const response = NextResponse.json({
         success: true,
         type: "CLOSED",
         token_id: tokenData.id,
         test_code: testCode,
-        client: tokenData.client,
+        client: safeClient,
         status: tokenData.status
       });
 

@@ -35,10 +35,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Tes tidak ditemukan' }, { status: 404 });
     }
 
-    // 2. Dapatkan Soal tanpa kolom sensitif correct_answer
+    // 2. Dapatkan Soal tanpa kolom sensitif (correct_answer, scoring_key)
     const { data: questions, error } = await supabase
       .from('questions')
-      .select('id, question_number, question_text, image_url, response_options, question_category, scoring_key')
+      .select('id, question_number, question_text, image_url, response_options, question_category')
       .eq('questionnaire_id', qData.id)
       .order('question_number', { ascending: true });
 

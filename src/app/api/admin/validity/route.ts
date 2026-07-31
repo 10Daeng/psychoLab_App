@@ -95,6 +95,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, data: formattedData });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('validity error:', error);
+    return NextResponse.json({ success: false, error: 'Terjadi kesalahan internal.' }, { status: 500 });
   }
 }

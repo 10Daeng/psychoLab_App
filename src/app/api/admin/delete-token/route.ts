@@ -10,6 +10,12 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: "ID token tidak diberikan" }, { status: 400 });
     }
 
+    // Validasi format UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json({ success: false, error: "Format ID tidak valid" }, { status: 400 });
+    }
+
     const { error } = await supabaseAdmin
       .from('tokens')
       .delete()

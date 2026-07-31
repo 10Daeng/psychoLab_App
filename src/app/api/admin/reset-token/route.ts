@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ success: true, message: "Token berhasil di-reset ke status PENDING!" });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error('reset-token error:', error);
+    return NextResponse.json({ success: false, error: 'Terjadi kesalahan internal.' }, { status: 500 });
   }
 }

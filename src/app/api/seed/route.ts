@@ -1,8 +1,23 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { jwtVerify } from 'jose';
+import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
+    // Proteksi: Hanya admin yang bisa seed database
+    const cookieStore = await cookies();
+    const session = cookieStore.get('admin_session');
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
+      await jwtVerify(session.value, secret);
+    } catch (e) {
+      return NextResponse.json({ success: false, error: 'Sesi tidak valid.' }, { status: 401 });
+    }
+
     let { data } = await supabase.from('tests').select('*').eq('code', 'PARENT_Q').single();
     if (!data) {
       const { data: inserted, error } = await supabase.from('tests').insert({
@@ -18,6 +33,6 @@ export async function GET() {
     }
     return NextResponse.json({ success: true, message: 'PARENT_Q already exists', data });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Terjadi kesalahan internal.' }, { status: 500 });
   }
 }

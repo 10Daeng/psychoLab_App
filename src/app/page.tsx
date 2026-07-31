@@ -27,14 +27,22 @@ export default function Home() {
         throw new Error(data.error || "Token tidak valid");
       }
 
-      // Simpan konteks token sementara di session storage
+      // Simpan konteks token sementara di session storage (hanya data non-sensitif)
       sessionStorage.setItem("current_token_id", data.token_id);
       sessionStorage.setItem("token_code", token.toUpperCase());
       sessionStorage.setItem("test_code", data.test_code);
-      sessionStorage.setItem("token_type", data.type); // Disimpan untuk dipakai di halaman warning
+      sessionStorage.setItem("token_type", data.type);
 
-      if (data.type === "CLOSED") {
-        sessionStorage.setItem("client_data", JSON.stringify(data.client));
+      if (data.type === "CLOSED" && data.client) {
+        // Hanya simpan field yang dibutuhkan untuk display, bukan seluruh objek klien
+        const safeClientData = {
+          id: data.client.id,
+          name: data.client.name,
+          birth_date: data.client.birth_date,
+          gender: data.client.gender,
+        };
+        sessionStorage.setItem("client_data", JSON.stringify(safeClientData));
+        sessionStorage.setItem("client_name", data.client.name);
       }
 
       // Jalur khusus Kuesioner Orang Tua

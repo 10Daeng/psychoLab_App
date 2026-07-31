@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { jwtVerify } from 'jose';
+import { cookies } from 'next/headers';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -172,6 +174,19 @@ Kembalikan respon murni dalam format JSON (tanpa markdown). Struktur JSON HANYA 
 
 export async function POST(req: Request) {
   try {
+    // Proteksi: Hanya admin yang bisa memanggil AI narrative
+    const cookieStore = await cookies();
+    const session = cookieStore.get('admin_session');
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
+      await jwtVerify(session.value, secret);
+    } catch (e) {
+      return NextResponse.json({ error: 'Sesi tidak valid atau kedaluwarsa.' }, { status: 401 });
+    }
+
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
         { error: 'GEMINI_API_KEY belum dikonfigurasi di environment variables.' },

@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect client test routes
-  if (pathname.startsWith('/test') || pathname.startsWith('/biodata') || pathname.startsWith('/parent-q')) {
+  if (pathname.startsWith('/test') || pathname.startsWith('/biodata') || pathname.startsWith('/parent-q') || pathname === '/warning' || pathname === '/selesai') {
     const session = request.cookies.get('client_session');
     let isValid = false;
     
@@ -79,5 +79,7 @@ export const config = {
     '/test/:path*',
     '/biodata/:path*',
     '/parent-q/:path*',
+    '/warning',
+    '/selesai',
   ],
 };

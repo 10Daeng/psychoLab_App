@@ -1,7 +1,21 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("client_session");
+  if (!sessionCookie) {
+    return NextResponse.json({ error: "Sesi tidak valid. Akses ditolak." }, { status: 401 });
+  }
+  
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || "");
+    await jwtVerify(sessionCookie.value, secret);
+  } catch (e) {
+    return NextResponse.json({ error: "Sesi tidak valid atau telah kedaluwarsa." }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   

@@ -21,9 +21,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Sesi tidak valid atau telah kedaluwarsa." }, { status: 401 });
     }
 
-    if (!token_id || !client_id) {
+    if (!token_id) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
     }
+
+    // AMBIL token data dari database untuk mendapatkan client_id yang sah
+    const { data: tokenData, error: tokenError } = await supabase
+      .from("tokens")
+      .select("client_id")
+      .eq("id", token_id)
+      .single();
+      
+    if (tokenError || !tokenData || !tokenData.client_id) {
+      return NextResponse.json({ error: "Token tidak valid atau belum terhubung dengan peserta." }, { status: 404 });
+    }
+    
+    const validClientId = tokenData.client_id;
 
     // Cari test_id dari test_code
     const { data: testData } = await supabase
@@ -56,7 +69,7 @@ export async function POST(request: Request) {
       const { data: newTestResult, error: resultError } = await supabase
         .from("test_results")
         .insert({
-          client_id: client_id,
+          client_id: validClientId,
           test_id: testData.id,
           token_id: token_id,
           start_time: new Date().toISOString(),
@@ -72,7 +85,7 @@ export async function POST(request: Request) {
     // Update token status
     await supabase
       .from("tokens")
-      .update({ is_used: true, client_id: client_id, status: 'IN_PROGRESS' })
+      .update({ is_used: true, status: 'IN_PROGRESS' })
       .eq("id", token_id);
 
     return NextResponse.json({ success: true, test_result_id: testResultId });

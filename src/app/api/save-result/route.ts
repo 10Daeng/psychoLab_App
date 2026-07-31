@@ -9,15 +9,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const parseResult = saveResultSchema.safeParse(body);
     if (!parseResult.success) {
-      return NextResponse.json({ error: parseResult.error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ error: parseResult.error.issues[0].message }, { status: 400 });
     }
     const payload = parseResult.data;
     const { test_result_id, resultsLog } = payload;
 
-    // 1. Ambil data current test_result untuk mengetahui test_id dan token_id
+    // 1. Ambil data current test_result beserta data client untuk mencegah manipulasi umur
     const { data: currentTestResult, error: fetchErr } = await supabase
       .from('test_results')
-      .select('token_id, client_id, test_id, tests(code)')
+      .select('token_id, client_id, test_id, tests(code), client:clients(*)')
       .eq('id', test_result_id)
       .single();
 
@@ -46,8 +46,9 @@ export async function POST(request: Request) {
     const { EngineFactory } = await import("@/lib/engines/engine_factory");
     const engine = EngineFactory.getEngine(testCode);
     
-    // Asumsi payload memiliki data client untuk perhitungan umur
-    const assessmentResult = await engine.calculateScores(resultsLog, payload.clientData);
+    // Gunakan data client dari database untuk mencegah manipulasi umur (Data Tampering)
+    const validClientData = currentTestResult.client;
+    const assessmentResult = await engine.calculateScores(resultsLog, validClientData);
 
     // 3. Update Test Results yang sudah dibuat saat start (verify-token)
     const { error: resultError } = await supabase

@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const parseResult = saveBiodataSchema.safeParse(body);
     if (!parseResult.success) {
-      return NextResponse.json({ error: parseResult.error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ error: parseResult.error.issues[0].message }, { status: 400 });
     }
     const payload = parseResult.data;
     const { token_id, client_id, name, birth_date, gender, school_or_institution, grade, parent_name, parent_phone, address, registration_number, test_registration_number, target_institution, test_purpose, birth_place, birth_order, special_needs, parent_job, parent_education } = payload;
@@ -31,14 +31,27 @@ export async function POST(request: Request) {
 
     let finalClient: any;
 
-    if (client_id) {
+    // AMBIL token data dari database untuk mendapatkan client_id yang sah
+    const { data: tokenData, error: tokenError } = await supabase
+      .from("tokens")
+      .select("client_id")
+      .eq("id", token_id)
+      .single();
+      
+    if (tokenError || !tokenData) {
+      return NextResponse.json({ error: "Token tidak valid atau tidak ditemukan." }, { status: 404 });
+    }
+
+    const validClientId = tokenData.client_id;
+
+    if (validClientId) {
       // Update Klien Lama (Revisi/Edit)
       const { data, error } = await supabase
         .from("clients")
         .update({
           name, birth_date, gender, school_or_institution, grade, parent_name, parent_phone, address, registration_number, test_registration_number, target_institution, test_purpose, birth_place, birth_order, special_needs, parent_job, parent_education
         })
-        .eq("id", client_id)
+        .eq("id", validClientId)
         .select("*")
         .single();
       if (error) throw error;

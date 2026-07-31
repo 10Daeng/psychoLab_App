@@ -47,6 +47,28 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Protect client test routes
+  if (pathname.startsWith('/test') || pathname.startsWith('/biodata') || pathname.startsWith('/parent-q')) {
+    const session = request.cookies.get('client_session');
+    let isValid = false;
+    
+    if (session && session.value) {
+      try {
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET || '');
+        await jwtVerify(session.value, secret);
+        isValid = true;
+      } catch (err) {
+        isValid = false;
+      }
+    }
+    
+    if (!isValid) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+  }
+
   return NextResponse.next();
 }
 
@@ -54,5 +76,8 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/api/admin/:path*',
+    '/test/:path*',
+    '/biodata/:path*',
+    '/parent-q/:path*',
   ],
 };

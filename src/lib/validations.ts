@@ -9,7 +9,7 @@ export const saveBiodataSchema = z.object({
   client_id: z.string().uuid("ID Klien tidak valid").optional(),
   name: z.string().min(2, "Nama terlalu pendek").max(100, "Nama terlalu panjang"),
   birth_date: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Format tanggal tidak valid" }),
-  gender: z.enum(["L", "P"], { errorMap: () => ({ message: "Jenis kelamin harus L atau P" }) }).optional().nullable(),
+  gender: z.enum(["L", "P"], { message: "Jenis kelamin harus L atau P" }).optional().nullable(),
   school_or_institution: z.string().optional().nullable(),
   grade: z.string().optional().nullable(),
   parent_name: z.string().optional().nullable(),

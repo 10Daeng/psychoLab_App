@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import { Download, ArrowLeft } from "lucide-react";
 
 import ChildReportView from "@/components/reports/ChildReportView";
@@ -27,25 +26,18 @@ export default function LenteraReportPage() {
 
   const fetchReport = useCallback(async () => {
     try {
-      const { data: tokenData, error } = await supabase
-        .from("tokens")
-        .select("*, clients(*), observations(*)")
-        .eq("id", reportId)
-        .single();
+      const res = await fetch(`/api/admin/reports/${reportId}`);
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error);
 
-      if (error) throw error;
-      setReport(tokenData);
+      setReport(data.report);
 
-      const tokenCode = tokenData?.token_code || "";
+      const tokenCode = data.report?.token_code || "";
       const seg: "CHI" | "STU" | "EMP" = tokenCode.startsWith("CHI-") ? "CHI" : tokenCode.startsWith("STU-") ? "STU" : "EMP";
       setSegment(seg);
 
-      const { data: results } = await supabase
-        .from("test_results")
-        .select("*, tests(code, name)")
-        .eq("token_id", reportId);
-
-      setTestResults(results || []);
+      setTestResults(data.testResults || []);
 
     } catch (err) {
       console.error("Failed to fetch report:", err);

@@ -1,0 +1,54 @@
+import { NextResponse } from 'next/server';
+import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { cookies } from 'next/headers';
+
+export async function GET(req: Request) {
+  try {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('admin_session');
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const purpose = searchParams.get('purpose');
+
+    if (!purpose) {
+      return NextResponse.json({ error: 'Purpose is required' }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*, tokens(id, token_code, status, respondent_type)')
+      .eq('test_purpose', purpose)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('admin_session');
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const data = await req.json();
+
+    const { error } = await supabase
+      .from('clients')
+      .insert(data);
+
+    if (error) throw error;
+    
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from 'next/navigation';
-import { supabase } from "@/lib/supabase";
 import { Users, Upload, Download, CheckCircle, Search, Plus, X, RefreshCw } from "lucide-react";
 import * as XLSX from 'xlsx';
 
@@ -43,16 +42,17 @@ export default function AdminClients() {
 
   const fetchClients = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*, tokens(id, token_code, status, respondent_type)')
-      .eq('test_purpose', currentPurpose)
-      .order('created_at', { ascending: false });
-      
-    if (!error && data) {
+    try {
+      const res = await fetch(`/api/admin/clients?purpose=${currentPurpose}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
       setClients(data);
+    } catch (err: any) {
+      console.error(err);
+      alert("Gagal memuat klien: " + err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleDownloadTemplate = () => {
@@ -116,8 +116,13 @@ export default function AdminClients() {
           test_purpose: currentPurpose
         }));
 
-        const { error } = await supabase.from('clients').insert(insertData);
-        if (error) throw error;
+        const res = await fetch('/api/admin/clients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(insertData)
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Gagal menyimpan data');
         
         alert(`Berhasil mengunggah ${insertData.length} data klien!`);
         fetchClients();
@@ -137,20 +142,24 @@ export default function AdminClients() {
 
     setIsUploading(true);
     try {
-      const { error } = await supabase.from('clients').insert([{
-        name: formData.name,
-        registration_number: formData.registration_number || null,
-        gender: formData.gender || null,
-        birth_place: formData.birth_place || null,
-        birth_date: formData.birth_date || null,
-        school_or_institution: formData.school_or_institution || null,
-        grade: formData.grade || null,
-        parent_name: formData.parent_name || null,
-        parent_phone: formData.parent_phone || null,
-        test_purpose: currentPurpose
-      }]);
-      
-      if (error) throw error;
+      const res = await fetch('/api/admin/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([{
+          name: formData.name,
+          registration_number: formData.registration_number || null,
+          gender: formData.gender || null,
+          birth_place: formData.birth_place || null,
+          birth_date: formData.birth_date || null,
+          school_or_institution: formData.school_or_institution || null,
+          grade: formData.grade || null,
+          parent_name: formData.parent_name || null,
+          parent_phone: formData.parent_phone || null,
+          test_purpose: currentPurpose
+        }])
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Gagal menambahkan klien');
       
       alert('Klien berhasil ditambahkan!');
       setShowModal(false);

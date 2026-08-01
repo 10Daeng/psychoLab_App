@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 
 type TrackingRow = {
   childTokenId: string;
@@ -19,26 +18,14 @@ export default function TrackingDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // 1. Ambil data token anak (SELF)
-      const { data: childTokens, error: err1 } = await supabase
-        .from("tokens")
-        .select("id, token_code, status, clients(name)")
-        .eq("respondent_type", "SELF")
-        .eq("purpose", "CHILD")
-        .order("created_at", { ascending: false });
+      const res = await fetch('/api/admin/tracking');
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error);
 
-      if (err1) throw err1;
+      const { childTokens, parentTokens } = data;
 
-      // 2. Ambil data token orang tua (PARENT)
-      const { data: parentTokens, error: err2 } = await supabase
-        .from("tokens")
-        .select("id, token_code, status, parent_token_id")
-        .eq("respondent_type", "PARENT")
-        .eq("purpose", "CHILD");
-
-      if (err2) throw err2;
-
-      // 3. Gabungkan data
+      // Gabungkan data
       if (childTokens) {
         const merged: TrackingRow[] = childTokens.map((ct: any) => {
           const pt = parentTokens?.find((p: any) => p.parent_token_id === ct.id);

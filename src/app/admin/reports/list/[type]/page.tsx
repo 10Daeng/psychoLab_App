@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -63,31 +62,15 @@ export default function AdminReports() {
 
   useEffect(() => {
     async function fetchData() {
-      const { data: childTokens, error } = await supabase
-        .from("tokens")
-        .select(
-          "id, token_code, created_at, clients(*), status, respondent_type",
-        )
-        .eq("respondent_type", "SELF")
-        .eq("purpose", currentPurpose)
-        .order("created_at", { ascending: false });
+      try {
+        const res = await fetch(`/api/admin/reports?purpose=${currentPurpose}`);
+        const result = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(result.error);
+        }
 
-      if (error) {
-        console.error(error);
-        setLoading(false);
-        return;
-      }
-
-      const parentTokenIds = childTokens?.map((ct) => ct.id) || [];
-
-      let parentTokens: any[] = [];
-      if (parentTokenIds.length > 0) {
-        const { data } = await supabase
-          .from("tokens")
-          .select("id, parent_token_id, status")
-          .in("parent_token_id", parentTokenIds);
-        parentTokens = data || [];
-      }
+        const { childTokens, parentTokens } = result;
 
       const calculateAge = (birthDate: string) => {
         if (!birthDate) return "-";
@@ -98,8 +81,8 @@ export default function AdminReports() {
         return Math.abs(age.getUTCFullYear() - 1970);
       };
 
-      const merged = childTokens?.map((ct) => {
-        const pt = parentTokens?.find((p) => p.parent_token_id === ct.id);
+      const merged = childTokens?.map((ct: any) => {
+        const pt = parentTokens?.find((p: any) => p.parent_token_id === ct.id);
         const clientData = ct.clients as any;
         return {
           id: ct.id,
@@ -122,6 +105,10 @@ export default function AdminReports() {
 
       setData(merged || []);
       setLoading(false);
+      } catch (err: any) {
+        console.error("Failed to fetch reports:", err);
+        setLoading(false);
+      }
     }
     fetchData();
   }, [type]);

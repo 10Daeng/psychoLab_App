@@ -213,7 +213,7 @@ export default function Raven2TestPage() {
                  disabled={isSubmitting}
                  className="mt-8 w-full py-4 bg-green-600 text-white rounded-xl font-bold text-lg disabled:opacity-50 hover:bg-green-700 transition-colors shadow-lg"
                >
-                 {isSubmitting ? 'Menganalisis IQ...' : 'Selesaikan Tes'}
+                 {isSubmitting ? 'Menyimpan Jawaban...' : 'Selesaikan Tes'}
                </button>
             )}
           </div>

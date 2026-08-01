@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Search, ChevronRight, PenTool, CheckCircle2, Clock } from "lucide-react";
@@ -14,42 +13,32 @@ export default function DapIndexPage() {
 
   useEffect(() => {
     async function fetchData() {
-      // Ambil token khusus untuk anak (CPM/CHI)
-      const { data: childTokens, error } = await supabase
-        .from("tokens")
-        .select("id, token_code, created_at, clients(*), status")
-        .eq("respondent_type", "SELF")
-        .order("created_at", { ascending: false });
+      try {
+        const res = await fetch('/api/admin/dap');
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
 
-      if (error) {
-        console.error(error);
+        const { tokens, dapRecords } = data;
+        setDapRecords(dapRecords || []);
+
+        const merged = tokens?.filter((ct: any) => ct.token_code.startsWith("CHI-") || ct.token_code.startsWith("CPM-")).map((ct: any) => {
+          const clientData = ct.clients as any;
+          return {
+            id: ct.id,
+            name: clientData?.name || 'Anonim',
+            tokenCode: ct.token_code || '',
+            status: ct.status,
+            createdAt: ct.created_at
+          };
+        });
+
+        setData(merged || []);
         setLoading(false);
-        return;
+      } catch (err) {
+        console.error("Failed to fetch DAP records:", err);
+        setLoading(false);
       }
-
-      // Ambil status DAP assessment
-      const tokenIds = childTokens?.map(ct => ct.id) || [];
-      if (tokenIds.length > 0) {
-        const { data: dapData } = await supabase
-          .from("dap_assessments")
-          .select("token_id, score, cognitive_maturity_level")
-          .in("token_id", tokenIds);
-        setDapRecords(dapData || []);
-      }
-
-      const merged = childTokens?.filter(ct => ct.token_code.startsWith("CHI-") || ct.token_code.startsWith("CPM-")).map(ct => {
-        const clientData = ct.clients as any;
-        return {
-          id: ct.id,
-          name: clientData?.name || 'Anonim',
-          tokenCode: ct.token_code || '',
-          status: ct.status,
-          createdAt: ct.created_at
-        };
-      });
-
-      setData(merged || []);
-      setLoading(false);
     }
     fetchData();
   }, []);

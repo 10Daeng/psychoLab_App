@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, ArrowRight, ArrowLeft, Home } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import toast from "react-hot-toast";
 
 const steps = [
@@ -61,22 +60,22 @@ export default function ParentQuestionnaireFlow() {
           question_code: key,
           answer_value: String(value)
         }));
+        const progress = {
+          prt_token_id: prtTokenId,
+          chi_token_id: sessionStorage.getItem("paired_chi_token"),
+          completed_questionnaires: steps.map(s => s.code),
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        };
 
-        const { error } = await supabase
-          .from('parent_responses')
-          .insert(responses);
+        const res = await fetch("/api/test/parent/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ responses, progress })
+        });
 
-        if (error) throw error;
-
-        await supabase
-          .from('parent_progress')
-          .upsert({
-            prt_token_id: prtTokenId,
-            chi_token_id: sessionStorage.getItem("paired_chi_token"),
-            completed_questionnaires: steps.map(s => s.code),
-            status: 'completed',
-            completed_at: new Date().toISOString()
-          });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error);
 
         toast.success("Terima kasih! Jawaban Anda telah tersimpan.");
         router.push("/test/parent/complete");

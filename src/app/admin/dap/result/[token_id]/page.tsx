@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, UserCircle2, BrainCircuit, Activity, Download } from "lucide-react";
@@ -15,26 +14,21 @@ export default function DapResultPage({ params }: { params: { token_id: string }
 
   useEffect(() => {
     async function fetchData() {
-      // Ambil data klien, token, dan dap_assessment
-      const { data: tokenData } = await supabase
-        .from("tokens")
-        .select("token_code, client_id, clients(*)")
-        .eq("id", params.token_id)
-        .single();
-      
-      const { data: dapData } = await supabase
-        .from("dap_assessments")
-        .select("*")
-        .eq("token_id", params.token_id)
-        .single();
+      try {
+        const res = await fetch(`/api/admin/dap/${params.token_id}`);
+        const data = await res.json();
 
-      if (!tokenData || !dapData) {
+        if (!res.ok) {
+          router.push("/admin/dap");
+          return;
+        }
+
+        setData({ token: data.tokenData, dap: data.dapData });
+      } catch (error) {
         router.push("/admin/dap");
-        return;
+      } finally {
+        setLoading(false);
       }
-      
-      setData({ token: tokenData, dap: dapData });
-      setLoading(false);
     }
     fetchData();
   }, [params.token_id, router]);

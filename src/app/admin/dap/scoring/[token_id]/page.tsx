@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
-import { supabase } from "@/lib/supabase";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Save, ArrowLeft, CheckSquare, Square, CheckCircle2, UserCircle2 } from "lucide-react";
@@ -99,32 +98,27 @@ export default function DapScoringPage({ params }: { params: Promise<{ token_id:
 
   useEffect(() => {
     async function fetchData() {
-      // 1. Ambil data klien dari token
-      const { data: tokenData, error: tokenError } = await supabase
-        .from("tokens")
-        .select("token_code, client_id, clients(*)")
-        .eq("id", token_id)
-        .single();
-      
-      if (tokenError || !tokenData) {
-        toast.error("Token tidak ditemukan");
-        router.push("/admin/dap");
-        return;
-      }
-      setClientData(tokenData);
+      try {
+        const res = await fetch(`/api/admin/dap/${token_id}`);
+        const data = await res.json();
 
-      // 2. Ambil data DAP jika sudah pernah diisi
-      const { data: dapData } = await supabase
-        .from("dap_assessments")
-        .select("*")
-        .eq("token_id", token_id)
-        .single();
+        if (!res.ok) {
+          toast.error(data.error || "Token tidak ditemukan");
+          router.push("/admin/dap");
+          return;
+        }
 
-      if (dapData) {
-        setCheckedItems(dapData.checklist_data || {});
-        setClinicalNotes(dapData.clinical_notes || "");
+        setClientData(data.tokenData);
+
+        if (data.dapData) {
+          setCheckedItems(data.dapData.checklist_data || {});
+          setClinicalNotes(data.dapData.clinical_notes || "");
+        }
+      } catch (err: any) {
+        toast.error("Gagal mengambil data: " + err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchData();
   }, [token_id, router]);
@@ -155,12 +149,6 @@ export default function DapScoringPage({ params }: { params: Promise<{ token_id:
     const maturity = getMaturityLevel(score);
 
     try {
-      const { data: existing } = await supabase
-        .from("dap_assessments")
-        .select("id")
-        .eq("token_id", token_id)
-        .single();
-
       const payload = {
         client_id: clientData.client_id,
         token_id: token_id,
@@ -170,13 +158,14 @@ export default function DapScoringPage({ params }: { params: Promise<{ token_id:
         clinical_notes: clinicalNotes
       };
 
-      if (existing) {
-        const { error } = await supabase.from("dap_assessments").update(payload).eq("id", existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("dap_assessments").insert(payload);
-        if (error) throw error;
-      }
+      const res = await fetch(`/api/admin/dap/${token_id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Gagal menyimpan data");
 
       toast.success("Skoring DAP berhasil disimpan!");
       setTimeout(() => {

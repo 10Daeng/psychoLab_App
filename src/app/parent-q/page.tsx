@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, FileText, CheckCircle2, ChevronRight, AlertCircle, RefreshCw } from 'lucide-react';
 

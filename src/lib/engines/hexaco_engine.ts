@@ -9,7 +9,7 @@ export class HexacoEngine extends BaseTestEngine {
   }
 
   async calculateScores(answers: HexacoAnswers, clientData?: any): Promise<AssessmentResult> {
-    const { supabase } = await import('@/lib/supabase');
+    const { supabaseAdmin: supabase } = await import('@/lib/supabase-admin');
     const { data: qData } = await supabase.from('questionnaires').select('id').eq('code', 'HEXACO').single();
     
     let dbQuestions: any[] = [];

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function QuestionnaireFormPage({ params }: { params: { code: string } }) {
   const router = useRouter();
@@ -47,71 +46,27 @@ export default function QuestionnaireFormPage({ params }: { params: { code: stri
 
     const loadData = async () => {
       try {
-        // 1. Ambil kuesioner
-        const { data: qData, error: qErr } = await supabase
-          .from("questionnaires")
-          .select("*")
-          .eq("code", qCode)
-          .single();
-          
-        if (qErr || !qData) throw new Error("Kuesioner tidak ditemukan.");
-        setQuestionnaire(qData);
+        const res = await fetch(`/api/test/parent/form/${qCode}?tokenId=${tId}&clientId=${parsedClient.id}`);
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
 
-        // 2. Ambil soal
-        const { data: qsData, error: qsErr } = await supabase
-          .from("questions")
-          .select("*")
-          .eq("questionnaire_id", qData.id)
-          .order("question_number", { ascending: true });
-          
-        if (qsErr) throw qsErr;
-        setQuestions(qsData || []);
-
-        // 3. Ambil jawaban sebelumnya jika ada
-        const { data: respData } = await supabase
-          .from("questionnaire_responses")
-          .select("question_id, answer_value")
-          .eq("token_id", tId)
-          .eq("questionnaire_id", qData.id);
+        setQuestionnaire(data.questionnaire);
+        setQuestions(data.questions || []);
 
         const initialAnswers: Record<string, string> = {};
-        if (respData) {
-          respData.forEach((r: any) => {
+        if (data.responses) {
+          data.responses.forEach((r: any) => {
             initialAnswers[r.question_id] = r.answer_value;
           });
         }
         setAnswers(initialAnswers);
 
-        // 4. Ambil atau buat progress
-        const { data: progData } = await supabase
-          .from("questionnaire_progress")
-          .select("*")
-          .eq("token_id", tId)
-          .eq("questionnaire_id", qData.id)
-          .single();
-
-        if (progData) {
-          setProgressId(progData.id);
-          // Jika belum selesai, arahkan ke last_page
-          if (progData.status === 'in_progress' && progData.last_page > 1) {
-            setCurrentPage(progData.last_page);
+        if (data.progress) {
+          setProgressId(data.progress.id);
+          if (data.progress.status === 'in_progress' && data.progress.last_page > 1) {
+            setCurrentPage(data.progress.last_page);
           }
-        } else {
-          // Buat record progress baru
-          const { data: newProg } = await supabase
-            .from("questionnaire_progress")
-            .insert({
-              token_id: tId,
-              client_id: parsedClient.id,
-              questionnaire_id: qData.id,
-              total_questions: qData.total_questions,
-              status: "in_progress",
-              last_page: 1
-            })
-            .select()
-            .single();
-            
-          if (newProg) setProgressId(newProg.id);
         }
 
       } catch (err) {
@@ -154,28 +109,29 @@ export default function QuestionnaireFormPage({ params }: { params: { code: stri
         answer_value: answers[q.id]
       }));
 
-      const { error: upsertErr } = await supabase
-        .from("questionnaire_responses")
-        .upsert(upsertData, { onConflict: "token_id,question_id" });
-
-      if (upsertErr) throw upsertErr;
-
       // Hitung total terjawab keseluruhan
       const totalAnswered = Object.keys(answers).length;
       const isCompleted = currentPage === totalPages;
 
-      // 2. Update Progress
-      if (progressId) {
-        await supabase
-          .from("questionnaire_progress")
-          .update({
-            answered_questions: totalAnswered,
-            last_page: isCompleted ? currentPage : currentPage + 1,
-            status: isCompleted ? "completed" : "in_progress",
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", progressId);
-      }
+      const progressUpdate = progressId ? {
+        answered_questions: totalAnswered,
+        last_page: isCompleted ? currentPage : currentPage + 1,
+        status: isCompleted ? "completed" : "in_progress",
+        updated_at: new Date().toISOString()
+      } : null;
+
+      const res = await fetch(`/api/test/parent/form/${qCode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          upsertData,
+          progressUpdate,
+          progressId
+        })
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
 
       if (isCompleted) {
         // Kembali ke dashboard jika selesai

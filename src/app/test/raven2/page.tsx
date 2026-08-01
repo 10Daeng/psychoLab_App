@@ -48,10 +48,9 @@ export default function Raven2TestPage() {
     if (!path) return '';
     if (path.startsWith('http')) return path;
     let cleanPath = path.replace(/^\/+/, '');
-    if (!cleanPath.includes('/')) {
-      return `/images/raven2/${cleanPath}`;
-    }
-    return `/${cleanPath}`;
+    
+    // Asumsikan semua path relative adalah milik Raven di bucket
+    return `https://bgenakkulsrzchckkefv.supabase.co/storage/v1/object/public/test-images/Raven2/${cleanPath.split('/').pop()}`;
   };
 
   const currentQ = questions[currentQuestionIdx];

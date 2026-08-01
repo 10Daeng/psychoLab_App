@@ -156,10 +156,9 @@ export default function CPMTestPage() {
     if (!path) return '';
     if (path.startsWith('http')) return path;
     let cleanPath = path.replace(/^\/+/, '');
-    if (!cleanPath.includes('/')) {
-      return `/images/${cleanPath}`;
-    }
-    return `/${cleanPath}`;
+    
+    // Gunakan bucket Supabase untuk CPM
+    return `https://bgenakkulsrzchckkefv.supabase.co/storage/v1/object/public/test-images/CPM/${cleanPath.split('/').pop()}`;
   };
 
   const currentQ = questions[currentIndex];

@@ -10,7 +10,7 @@ export class RiasecEngine extends BaseTestEngine {
 
   async calculateScores(answers: SdsAnswerMap, clientData?: any): Promise<AssessmentResult> {
     // 1. Fetch metadata soal dari database (untuk menggantikan fallback ke SDS_ITEMS statis)
-    const { supabase } = await import('@/lib/supabase');
+    const { supabaseAdmin: supabase } = await import('@/lib/supabase-admin');
     const { data: qData } = await supabase.from('questionnaires').select('id').eq('code', 'SDS').single();
     
     let dbItems: any[] = [];

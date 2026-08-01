@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 export default function ParentDashboardPage() {
   const router = useRouter();
@@ -27,26 +26,15 @@ export default function ParentDashboardPage() {
 
     const fetchQuestionnaires = async () => {
       try {
-        // 1. Ambil semua kuesioner aktif
-        const { data: qData, error: qErr } = await supabase
-          .from("questionnaires")
-          .select("*")
-          .eq("is_active", true)
-          .order("created_at", { ascending: true });
-
-        if (qErr) throw qErr;
-
-        // 2. Ambil progress spesifik token ini
-        const { data: progData, error: progErr } = await supabase
-          .from("questionnaire_progress")
-          .select("*")
-          .eq("token_id", tId);
+        const res = await fetch(`/api/test/parent/dashboard?tokenId=${tId}`);
+        const data = await res.json();
         
-        if (progErr) throw progErr;
+        if (!res.ok) throw new Error(data.error);
 
-        // 3. Gabungkan data
-        const merged = qData.map(q => {
-          const progress = progData?.find(p => p.questionnaire_id === q.id);
+        const { questionnaires: qData, progress: progData } = data;
+
+        const merged = qData.map((q: any) => {
+          const progress = progData?.find((p: any) => p.questionnaire_id === q.id);
           return {
             ...q,
             progress: progress || { status: "not_started", answered_questions: 0 }

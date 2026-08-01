@@ -10,7 +10,7 @@ export class WviEngine extends BaseTestEngine {
   }
 
   async calculateScores(answers: WviAnswers, clientData?: any): Promise<AssessmentResult> {
-    const { supabase } = await import('@/lib/supabase');
+    const { supabaseAdmin: supabase } = await import('@/lib/supabase-admin');
     const { data: qData } = await supabase.from('questionnaires').select('id').eq('code', 'WVI').single();
     
     let dbQuestions: any[] = [];

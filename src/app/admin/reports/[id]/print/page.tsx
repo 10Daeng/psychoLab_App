@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 import ChildPrintView from "@/components/reports/ChildPrintView";
 import StudentPrintView from "@/components/reports/StudentPrintView";
@@ -29,25 +28,18 @@ export default function PrintReportPage() {
     if (!reportId) return;
     async function fetchReport() {
       try {
-        const { data: tokenData, error: tokenErr } = await supabase
-          .from("tokens")
-          .select("*, clients(*), observations(*)")
-          .eq("id", reportId)
-          .single();
+        const res = await fetch(`/api/admin/reports/${reportId}`);
+        const data = await res.json();
         
-        if (tokenErr) throw tokenErr;
-        setReport(tokenData);
+        if (!res.ok) throw new Error(data.error);
 
-        const tokenCode = tokenData?.token_code || "";
+        setReport(data.report);
+
+        const tokenCode = data.report?.token_code || "";
         const seg: "CHI" | "STU" | "EMP" = tokenCode.startsWith("CHI-") ? "CHI" : tokenCode.startsWith("STU-") ? "STU" : "EMP";
         setSegment(seg);
 
-        const { data: results } = await supabase
-          .from("test_results")
-          .select("*, tests(code, name)")
-          .eq("token_id", reportId);
-
-        setTestResults(results || []);
+        setTestResults(data.testResults || []);
       } catch (err) {
         console.error("Gagal memuat laporan:", err);
         alert("Gagal memuat laporan.");

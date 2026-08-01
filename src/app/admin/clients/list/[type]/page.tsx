@@ -361,7 +361,7 @@ export default function AdminClients() {
                                {client.tokens.map((t: any) => (
                                  <div key={t.id} className="flex flex-col items-start gap-1">
                                    <span className="text-[11px] font-mono font-bold bg-slate-800 px-2 py-0.5 rounded text-slate-300 border border-slate-700">
-                                     {t.respondent_type === 'PARENT' ? '👨‍👩‍👧 PARENT' : '👶 CHILD'}: {t.token_code}
+                                     {t.respondent_type === 'PARENT' ? '👨‍👩‍👧 PARENT' : currentPurpose === 'STU' ? '🎓 REMAJA' : currentPurpose === 'EMP' ? '💼 PEGAWAI' : '👶 CHILD'}: {t.token_code}
                                    </span>
                                    <div className="flex items-center gap-2">
                                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${t.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>

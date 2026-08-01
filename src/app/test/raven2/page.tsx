@@ -44,6 +44,16 @@ export default function Raven2TestPage() {
     );
   }
 
+  const getImageUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    let cleanPath = path.replace(/^\/+/, '');
+    if (!cleanPath.includes('/')) {
+      return `/images/raven2/${cleanPath}`;
+    }
+    return `/${cleanPath}`;
+  };
+
   const currentQ = questions[currentQuestionIdx];
 
   const handleSelect = (optionLabel: string) => {
@@ -151,7 +161,7 @@ export default function Raven2TestPage() {
             <h2 className="text-slate-500 font-semibold mb-6">Pilih potongan gambar yang tepat untuk melengkapi pola di bawah ini.</h2>
             <div className="relative w-full aspect-square max-w-md bg-white border-2 border-slate-200 rounded-xl overflow-hidden flex items-center justify-center shadow-inner">
                <Image 
-                 src={currentQ.problemImage.startsWith('http') ? currentQ.problemImage : `/${currentQ.problemImage}`} 
+                 src={getImageUrl(currentQ.problemImage)} 
                  alt="Soal Raven" 
                  fill 
                  className="object-contain p-4"
@@ -182,7 +192,7 @@ export default function Raven2TestPage() {
                     </div>
                     <div className="relative w-full h-full p-4">
                       <Image 
-                        src={optUrl.startsWith('http') ? optUrl : `/${optUrl}`} 
+                        src={getImageUrl(optUrl)} 
                         alt={`Opsi ${label}`} 
                         fill 
                         className="object-contain"

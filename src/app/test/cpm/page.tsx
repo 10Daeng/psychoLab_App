@@ -152,6 +152,16 @@ export default function CPMTestPage() {
     );
   }
 
+  const getImageUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    let cleanPath = path.replace(/^\/+/, '');
+    if (!cleanPath.includes('/')) {
+      return `/images/${cleanPath}`;
+    }
+    return `/${cleanPath}`;
+  };
+
   const currentQ = questions[currentIndex];
   const progressPercent = ((currentIndex) / questions.length) * 100;
 
@@ -181,7 +191,7 @@ export default function CPMTestPage() {
             <h2 className="text-xl font-bold text-slate-700 mb-4">{currentQ.text}</h2>
             <div className="flex-grow flex items-center justify-center bg-slate-50 border-4 border-dashed border-blue-100 rounded-2xl p-4 min-h-[250px] md:min-h-[300px]">
               <img 
-                src={currentQ.problemImage.startsWith('http') ? currentQ.problemImage : `/${currentQ.problemImage}`} 
+                src={getImageUrl(currentQ.problemImage)} 
                 alt="Problem Pattern" 
                 className="max-w-full max-h-[40vh] md:max-h-[50vh] object-contain drop-shadow-md"
                 style={{ viewTransitionName: 'problem-image' }}
@@ -199,7 +209,7 @@ export default function CPMTestPage() {
                 onClick={() => handleAnswerClick(idx)}
                 className="aspect-square bg-slate-50 border-2 border-slate-200 rounded-2xl overflow-hidden cursor-pointer hover:border-blue-400 hover:shadow-lg hover:-translate-y-1 transition-all flex items-center justify-center p-2"
               >
-                <img src={opt.startsWith('http') ? opt : `/${opt}`} alt={`Option ${idx+1}`} className="max-w-full max-h-full object-contain drop-shadow-sm" />
+                <img src={getImageUrl(opt)} alt={`Option ${idx+1}`} className="max-w-full max-h-full object-contain drop-shadow-sm" />
               </div>
             ))}
           </div>

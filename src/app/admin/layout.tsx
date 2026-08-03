@@ -69,6 +69,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   ];
 
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   return (
     <div className="flex h-screen bg-slate-950 overflow-hidden relative">
       {/* Background Ornaments */}

@@ -195,7 +195,7 @@ export default function HexacoTestPage() {
                         <div key={val} className="flex flex-col items-center gap-2">
                           <button
                             onClick={() => handleSelect(q.no, val)}
-                            className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center font-bold transition-all shadow-sm \${colorClass} \${isSelected ? 'text-slate-800 scale-110 shadow-md' : 'text-slate-500 scale-100'}`}
+                            className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center font-bold transition-all shadow-sm ${colorClass} ${isSelected ? 'text-slate-800 scale-110 shadow-md' : 'text-slate-500 scale-100'}`}
                           >
                             {val}
                           </button>
@@ -221,7 +221,7 @@ export default function HexacoTestPage() {
           <button 
             onClick={handlePrev}
             disabled={currentPage === 0 || isSubmitting}
-            className={`px-8 py-3 rounded-xl font-medium transition-all \${currentPage === 0 ? 'opacity-0 pointer-events-none' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+            className={`px-8 py-3 rounded-xl font-medium transition-all ${currentPage === 0 ? 'opacity-0 pointer-events-none' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
           >
             Kembali
           </button>

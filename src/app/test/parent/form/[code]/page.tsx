@@ -207,11 +207,11 @@ export default function QuestionnaireFormPage({ params }: { params: { code: stri
                           <label 
                             key={opt.value} 
                             className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 cursor-pointer transition-all text-center
-                              \${isSelected ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600'}`}
+                              ${isSelected ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600'}`}
                           >
                             <input 
                               type="radio" 
-                              name={`question_\${q.id}`} 
+                              name={`question_${q.id}`} 
                               value={opt.value}
                               checked={isSelected}
                               onChange={() => handleAnswerChange(q.id, opt.value)}

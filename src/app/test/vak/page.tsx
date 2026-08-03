@@ -125,15 +125,15 @@ export default function VakTestPage() {
                           key={idx}
                           onClick={() => handleSelect(q.no, opt.domain)}
                           className={`w-full text-left p-4 rounded-xl border transition-all flex items-start gap-4
-                            \${isSelected ? 'bg-emerald-600/20 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : 'bg-slate-700/50 border-slate-600 hover:border-slate-500 hover:bg-slate-700'}
+                            ${isSelected ? 'bg-emerald-600/20 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : 'bg-slate-700/50 border-slate-600 hover:border-slate-500 hover:bg-slate-700'}
                           `}
                         >
                           <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors
-                             \${isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-600 text-slate-300'}
+                             ${isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-600 text-slate-300'}
                           `}>
                             {opt.label}
                           </div>
-                          <div className={`mt-1 font-medium \${isSelected ? 'text-emerald-100' : 'text-slate-300'}`}>
+                          <div className={`mt-1 font-medium ${isSelected ? 'text-emerald-100' : 'text-slate-300'}`}>
                             {opt.text}
                           </div>
                         </button>

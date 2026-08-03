@@ -133,7 +133,7 @@ export default function WviTestPage() {
                         key={opt.value}
                         onClick={() => handleSelect(q.no, opt.value)}
                         className={`flex-1 p-3 rounded-xl border text-sm font-medium transition-all
-                          \${isSelected ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]' : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-400 hover:bg-slate-600'}
+                          ${isSelected ? 'bg-amber-600 border-amber-500 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]' : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-slate-400 hover:bg-slate-600'}
                         `}
                       >
                         <div className="text-center">{opt.label}</div>

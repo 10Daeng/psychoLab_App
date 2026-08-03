@@ -214,7 +214,7 @@ export default function DiscTestPage() {
           <button 
             onClick={handlePrev}
             disabled={currentGroup === 0 || isSubmitting}
-            className={`px-8 py-3 rounded-xl font-medium transition-all \${currentGroup === 0 ? 'opacity-0 pointer-events-none' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+            className={`px-8 py-3 rounded-xl font-medium transition-all ${currentGroup === 0 ? 'opacity-0 pointer-events-none' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
           >
             Kembali
           </button>

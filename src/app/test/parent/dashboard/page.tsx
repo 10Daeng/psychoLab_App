@@ -78,7 +78,7 @@ export default function ParentDashboardPage() {
             const isInProgress = q.progress.status === "in_progress";
             
             return (
-              <div key={q.id} className={`bg-white p-6 rounded-2xl border transition-all \${isCompleted ? 'border-green-200 shadow-sm' : 'border-slate-200 shadow-md hover:border-blue-300'}`}>
+              <div key={q.id} className={`bg-white p-6 rounded-2xl border transition-all ${isCompleted ? 'border-green-200 shadow-sm' : 'border-slate-200 shadow-md hover:border-blue-300'}`}>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
@@ -117,7 +117,7 @@ export default function ParentDashboardPage() {
                 {/* Progress Bar */}
                 <div className="mt-4 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full transition-all duration-1000 ease-out \${isCompleted ? 'bg-green-500' : 'bg-blue-500'}`} 
+                    className={`h-full transition-all duration-1000 ease-out ${isCompleted ? 'bg-green-500' : 'bg-blue-500'}`} 
                     style={{ width: `${Math.min(100, Math.round((q.progress.answered_questions / q.total_questions) * 100))}%` }}
                   ></div>
                 </div>

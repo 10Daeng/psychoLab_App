@@ -27,7 +27,7 @@ export default function WviTestPage() {
       .catch(err => console.error("Gagal memuat soal", err));
   }, []);
   
-  const questionsPerGroup = 5;
+  const questionsPerGroup = 15;
   const totalGroups = Math.ceil(questions.length / questionsPerGroup);
   
   const currentQuestions = questions.slice(

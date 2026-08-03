@@ -132,7 +132,7 @@ export default function Raven2TestPage() {
 
         clearIdx();
         clearAnswers();
-        alert("Tes Kognitif Selesai! IQ Anda berhasil dikalkulasi.");
+        alert("Tes Kognitif Selesai!");
 
         const tokenCode = sessionStorage.getItem("token_code") || "";
         const tokenId = sessionStorage.getItem("valid_token_id") || sessionStorage.getItem("current_token_id");

@@ -26,8 +26,7 @@ export default function DiscTestPage() {
       })
       .catch(err => console.error("Gagal memuat soal", err));
   }, []);
-  
-  const questionsPerGroup = 4;
+  const questionsPerGroup = 6;
   const totalGroups = Math.ceil(questions.length / questionsPerGroup);
   
   const currentQuestions = questions.slice(

@@ -38,10 +38,13 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-0 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+        <div className="absolute top-[20%] left-[20%] w-[40%] h-[50%] bg-blue-600/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[20%] w-[40%] h-[50%] bg-emerald-600/10 rounded-full blur-[120px]" />
+        <div className="absolute top-[40%] right-[40%] w-[30%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]" />
+      </div>
 
       <div className="relative w-full max-w-md z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
         <div className="text-center mb-8">
@@ -52,11 +55,11 @@ export default function AdminLoginPage() {
           <p className="text-slate-400">Portal Manajemen Psikolog</p>
         </div>
 
-        <div className="bg-slate-800/60 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-slate-700/50">
+        <div className="bg-white/5 backdrop-blur-2xl p-8 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10">
           
           {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl mb-6 text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-              <div className="w-1.5 h-full bg-red-500 rounded-full absolute left-0 top-0 bottom-0" />
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-xl mb-6 text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+              <div className="w-1.5 h-full bg-red-500 rounded-full absolute left-0 top-0 bottom-0 shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
               <span className="relative z-10">{error}</span>
             </div>
           )}
@@ -74,7 +77,7 @@ export default function AdminLoginPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:bg-white/10 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                   placeholder="Masukkan nama pengguna..."
                   required
                 />
@@ -93,7 +96,7 @@ export default function AdminLoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-slate-500 focus:outline-none focus:bg-white/10 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                   placeholder="Masukkan kata sandi..."
                   required
                 />
@@ -101,17 +104,16 @@ export default function AdminLoginPage() {
             </div>
             
             <button
-              type="submit"
-              disabled={loading}
-              className={`w-full relative group overflow-hidden bg-white text-slate-900 font-bold py-3.5 rounded-xl transition-all ${
-                loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-slate-100 hover:shadow-lg hover:shadow-white/10 active:scale-[0.98]'
-              }`}
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                {loading ? 'Memverifikasi...' : 'Akses Sistem'}
-                {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
-              </span>
-            </button>
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] disabled:opacity-50 disabled:cursor-not-allowed mt-2 group relative overflow-hidden"
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {loading ? 'Memverifikasi...' : 'Masuk ke Portal'}
+              {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+            </span>
+            <div className="absolute inset-0 h-full w-full bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left rounded-xl"></div>
+          </button>
           </form>
         </div>
         

@@ -55,8 +55,10 @@ export default function DapIndexPage() {
     <div className="p-8 max-w-7xl mx-auto min-h-screen">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
-            <PenTool className="w-8 h-8 text-blue-500" />
+          <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3 drop-shadow-md">
+            <div className="p-2 bg-blue-500/20 rounded-xl border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+              <PenTool className="w-6 h-6 text-blue-400" />
+            </div>
             Penilaian Grafis (DAP)
           </h1>
           <p className="text-slate-400 mt-2 text-sm max-w-2xl leading-relaxed">
@@ -65,16 +67,16 @@ export default function DapIndexPage() {
         </div>
       </div>
 
-      <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-slate-800/80 bg-slate-900/80 flex gap-4 items-center">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="p-6 border-b border-white/10 bg-white/5 flex gap-4 items-center">
           <div className="relative flex-1">
-            <Search className="w-5 h-5 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input 
               type="text" 
               placeholder="Cari nama atau kode token..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-950/50 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-slate-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-slate-600"
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:bg-white/10 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-500"
             />
           </div>
         </div>
@@ -88,14 +90,14 @@ export default function DapIndexPage() {
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-950/50 border-b border-slate-800/50">
+                <tr className="bg-white/5 border-b border-white/10">
                   <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Peserta / Token</th>
                   <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Status Utama</th>
                   <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Status DAP</th>
                   <th className="p-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
+              <tbody className="divide-y divide-white/5">
                 {filteredData.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="p-12 text-center text-slate-500 font-medium">
@@ -111,11 +113,11 @@ export default function DapIndexPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        className="hover:bg-slate-800/20 transition-colors group"
+                        className="hover:bg-white/5 transition-colors group"
                       >
                         <td className="p-5">
-                          <p className="text-sm font-bold text-slate-200">{row.name}</p>
-                          <p className="text-xs font-mono text-slate-500 mt-1">{row.tokenCode}</p>
+                          <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">{row.name}</p>
+                          <p className="text-xs font-mono text-slate-400 mt-1"><span className="bg-white/10 px-1.5 py-0.5 rounded border border-white/10">{row.tokenCode}</span></p>
                         </td>
                         <td className="p-5">
                           {row.status === "COMPLETED" ? (
@@ -131,24 +133,24 @@ export default function DapIndexPage() {
                         <td className="p-5">
                           {dap ? (
                              <div>
-                               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.2)]">
                                  <CheckCircle2 className="w-3 h-3" /> Sudah Dinilai
                                </span>
-                               <p className="text-xs text-slate-500 mt-2 font-medium">Skor: {dap.score}/73</p>
+                               <p className="text-xs text-slate-400 mt-2 font-medium">Skor: <span className="text-white font-bold">{dap.score}</span>/73</p>
                              </div>
                           ) : (
-                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
                                <Clock className="w-3 h-3" /> Belum Dinilai
                              </span>
                           )}
                         </td>
                         <td className="p-5 text-right">
-                           <div className="flex items-center justify-end gap-2">
-                             <Link href={`/admin/dap/scoring/${row.id}`} className="inline-flex items-center justify-center p-2 rounded-xl bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white transition-all group-hover:shadow-lg">
+                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <Link href={`/admin/dap/scoring/${row.id}`} className="inline-flex items-center justify-center p-2 rounded-xl bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/40 text-blue-400 hover:text-white transition-all shadow-[0_0_10px_rgba(59,130,246,0.2)] backdrop-blur-sm">
                                <PenTool className="w-4 h-4" />
                              </Link>
                              {dap && (
-                               <Link href={`/admin/dap/result/${row.id}`} className="inline-flex items-center justify-center p-2 rounded-xl bg-slate-800 hover:bg-emerald-600 text-slate-400 hover:text-white transition-all group-hover:shadow-lg">
+                               <Link href={`/admin/dap/result/${row.id}`} className="inline-flex items-center justify-center p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/40 text-emerald-400 hover:text-white transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] backdrop-blur-sm">
                                  <ChevronRight className="w-4 h-4" />
                                </Link>
                              )}

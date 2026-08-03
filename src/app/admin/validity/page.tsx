@@ -231,21 +231,21 @@ export default function ValidityPage() {
         </div>
         <button 
           onClick={downloadExcel} 
-          className="bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-slate-600 text-slate-200 font-bold py-2.5 px-5 rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg"
+          className="bg-emerald-500/20 border border-emerald-500/30 hover:bg-emerald-500/30 text-emerald-400 font-bold py-2.5 px-5 rounded-xl text-sm transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.2)] backdrop-blur-md"
         >
-          <Download className="w-4 h-4 text-emerald-400" /> Download Excel
+          <Download className="w-4 h-4" /> Download Excel
         </button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         {[
-          { label: 'Total Selesai', value: stats.total, color: 'text-white', bg: 'bg-slate-800/80 border-slate-700' },
+          { label: 'Total Selesai', value: stats.total, color: 'text-white', bg: 'bg-white/5 border-white/10' },
           { label: 'Valid', value: stats.valid, color: 'text-emerald-400', bg: 'bg-emerald-900/20 border-emerald-500/20' },
           { label: 'Cukup', value: stats.cukup, color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-500/20' },
           { label: 'Meragukan', value: stats.ragu, color: 'text-orange-400', bg: 'bg-orange-900/20 border-orange-500/20' },
           { label: 'Tidak Valid', value: stats.invalid, color: 'text-red-400', bg: 'bg-red-900/20 border-red-500/20' },
-          { label: 'Belum Dihitung', value: stats.na, color: 'text-slate-500', bg: 'bg-slate-900/50 border-slate-800' },
+          { label: 'Belum Dihitung', value: stats.na, color: 'text-slate-400', bg: 'bg-white/5 border-white/10' },
         ].map(s => (
           <div key={s.label} className={`border rounded-2xl p-4 text-center backdrop-blur-xl \${s.bg} shadow-lg`}>
             <div className={`text-3xl font-black \${s.color} mb-1`}>{s.value}</div>
@@ -254,32 +254,30 @@ export default function ValidityPage() {
         ))}
       </div>
 
-      {/* Search & Filter */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-4 rounded-3xl flex flex-col md:flex-row gap-4 items-center shadow-lg">
         <input
           type="text" placeholder="Cari nama, token, instansi..."
           value={search} onChange={e => setSearch(e.target.value)}
-          className="flex-1 w-full bg-slate-950 border border-slate-800 text-white px-4 py-3 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none placeholder:text-slate-600 transition-all"
+          className="flex-1 w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:border-blue-500 focus:bg-white/10 focus:ring-1 focus:ring-blue-500 outline-none placeholder:text-slate-500 transition-all"
         />
         <select
           value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-          className="w-full md:w-auto bg-slate-950 border border-slate-800 text-white px-4 py-3 rounded-xl text-sm focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
+          className="w-full md:w-auto bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:border-blue-500 focus:bg-white/10 outline-none transition-all appearance-none cursor-pointer"
         >
-          <option value="semua">Semua Kategori</option>
-          <option value="valid">✅ Valid (≥ 85)</option>
-          <option value="cukup">⚠️ Cukup Valid (70 - 84)</option>
-          <option value="ragu">🟠 Meragukan (50 - 69)</option>
-          <option value="invalid">❌ Tidak Valid (&lt; 50)</option>
-          <option value="na">⬜ Belum Dihitung</option>
+          <option value="semua" className="bg-slate-900">Semua Kategori</option>
+          <option value="valid" className="bg-slate-900">✅ Valid (≥ 85)</option>
+          <option value="cukup" className="bg-slate-900">⚠️ Cukup Valid (70 - 84)</option>
+          <option value="ragu" className="bg-slate-900">🟠 Meragukan (50 - 69)</option>
+          <option value="invalid" className="bg-slate-900">❌ Tidak Valid (&lt; 50)</option>
+          <option value="na" className="bg-slate-900">⬜ Belum Dihitung</option>
         </select>
       </div>
 
-      {/* Table */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead>
-              <tr className="bg-slate-950/50 text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
+              <tr className="bg-white/5 text-slate-400 text-[10px] uppercase tracking-widest border-b border-white/10">
                 <th className="px-5 py-4 font-bold">Peserta</th>
                 <th className="px-5 py-4 font-bold cursor-pointer hover:text-white transition-colors" onClick={() => toggleSort('submittedAt')}>
                   Selesai Pada <SortIcon sortBy={sortBy} sortDir={sortDir} field="submittedAt" />
@@ -296,24 +294,24 @@ export default function ValidityPage() {
                 <th className="px-5 py-4 font-bold text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/50">
+            <tbody className="divide-y divide-white/5">
               {sorted.map((sub) => {
                 const ud = sub.userData || {};
                 const v = sub._validity;
                 const ind = v.indicators || {};
 
                 return (
-                  <tr key={sub.id} className="hover:bg-slate-800/30 transition-colors group">
+                  <tr key={sub.id} className="hover:bg-white/5 transition-colors group">
                     <td className="px-5 py-4 align-middle">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 text-slate-300 font-bold text-xs shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10 text-white font-bold text-xs shrink-0 shadow-inner">
                           {ud.nama ? ud.nama.substring(0, 2).toUpperCase() : 'AN'}
                         </div>
                         <div>
-                          <div className="text-white font-bold text-sm">{ud.nama || 'Anonim'}</div>
+                          <div className="text-white font-bold text-sm group-hover:text-blue-400 transition-colors">{ud.nama || 'Anonim'}</div>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] font-mono bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase">{sub.tokenCode}</span>
-                            <span className="text-xs text-slate-500">{ud.instansi}</span>
+                            <span className="text-[10px] font-mono bg-white/10 border border-white/10 text-slate-300 px-1.5 py-0.5 rounded uppercase">{sub.tokenCode}</span>
+                            <span className="text-xs text-slate-400">{ud.instansi}</span>
                           </div>
                         </div>
                       </div>
@@ -322,7 +320,7 @@ export default function ValidityPage() {
                       <div className="text-slate-300 text-xs font-medium">
                         {sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
                       </div>
-                      <div className="text-slate-500 text-[10px] mt-0.5 font-mono">
+                      <div className="text-slate-400 text-[10px] mt-0.5 font-mono">
                         {sub.submittedAt ? new Date(sub.submittedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : ''}
                       </div>
                     </td>
@@ -333,16 +331,16 @@ export default function ValidityPage() {
                     
                     <td className="px-5 py-4 align-middle text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link href={`/admin/reports/${sub.id}`} className="p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors" title="Lihat Laporan">
+                        <Link href={`/admin/reports/${sub.id}`} className="p-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded-lg transition-colors border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.2)]" title="Lihat Laporan">
                           <Eye className="w-4 h-4" />
                         </Link>
                         {deleteConfirm === sub.id ? (
-                          <div className="flex items-center gap-1 bg-red-500/10 rounded-lg p-1">
-                            <button onClick={() => handleDelete(sub.id)} className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-md transition-colors">YA, HAPUS</button>
-                            <button onClick={() => setDeleteConfirm(null)} className="px-2 py-1 text-slate-400 hover:text-slate-200 text-[10px] font-bold transition-colors">BATAL</button>
+                          <div className="flex items-center gap-1 bg-red-500/20 border border-red-500/30 rounded-lg p-1">
+                            <button onClick={() => handleDelete(sub.id)} className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-md transition-colors shadow-[0_0_10px_rgba(239,68,68,0.3)]">YA, HAPUS</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="px-2 py-1 text-slate-300 hover:text-white text-[10px] font-bold transition-colors">BATAL</button>
                           </div>
                         ) : (
-                          <button onClick={() => setDeleteConfirm(sub.id)} className="p-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors" title="Hapus Data">
+                          <button onClick={() => setDeleteConfirm(sub.id)} className="p-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg transition-colors border border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.2)]" title="Hapus Data">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         )}
@@ -367,16 +365,16 @@ export default function ValidityPage() {
       </div>
 
       {/* Legend */}
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-lg">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
         <h4 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
            <span className="text-blue-500">📖</span> Keterangan Indikator Validitas
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/50">
+          <div className="bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
             <span className="text-blue-400 font-bold text-sm block mb-1">Durasi Pengerjaan</span> 
             <p className="text-slate-400 leading-relaxed">Mendeteksi jika peserta menyelesaikan tes jauh di bawah standar waktu normal (Kurang dari 4-5 menit). Semakin rendah skor, semakin cepat/asal mereka mengisi.</p>
           </div>
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/50">
+          <div className="bg-white/5 p-4 rounded-xl border border-white/10 shadow-inner">
             <span className="text-blue-400 font-bold text-sm block mb-1">Pola Lurus (Straight-Lining)</span> 
             <p className="text-slate-400 leading-relaxed">Mendeteksi jika peserta menjawab dengan pola yang monoton secara berurutan (misal: A terus-menerus, atau B terus-menerus sebanyak &gt;10 kali).</p>
           </div>

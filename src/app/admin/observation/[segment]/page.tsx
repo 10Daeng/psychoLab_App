@@ -65,16 +65,18 @@ export default function ObservationListPage({ params }: { params: Promise<{ segm
     <div className="p-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-            <ClipboardCheck className="w-8 h-8 text-teal-600" />
+          <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3 drop-shadow-md">
+            <div className="p-2 bg-blue-500/20 rounded-xl border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+              <ClipboardCheck className="w-6 h-6 text-blue-400" />
+            </div>
             Observasi & Wawancara
           </h1>
-          <p className="text-slate-500 mt-2 text-lg">Daftar form observasi psikolog untuk kategori: <span className="font-semibold text-slate-700">{title}</span></p>
+          <p className="text-slate-400 mt-2 text-lg">Daftar form observasi psikolog untuk kategori: <span className="font-semibold text-white">{title}</span></p>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 bg-slate-50 flex flex-col md:flex-row gap-4">
+      <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
+        <div className="p-4 border-b border-white/10 bg-white/5 flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input 
@@ -82,7 +84,7 @@ export default function ObservationListPage({ params }: { params: Promise<{ segm
               placeholder="Cari nama atau kode token..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm"
+              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 text-white rounded-xl focus:bg-white/10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-colors placeholder-slate-500"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -90,18 +92,18 @@ export default function ObservationListPage({ params }: { params: Promise<{ segm
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="border border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+              className="bg-white/5 border border-white/10 text-slate-300 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white/10 outline-none transition-colors"
             >
-              <option value="ALL">Semua Status</option>
-              <option value="EMPTY">Belum Diisi</option>
-              <option value="FILLED">Sudah Diisi</option>
+              <option value="ALL" className="bg-slate-900">Semua Status</option>
+              <option value="EMPTY" className="bg-slate-900">Belum Diisi</option>
+              <option value="FILLED" className="bg-slate-900">Sudah Diisi</option>
             </select>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+            <thead className="bg-white/5 text-slate-400 font-semibold border-b border-white/10">
               <tr>
                 <th className="px-6 py-4">Kode Token</th>
                 <th className="px-6 py-4">Nama Peserta</th>
@@ -110,7 +112,7 @@ export default function ObservationListPage({ params }: { params: Promise<{ segm
                 <th className="px-6 py-4">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-white/5">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
@@ -128,25 +130,25 @@ export default function ObservationListPage({ params }: { params: Promise<{ segm
                   const hasObservation = t.observations && (Array.isArray(t.observations) ? t.observations.length > 0 : !!t.observations.id);
                   
                   return (
-                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={t.id} className="hover:bg-white/5 transition-colors group">
                       <td className="px-6 py-4">
-                        <span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-md">
+                        <span className="font-mono text-xs font-bold text-slate-300 bg-white/10 border border-white/10 px-2 py-1 rounded-md">
                           {t.token_code}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-semibold text-slate-800">
-                        {t.clients?.name || <span className="text-slate-400 italic">Belum Mengisi Biodata</span>}
+                      <td className="px-6 py-4 font-semibold text-white group-hover:text-blue-400 transition-colors">
+                        {t.clients?.name || <span className="text-slate-500 italic">Belum Mengisi Biodata</span>}
                       </td>
-                      <td className="px-6 py-4 text-slate-500">
+                      <td className="px-6 py-4 text-slate-400">
                         {new Date(t.created_at).toLocaleDateString("id-ID")}
                       </td>
                       <td className="px-6 py-4">
                         {hasObservation ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                             <CheckCircle2 className="w-3.5 h-3.5" /> Sudah Diisi
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
                             <AlertCircle className="w-3.5 h-3.5" /> Belum Diisi
                           </span>
                         )}
@@ -154,7 +156,7 @@ export default function ObservationListPage({ params }: { params: Promise<{ segm
                       <td className="px-6 py-4">
                         <Link 
                           href={`/admin/observation/${segment}/${t.id}`}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-teal-300 hover:bg-teal-50 text-teal-700 rounded-lg text-xs font-bold transition-colors"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/40 text-blue-400 rounded-lg text-xs font-bold transition-colors shadow-[0_0_10px_rgba(59,130,246,0.2)] backdrop-blur-sm"
                         >
                           {hasObservation ? "Lihat / Edit" : "Isi Observasi"}
                         </Link>

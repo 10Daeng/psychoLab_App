@@ -188,19 +188,22 @@ export default function AdminReports() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-slate-900 border border-slate-700/50 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden relative"
+              className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden relative"
             >
-              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-600/30 to-emerald-600/30 blur-2xl pointer-events-none" />
+              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-600/20 to-emerald-600/20 blur-3xl pointer-events-none" />
 
-              <div className="flex justify-between items-center p-6 border-b border-slate-800/50 relative z-10">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <User className="w-5 h-5 text-blue-400" /> Profil Detail Klien
+              <div className="flex justify-between items-center p-6 border-b border-white/10 relative z-10">
+                <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                    <User className="w-4 h-4 text-blue-400" />
+                  </div>
+                  Profil Detail Klien
                 </h2>
                 <button
                   onClick={() => setSelectedClient(null)}
@@ -212,7 +215,7 @@ export default function AdminReports() {
 
               <div className="p-6 space-y-4 relative z-10">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center text-2xl border border-slate-700 shadow-inner">
+                  <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-2xl border border-white/10 shadow-inner">
                     {selectedClient.gender === "L" ? "👦🏻" : "👧🏻"}
                   </div>
                   <div>
@@ -221,7 +224,7 @@ export default function AdminReports() {
                     </h3>
                     <p className="text-slate-400 font-mono text-sm flex items-center gap-2 mt-1">
                       Token:{" "}
-                      <span className="bg-slate-800 px-2 py-0.5 rounded text-blue-400">
+                      <span className="bg-white/10 px-2 py-0.5 rounded text-blue-400 border border-white/10">
                         {selectedClient.tokenCode}
                       </span>
                     </p>
@@ -229,8 +232,8 @@ export default function AdminReports() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/30">
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">
+                  <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-1">
                       Usia & Kelamin
                     </p>
                     <p className="text-sm font-semibold text-slate-200">
@@ -240,8 +243,8 @@ export default function AdminReports() {
                         : "Perempuan"}
                     </p>
                   </div>
-                  <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/30">
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">
+                  <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-1">
                       Tanggal Lahir
                     </p>
                     <p className="text-sm font-semibold text-slate-200">
@@ -252,8 +255,8 @@ export default function AdminReports() {
 
                 {(selectedClient.schoolOrInstitution ||
                   selectedClient.grade) && (
-                  <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/30">
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-2 flex items-center gap-2">
+                  <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-2 flex items-center gap-2">
                       {selectedClient.tokenCode.startsWith("EMP-") ? (
                         <Building className="w-4 h-4" />
                       ) : (
@@ -272,8 +275,8 @@ export default function AdminReports() {
 
                 {selectedClient.tokenCode.startsWith("CHI-") &&
                   selectedClient.parentName && (
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/30">
-                      <p className="text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-2">
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                      <p className="text-xs font-bold text-slate-400 uppercase mb-1 flex items-center gap-2">
                         <User className="w-4 h-4" /> Wali / Orang Tua
                       </p>
                       <p className="text-sm font-semibold text-slate-200">
@@ -294,8 +297,10 @@ export default function AdminReports() {
         className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-6"
       >
         <div>
-          <h1 className="text-3xl font-black text-slate-100 tracking-tight flex items-center gap-3">
-            <FileText className="w-8 h-8 text-blue-400" />
+          <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3 drop-shadow-md">
+            <div className="p-2 bg-blue-500/20 rounded-xl border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+              <FileText className="w-6 h-6 text-blue-400" />
+            </div>
             {config.title}
           </h1>
           <p className="text-slate-400 mt-2">{config.subtitle}</p>
@@ -304,7 +309,7 @@ export default function AdminReports() {
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <button
             onClick={exportToExcel}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] w-full sm:w-auto justify-center"
+            className="flex items-center gap-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 px-5 py-2.5 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] w-full sm:w-auto justify-center backdrop-blur-md"
           >
             <Download className="w-4 h-4" /> Unduh Excel
           </button>
@@ -315,7 +320,7 @@ export default function AdminReports() {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row gap-4 mb-8 bg-slate-900/40 p-4 rounded-2xl border border-slate-800"
+        className="flex flex-col md:flex-row gap-4 mb-8 bg-white/5 backdrop-blur-xl p-4 rounded-3xl border border-white/10 shadow-lg"
       >
         <div className="flex-1 relative">
           <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
@@ -324,7 +329,7 @@ export default function AdminReports() {
             placeholder="Cari by Nama, NIK, Institusi, atau Token..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-800/50 border border-slate-700 text-white pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+            className="w-full bg-white/5 border border-white/10 text-white pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm placeholder-slate-500"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -333,9 +338,9 @@ export default function AdminReports() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="bg-slate-800/50 border border-slate-700 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 text-sm"
+              className="bg-white/5 border border-white/10 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white/10 text-sm transition-colors"
             />
-            <span className="absolute -top-2.5 left-3 bg-slate-900 px-1 text-[10px] text-slate-400 uppercase font-bold">
+            <span className="absolute -top-2.5 left-3 bg-slate-950/80 px-2 py-0.5 rounded-md text-[10px] text-slate-400 uppercase font-bold backdrop-blur-sm border border-white/10">
               Mulai Tes
             </span>
           </div>
@@ -345,9 +350,9 @@ export default function AdminReports() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="bg-slate-800/50 border border-slate-700 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 text-sm"
+              className="bg-white/5 border border-white/10 text-white px-4 py-2.5 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white/10 text-sm transition-colors"
             />
-            <span className="absolute -top-2.5 left-3 bg-slate-900 px-1 text-[10px] text-slate-400 uppercase font-bold">
+            <span className="absolute -top-2.5 left-3 bg-slate-950/80 px-2 py-0.5 rounded-md text-[10px] text-slate-400 uppercase font-bold backdrop-blur-sm border border-white/10">
               Sampai Tes
             </span>
           </div>
@@ -367,10 +372,10 @@ export default function AdminReports() {
         </div>
       </motion.div>
 
-      <div className="bg-slate-900/50 backdrop-blur-2xl border border-slate-700/50 shadow-2xl rounded-3xl overflow-hidden">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-800/80 text-slate-300 uppercase text-xs tracking-wider border-b border-slate-700/50">
+            <thead className="bg-white/5 text-slate-400 uppercase text-xs tracking-wider border-b border-white/10">
               <tr>
                 <th className="px-6 py-5">Klien / Peserta</th>
                 <th className="px-6 py-5">Kode Token</th>
@@ -393,7 +398,7 @@ export default function AdminReports() {
               variants={tableVariants}
               initial="hidden"
               animate="show"
-              className="divide-y divide-slate-800/50"
+              className="divide-y divide-white/5"
             >
               {loading ? (
                 <tr>
@@ -421,12 +426,12 @@ export default function AdminReports() {
                     <motion.tr
                       variants={rowVariants}
                       key={row.id}
-                      className="hover:bg-slate-800/40 transition-colors group"
+                      className="hover:bg-white/5 transition-colors group"
                     >
                       <td className="px-6 py-5">
                         <button
                           onClick={() => setSelectedClient(row)}
-                          className="font-bold text-blue-400 group-hover:text-blue-300 transition-colors hover:underline text-left"
+                          className="font-bold text-white group-hover:text-blue-400 transition-colors hover:underline text-left"
                         >
                           {row.name}
                         </button>
@@ -492,7 +497,7 @@ export default function AdminReports() {
                         <div className="flex flex-col gap-2 items-start">
                           <Link
                             href={`/admin/reports/${row.id}`}
-                            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg flex items-center gap-2 transition-colors w-full justify-between"
+                            className="px-3 py-2 bg-white/10 border border-white/10 hover:bg-white/20 text-white text-sm font-semibold rounded-xl flex items-center gap-2 transition-colors w-full justify-between backdrop-blur-sm"
                           >
                             Buka Laporan <ChevronRight className="w-3 h-3" />
                           </Link>
@@ -501,7 +506,7 @@ export default function AdminReports() {
                               <Link
                                 href={`/admin/reports/${row.id}/print`}
                                 target="_blank"
-                                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg flex items-center gap-2 transition-colors w-full justify-between"
+                                className="px-3 py-2 bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/40 text-blue-400 text-sm font-semibold rounded-xl flex items-center gap-2 transition-colors w-full justify-between shadow-[0_0_15px_rgba(59,130,246,0.2)]"
                               >
                                 <Printer className="w-3 h-3" /> Cetak Lengkap
                               </Link>

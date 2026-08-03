@@ -28,7 +28,7 @@ export default function HexacoTestPage() {
       .catch(err => console.error("Gagal memuat soal", err));
   }, []);
   
-  const questionsPerPage = 10;
+  const questionsPerPage = 20;
   const totalPages = Math.ceil(questions.length / questionsPerPage);
   
   const currentQuestions = questions.slice(
@@ -230,9 +230,9 @@ export default function HexacoTestPage() {
             onClick={handleNext}
             disabled={!isPageComplete() || isSubmitting}
             className={`px-8 py-3 rounded-xl font-medium transition-all shadow-sm
-              \${isPageComplete() 
+              ${isPageComplete() 
                 ? 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-md hover:-translate-y-0.5' 
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-slate-200 text-slate-500 cursor-not-allowed'
               }
             `}
           >

@@ -10,6 +10,9 @@ const REQUIRED_TESTS = [
   { code: 'HEXACO', name: 'HEXACO Personality', category: 'KEPRIBADIAN' },
   { code: 'DISC', name: 'DISC Profile', category: 'GAYA_KERJA' },
   { code: 'WVI', name: 'Work Value Inventory', category: 'NILAI_KERJA' },
+  { code: 'DAT', name: 'Differential Aptitude Test', category: 'BAKAT' },
+  { code: 'GRAPHOLOGY', name: 'Analisis Grafologi', category: 'PROYEKTIF' },
+  { code: 'WARTEGG', name: 'Wartegg Zeichen Test', category: 'PROYEKTIF' },
 ];
 
 export async function GET() {

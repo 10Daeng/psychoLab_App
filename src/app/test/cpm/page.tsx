@@ -34,9 +34,9 @@ export default function CPMTestPage() {
   
   const [optionsLocked, setOptionsLocked] = useState(false);
   
-  // Timer total
+  // Timer total via Web Worker
   const [totalTime, setTotalTime] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
     // Validasi session
@@ -57,11 +57,14 @@ export default function CPMTestPage() {
         setQuestions(data);
         setIsLoaded(true);
         setQuestionStartTime(Date.now());
-        
-        // Start total timer
-        timerRef.current = setInterval(() => {
-          setTotalTime(prev => prev + 1);
-        }, 1000);
+        // Initialize Web Worker Timer for Stopwatch mode
+        workerRef.current = new Worker(new URL("/workers/timer.js", window.location.origin));
+        workerRef.current.onmessage = (e) => {
+          if (e.data.type === "TICK") {
+            setTotalTime(e.data.elapsedSeconds);
+          }
+        };
+        workerRef.current.postMessage({ command: "START_COUNTUP" });
       })
       .catch(err => {
         console.error("Gagal memuat soal", err);
@@ -69,7 +72,10 @@ export default function CPMTestPage() {
 
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (workerRef.current) {
+        workerRef.current.postMessage({ command: "STOP" });
+        workerRef.current.terminate();
+      }
     };
   }, [router]);
 
@@ -126,11 +132,15 @@ export default function CPMTestPage() {
   };
 
   const finishTest = async () => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (workerRef.current) {
+      workerRef.current.postMessage({ command: "STOP" });
+      workerRef.current.terminate();
+    }
     
     try {
       // Simpan menggunakan state dari ref yang paling update
       sessionStorage.setItem("cpmGameResults", JSON.stringify(resultsLogRef.current));
+      // Pastikan totalTime juga diset menggunakan state terakhir
       sessionStorage.setItem("cpmTotalTime", totalTime.toString());
       
       router.push("/test/cpm/finish");

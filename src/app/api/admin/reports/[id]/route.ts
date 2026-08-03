@@ -33,9 +33,19 @@ export async function GET(
 
     if (err2) throw err2;
 
+    const { data: clientReports, error: err3 } = await supabase
+      .from("client_reports")
+      .select("*")
+      .eq("report_id", id);
+      
+    if (err3 && err3.code !== '42P01') {
+      console.warn("client_reports error (or table missing):", err3);
+    }
+
     return NextResponse.json({
       report: tokenData,
-      testResults: results || []
+      testResults: results || [],
+      clientReports: clientReports || []
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

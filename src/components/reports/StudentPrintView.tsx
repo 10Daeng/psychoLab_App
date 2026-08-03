@@ -2,9 +2,9 @@ import React from "react";
 import { PrintIQGauge, PrintBar } from "./SharedReportComponents";
 
 export default function StudentPrintView({ 
-  report, testResults, client, ageYears, ageMonths, dateStr, viewMode, aiNarrative, notesData 
+  report, testResults, client, ageYears, ageMonths, dateStr, viewMode, aiNarrative, notesData, clientReports = []
 }: { 
-  report: any, testResults: any[], client: any, ageYears: number, ageMonths: number, dateStr: string, viewMode: "CLEAN" | "FULL", aiNarrative: any, notesData: any 
+  report: any, testResults: any[], client: any, ageYears: number, ageMonths: number, dateStr: string, viewMode: "CLEAN" | "FULL", aiNarrative: any, notesData: any, clientReports?: any[]
 }) {
   const cogResult = testResults.find((r: any) => ["CPM", "RAVEN2"].includes(r.tests?.code));
   const vakResult = testResults.find((r: any) => r.tests?.code === "VAK");
@@ -16,6 +16,11 @@ export default function StudentPrintView({
   
   const vakScore = vakResult?.calculated_score?.calculatedData || {};
   const riasecScore = riasecResult?.calculated_score?.calculatedData || {};
+
+  const reportData = clientReports.find(r => r.report_id === report.id);
+  const finalHtml = reportData?.final_synthesis_html 
+                 || cogResult?.calculated_score?.final_html 
+                 || riasecResult?.calculated_score?.final_html;
 
   return (
     <>
@@ -115,110 +120,118 @@ export default function StudentPrintView({
         </div>
       )}
 
-      {aiNarrative.stuData && (
+      {(finalHtml || aiNarrative?.stuData) && (
         <div className="mb-8">
           <div className="page-break" />
           <h3 className="font-bold bg-orange-600 text-white p-2 mb-4 text-sm uppercase rounded-t-lg">
             C. Analisis Lanjutan & Rekomendasi Karir
           </h3>
-          <div className="p-6 border-x border-b border-slate-200 rounded-b-lg">
+          <div className="p-8 border-x border-b border-slate-200 rounded-b-lg">
             
-            {aiNarrative.stuData.interpretasiTerpadu && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">1. Interpretasi Terpadu</h4>
-                <ul className="list-disc pl-5 space-y-1 mb-3">
-                  {aiNarrative.stuData.interpretasiTerpadu.poinAnalisis?.map((poin: string, idx: number) => (
-                    <li key={idx} className="text-sm text-slate-700 leading-relaxed font-serif">{poin}</li>
-                  ))}
-                </ul>
-                <div className="bg-orange-50 p-3 rounded-lg border-l-2 border-orange-400 text-sm text-slate-800 italic font-serif">
-                  "{aiNarrative.stuData.interpretasiTerpadu.paragrafKesimpulan}"
-                </div>
-              </div>
-            )}
-
-            {aiNarrative.stuData.saranPengembangan && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">2. Saran Pengembangan Praktis</h4>
-                
-                {aiNarrative.stuData.saranPengembangan.lingkunganRumah && (
-                  <div className="mb-3">
-                    <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">A. Lingkungan Rumah & Keluarga</h5>
-                    <table className="w-full text-sm border-collapse mt-2">
-                      <thead>
-                        <tr className="bg-slate-100 text-slate-700">
-                          <th className="border border-slate-300 p-2 text-left w-1/4">Potensi</th>
-                          <th className="border border-slate-300 p-2 text-left w-1/2">Saran Kegiatan</th>
-                          <th className="border border-slate-300 p-2 text-left w-1/4">Manfaat</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {aiNarrative.stuData.saranPengembangan.lingkunganRumah.map((item: any, idx: number) => (
-                          <tr key={idx}>
-                            <td className="border border-slate-300 p-2 font-semibold text-slate-800">{item.potensi}</td>
-                            <td className="border border-slate-300 p-2 text-slate-700">{item.kegiatan}</td>
-                            <td className="border border-slate-300 p-2 text-slate-600 text-xs">{item.manfaat}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+            {finalHtml ? (
+              <div 
+                className="prose prose-sm max-w-none text-slate-800 font-serif leading-relaxed" 
+                dangerouslySetInnerHTML={{ __html: finalHtml }} 
+              />
+            ) : (
+              <>
+                {aiNarrative.stuData.interpretasiTerpadu && (
+                  <div className="mb-6 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">1. Interpretasi Terpadu</h4>
+                    <ul className="list-disc pl-5 space-y-1 mb-3">
+                      {aiNarrative.stuData.interpretasiTerpadu.poinAnalisis?.map((poin: string, idx: number) => (
+                        <li key={idx} className="text-sm text-slate-700 leading-relaxed font-serif">{poin}</li>
+                      ))}
+                    </ul>
+                    <div className="bg-orange-50 p-3 rounded-lg border-l-2 border-orange-400 text-sm text-slate-800 italic font-serif">
+                      "{aiNarrative.stuData.interpretasiTerpadu.paragrafKesimpulan}"
+                    </div>
                   </div>
                 )}
-                
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  {aiNarrative.stuData.saranPengembangan.kolaborasiSekolah && (
-                    <div>
-                      <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">B. Kolaborasi Sekolah</h5>
-                      <ul className="list-disc pl-4 space-y-1">
-                        {aiNarrative.stuData.saranPengembangan.kolaborasiSekolah.map((saran: string, idx: number) => (
-                          <li key={idx} className="text-sm text-slate-700 font-serif leading-relaxed">{saran}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {aiNarrative.stuData.saranPengembangan.pengembanganKarakter && (
-                    <div>
-                      <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">C. Pengembangan Karakter</h5>
-                      <ul className="list-disc pl-4 space-y-1">
-                        {aiNarrative.stuData.saranPengembangan.pengembanganKarakter.map((saran: string, idx: number) => (
-                          <li key={idx} className="text-sm text-slate-700 font-serif leading-relaxed">{saran}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
 
-            {aiNarrative.stuData.petaMasaDepan && (
-              <div className="mb-4 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">3. Peta Masa Depan (Rekomendasi Karir)</h4>
-                
-                {aiNarrative.stuData.petaMasaDepan.rekomendasiKarir && (
-                  <div className="grid grid-cols-1 gap-3 mt-3">
-                    {aiNarrative.stuData.petaMasaDepan.rekomendasiKarir.map((item: any, idx: number) => (
-                      <div key={idx} className="border border-slate-300 rounded-lg p-3 bg-slate-50">
-                        <div className="flex justify-between items-center mb-1">
-                          <p className="font-bold text-slate-900 text-sm">{idx + 1}. {item.bidang}</p>
-                        </div>
-                        <p className="text-sm text-slate-700 mb-1"><strong className="text-slate-800">Contoh Profesi:</strong> {item.contohKarir}</p>
-                        <p className="text-xs text-slate-600 italic font-serif">{item.alasanKesesuaian}</p>
+                {aiNarrative.stuData.saranPengembangan && (
+                  <div className="mb-6 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">2. Saran Pengembangan Praktis</h4>
+                    
+                    {aiNarrative.stuData.saranPengembangan.lingkunganRumah && (
+                      <div className="mb-3">
+                        <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">A. Lingkungan Rumah & Keluarga</h5>
+                        <table className="w-full text-sm border-collapse mt-2">
+                          <thead>
+                            <tr className="bg-slate-100 text-slate-700">
+                              <th className="border border-slate-300 p-2 text-left w-1/4">Potensi</th>
+                              <th className="border border-slate-300 p-2 text-left w-1/2">Saran Kegiatan</th>
+                              <th className="border border-slate-300 p-2 text-left w-1/4">Manfaat</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {aiNarrative.stuData.saranPengembangan.lingkunganRumah.map((item: any, idx: number) => (
+                              <tr key={idx}>
+                                <td className="border border-slate-300 p-2 font-semibold text-slate-800">{item.potensi}</td>
+                                <td className="border border-slate-300 p-2 text-slate-700">{item.kegiatan}</td>
+                                <td className="border border-slate-300 p-2 text-slate-600 text-xs">{item.manfaat}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
-                    ))}
+                    )}
+                    
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                      {aiNarrative.stuData.saranPengembangan.kolaborasiSekolah && (
+                        <div>
+                          <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">B. Kolaborasi Sekolah</h5>
+                          <ul className="list-disc pl-4 space-y-1">
+                            {aiNarrative.stuData.saranPengembangan.kolaborasiSekolah.map((saran: string, idx: number) => (
+                              <li key={idx} className="text-sm text-slate-700 font-serif leading-relaxed">{saran}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {aiNarrative.stuData.saranPengembangan.pengembanganKarakter && (
+                        <div>
+                          <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">C. Pengembangan Karakter</h5>
+                          <ul className="list-disc pl-4 space-y-1">
+                            {aiNarrative.stuData.saranPengembangan.pengembanganKarakter.map((saran: string, idx: number) => (
+                              <li key={idx} className="text-sm text-slate-700 font-serif leading-relaxed">{saran}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
-                {aiNarrative.stuData.petaMasaDepan.pesanUntukOrangTua && (
-                  <div className="mt-6 border border-slate-400 bg-slate-100 rounded-xl p-4 text-center">
-                    <p className="text-xs font-bold uppercase text-slate-600 tracking-wider mb-2">Pesan Untuk Orang Tua</p>
-                    <p className="text-sm text-slate-800 font-serif leading-relaxed">
-                      "{aiNarrative.stuData.petaMasaDepan.pesanUntukOrangTua}"
-                    </p>
+                {aiNarrative.stuData.petaMasaDepan && (
+                  <div className="mb-4 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">3. Peta Masa Depan (Rekomendasi Karir)</h4>
+                    
+                    {aiNarrative.stuData.petaMasaDepan.rekomendasiKarir && (
+                      <div className="grid grid-cols-1 gap-3 mt-3">
+                        {aiNarrative.stuData.petaMasaDepan.rekomendasiKarir.map((item: any, idx: number) => (
+                          <div key={idx} className="border border-slate-300 rounded-lg p-3 bg-slate-50">
+                            <div className="flex justify-between items-center mb-1">
+                              <p className="font-bold text-slate-900 text-sm">{idx + 1}. {item.bidang}</p>
+                            </div>
+                            <p className="text-sm text-slate-700 mb-1"><strong className="text-slate-800">Contoh Profesi:</strong> {item.contohKarir}</p>
+                            <p className="text-xs text-slate-600 italic font-serif">{item.alasanKesesuaian}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {aiNarrative.stuData.petaMasaDepan.pesanUntukOrangTua && (
+                      <div className="mt-6 border border-slate-400 bg-slate-100 rounded-xl p-4 text-center">
+                        <p className="text-xs font-bold uppercase text-slate-600 tracking-wider mb-2">Pesan Untuk Orang Tua</p>
+                        <p className="text-sm text-slate-800 font-serif leading-relaxed">
+                          "{aiNarrative.stuData.petaMasaDepan.pesanUntukOrangTua}"
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
+              </>
             )}
-
           </div>
         </div>
       )}

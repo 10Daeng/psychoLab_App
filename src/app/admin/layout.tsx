@@ -53,6 +53,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { href: "/admin/reports/list/employee", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan Asesmen" },
         { href: "/admin/observation/employee", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi & Wawancara" },
       ]
+    },
+    {
+      title: "Data Hasil Modul",
+      links: [
+        { href: "/admin/reports/module/DISC", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil DISC" },
+        { href: "/admin/reports/module/HEXACO", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil HEXACO" },
+        { href: "/admin/reports/module/WVI", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil WVI" },
+        { href: "/admin/reports/module/SDS", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil SDS" },
+        { href: "/admin/reports/module/CPM", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil CPM" },
+        { href: "/admin/reports/module/OBSERVASI_ANAK", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi Anak" },
+        { href: "/admin/reports/module/WAWANCARA_ANAK", icon: <ClipboardCheck className="w-4 h-4" />, label: "Wawancara Anak" },
+        { href: "/admin/reports/module/KUESIONER_ORTU", icon: <ClipboardCheck className="w-4 h-4" />, label: "Kuesioner Ortu" },
+      ]
     }
   ];
 

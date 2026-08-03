@@ -25,7 +25,11 @@
     "react-to-print": "^3.3.0",
     "recharts": "^3.9.2",
     "xlsx": "^0.18.5",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@tiptap/react": "^2.11.2",
+    "@tiptap/pm": "^2.11.2",
+    "@tiptap/starter-kit": "^2.11.2",
+    "@tailwindcss/typography": "^0.5.16"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

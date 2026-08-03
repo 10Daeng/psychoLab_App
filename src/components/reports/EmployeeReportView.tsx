@@ -2,17 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { motion, AnimatePresence } from "framer-motion";
-import { Users, Brain, Target, Lightbulb, FileText, RefreshCw, Sparkles, Star } from "lucide-react";
+import { Users, Brain, Target, Lightbulb, FileText, RefreshCw, Sparkles, Star, Download } from "lucide-react";
 import ObservationForm from "@/app/admin/reports/[id]/ObservationForm";
-import { IQGauge, TraitBar } from "./SharedReportComponents";
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
+import { IQGauge } from "./SharedReportComponents";
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
+import ClinicalWorkspace from "./ClinicalWorkspace";
+import { evaluateConflicts } from "@/lib/services/conflictEngine";
 
 const config = { label: "Karyawan", color: "violet", accent: "bg-violet-600", light: "bg-violet-50", text: "text-violet-700", icon: "💼" };
 
 export default function EmployeeReportView({ report, testResults }: { report: any, testResults: any[] }) {
-  const [activeTab, setActiveTab] = useState<"profile" | "cognitive" | "personality" | "ai" | "notes">("profile");
-  
   const initialObs = report?.observations?.[0] || report?.observations;
   const initialNotesString = initialObs 
     ? JSON.stringify({ notes: initialObs.notes || "", observation: initialObs.observation_data || {}, interview: initialObs.interview_data || {} }) 
@@ -27,6 +26,8 @@ export default function EmployeeReportView({ report, testResults }: { report: an
   const discResult = testResults.find((r: any) => r.tests?.code === "DISC");
   const hexacoResult = testResults.find((r: any) => r.tests?.code === "HEXACO");
   const wviResult = testResults.find((r: any) => r.tests?.code === "WVI");
+  const graphologyResult = testResults.find((r: any) => r.tests?.code === "GRAPHOLOGY");
+  const warteggResult = testResults.find((r: any) => r.tests?.code === "WARTEGG");
 
   useEffect(() => {
     const aiSrc = cogResult?.calculated_score?.ai_narrative || discResult?.calculated_score?.ai_narrative;
@@ -56,22 +57,23 @@ export default function EmployeeReportView({ report, testResults }: { report: an
     setAiError("");
 
     try {
-      const birth = client?.birth_date ? new Date(client.birth_date) : null;
-      const ageYears = birth ? new Date().getFullYear() - birth.getFullYear() : 0;
-      const cogScore = cogResult?.calculated_score || {};
+      const detectedFlags = evaluateConflicts('EMPLOYEE', {
+        hexaco: hexacoResult?.calculated_score?.calculatedData,
+        disc: discResult?.calculated_score?.calculatedData,
+        projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
+        wvi: wviResult?.calculated_score?.calculatedData
+      });
 
       const payload = {
-        segment: "EMP",
-        name: client.name,
-        nickname: client.name?.split(" ")[0] || client.name,
-        ageYears,
-        iq: cogScore.iq || cogScore.calculatedData?.iq,
-        percentile: cogScore.percentile,
-        totalScore: cogScore.rawScore || cogScore.totalRawScore,
-        disc: discResult?.calculated_score?.calculatedData,
-        hexaco: hexacoResult?.calculated_score?.calculatedData,
-        wvi: wviResult?.calculated_score?.calculatedData,
-        position: client.grade || "Posisi Umum",
+        clientName: client.name,
+        context: 'EMPLOYEE',
+        rawPayload: {
+          hexaco: hexacoResult?.calculated_score?.calculatedData,
+          disc: discResult?.calculated_score?.calculatedData,
+          projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
+          wvi: wviResult?.calculated_score?.calculatedData
+        },
+        conflictFlags: detectedFlags
       };
 
       const res = await fetch("/api/generate-narrative", {
@@ -83,17 +85,13 @@ export default function EmployeeReportView({ report, testResults }: { report: an
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gagal generate narasi");
 
-      const narrative = {
-        empData: data.empData,
-        generated_at: new Date().toISOString(),
-      };
-      setAiNarrative(narrative);
+      setAiNarrative(data.htmlContent);
 
       const targetToUpdate = cogResult || discResult;
       if (targetToUpdate?.id) {
         await supabase
           .from("test_results")
-          .update({ calculated_score: { ...targetToUpdate.calculated_score, ai_narrative: narrative } })
+          .update({ calculated_score: { ...targetToUpdate.calculated_score, ai_narrative: data.htmlContent } })
           .eq("id", targetToUpdate.id);
       }
     } catch (err: any) {
@@ -116,343 +114,351 @@ export default function EmployeeReportView({ report, testResults }: { report: an
 
   const hexacoScore = hexacoResult?.calculated_score?.calculatedData || {};
   const hexacoBars = hexacoScore.H !== undefined ? [
-    { key: "H", label: "Kejujuran", value: hexacoScore.H || 0, color: "#10b981" },
-    { key: "E", label: "Emosionalitas", value: hexacoScore.E || 0, color: "#f59e0b" },
-    { key: "X", label: "Ekstraversi", value: hexacoScore.X || 0, color: "#3b82f6" },
-    { key: "A", label: "Kooperatif", value: hexacoScore.A || 0, color: "#8b5cf6" },
-    { key: "C", label: "Tanggung Jawab", value: hexacoScore.C || 0, color: "#06b6d4" },
-    { key: "O", label: "Keterbukaan", value: hexacoScore.O || 0, color: "#f43f5e" },
+    { key: "H", label: "Honesty-Humility", value: hexacoScore.H || 0, color: "#8b5cf6" },
+    { key: "E", label: "Emotionality", value: hexacoScore.E || 0, color: "#ef4444" },
+    { key: "X", label: "eXtraversion", value: hexacoScore.X || 0, color: "#3b82f6" },
+    { key: "A", label: "Agreeableness", value: hexacoScore.A || 0, color: "#10b981" },
+    { key: "C", label: "Conscientiousness", value: hexacoScore.C || 0, color: "#f97316" },
+    { key: "O", label: "Openness", value: hexacoScore.O || 0, color: "#14b8a6" },
   ] : [];
 
   const wviScore = wviResult?.calculated_score?.calculatedData || {};
 
-  const tabs = [
-    { id: "profile", label: "Profil Klien", icon: Users },
-    { id: "cognitive", label: "Analisis Kognitif", icon: Brain },
-    { id: "personality", label: "Profil Kepribadian", icon: Target },
-    { id: "ai", label: "Dinamika AI", icon: Lightbulb },
-    { id: "notes", label: "Observasi & Catatan", icon: FileText },
-  ];
-
   return (
-    <div className="flex flex-col md:flex-row gap-6">
-      <div className="w-full md:w-56 shrink-0">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-2 sticky top-20">
-          <p className="text-[10px] font-bold text-slate-400 px-3 pt-2 pb-1 uppercase tracking-wider">Laporan Karyawan</p>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`w-full flex items-center gap-2.5 px-3 py-3 text-left rounded-xl transition-all mb-0.5 text-sm ${
-                  isActive ? `${config.light} ${config.text} font-semibold` : "hover:bg-slate-50 text-slate-600"
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? config.text : "text-slate-400"}`} />
-                {tab.label}
-              </button>
-            );
-          })}
+    <div className="space-y-8 pb-20">
+      
+      {/* 1. Profil Klien Header */}
+      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Nama Lengkap</p>
+            <p className="text-base font-bold text-white">{client?.name || "-"}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Email / NIK</p>
+            <p className="text-base font-bold text-white">{client?.email || client?.registration_number || "-"}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Usia</p>
+            <p className="text-base font-bold text-white">{client?.birth_date ? `${new Date().getFullYear() - new Date(client.birth_date).getFullYear()} tahun` : "-"}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Tanggal Asesmen</p>
+            <p className="text-base font-bold text-white">{report?.created_at ? new Date(report.created_at).toLocaleDateString("id-ID", { dateStyle: "long" }) : "-"}</p>
+          </div>
+          <div className="md:col-span-2">
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Asal Instansi</p>
+            <p className="text-base font-bold text-white">{client?.school_or_institution || "-"}</p>
+          </div>
+          <div className="md:col-span-2">
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Pekerjaan / Jabatan</p>
+            <p className="text-base font-bold text-white">{client?.grade || "-"}</p>
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Laporan {config.label}</h1>
-              <p className="text-slate-500 mt-1 text-lg">{client?.name || "Peserta"}</p>
+      {/* 2. Kognitif (RAVEN/CPM) */}
+      {cogResult && iqValue > 0 && (
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Brain className="w-5 h-5 text-violet-400" /> Kapasitas Kognitif ({cogResult.tests?.code})
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+            <div className="col-span-1 flex justify-center">
+              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 w-full max-w-[200px] flex justify-center">
+                 {/* Re-using IQGauge but in dark mode wrapper if possible */}
+                 <div className="scale-75 md:scale-90 origin-center"><IQGauge iq={iqValue} /></div>
+              </div>
+            </div>
+            <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", color: "text-blue-400" },
+                { label: "Persentil", value: cogScore.percentile || "-", color: "text-emerald-400" },
+                { label: "IQ Estimasi", value: iqValue || "-", color: "text-violet-400" },
+                { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", color: "text-amber-400" },
+              ].map((item) => (
+                <div key={item.label} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center text-center">
+                  <p className="text-xs font-bold text-slate-500 uppercase mb-2">{item.label}</p>
+                  <p className={`text-xl md:text-2xl font-black ${item.color}`}>{item.value}</p>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+      )}
 
-          <AnimatePresence mode="wait">
-            {activeTab === "profile" && (
-              <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="border border-slate-200 rounded-2xl p-6">
-                  <h2 className="text-lg font-semibold mb-5 flex items-center gap-2">
-                    <span className="w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center text-sm">👤</span>
-                    Informasi Peserta
-                  </h2>
-                  <div className="grid grid-cols-2 gap-x-12 gap-y-4 text-sm">
-                    {[
-                      ["Nama Lengkap", client?.name],
-                      ["Tanggal Lahir", client?.birth_date ? new Date(client.birth_date).toLocaleDateString("id-ID", { dateStyle: "long" }) : "-"],
-                      ["Jenis Kelamin", client?.gender === "L" ? "Laki-laki" : client?.gender === "P" ? "Perempuan" : "-"],
-                      ["Instansi", client?.school_or_institution || "-"],
-                      ["Jabatan / Posisi", client?.grade || "-"],
-                      ["Nomor Karyawan / NIK", client?.registration_number || "-"],
-                      ["Tgl Tes", report?.created_at ? new Date(report.created_at).toLocaleDateString("id-ID", { dateStyle: "long" }) : "-"],
-                    ].map(([label, value]) => (
-                      <div key={label}>
-                        <span className="text-slate-500">{label}</span>
-                        <p className="font-semibold text-slate-800 mt-0.5">{value || "-"}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === "cognitive" && (
-              <motion.div key="cognitive" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                {cogResult ? (
-                  <div className="space-y-6">
-                    <div className="border border-slate-200 rounded-2xl p-6">
-                      <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
-                        <Brain className="w-5 h-5 text-blue-500" /> Profil Kognitif ({cogResult.tests?.code})
-                      </h2>
-                      {iqValue > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                          <div className="flex justify-center"><IQGauge iq={iqValue} /></div>
-                          <div className="md:col-span-2 grid grid-cols-2 gap-4">
-                            {[
-                              { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", unit: "/ 60", color: "blue" },
-                              { label: "Persentil", value: cogScore.percentile || "-", unit: "", color: "emerald" },
-                              { label: "IQ Estimasi", value: iqValue || "-", unit: "", color: "violet" },
-                              { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", unit: "", color: "amber" },
-                            ].map((item) => (
-                              <div key={item.label} className={`bg-${item.color}-50 border border-${item.color}-100 rounded-xl p-4`}>
-                                <p className="text-xs font-bold text-slate-500 uppercase mb-1">{item.label}</p>
-                                <p className={`text-2xl font-black text-${item.color}-700`}>{item.value} <span className="text-sm font-normal text-slate-500">{item.unit}</span></p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+      {/* Bakat Diferensial (DAT) */}
+      {testResults.find(r => r.tests?.code === "DAT") && (
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Brain className="w-5 h-5 text-teal-400" /> Tes Bakat Diferensial (DAT)
+            </h2>
+          </div>
+          <div className="bg-slate-950 rounded-2xl border border-slate-800 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                {Object.entries(testResults.find(r => r.tests?.code === "DAT")?.calculated_score?.calculatedData?.percentiles || {}).map(([key, val]: any) => (
+                  <div key={key}>
+                    <div className="flex justify-between text-xs font-semibold mb-1">
+                      <span className="text-slate-400">{key}</span>
+                      <span className="text-teal-400">{val}%</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-2">
+                      <div className="bg-teal-500 h-2 rounded-full" style={{ width: `${val}%` }}></div>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-20 text-slate-400">
-                    <Brain className="w-20 h-20 mx-auto mb-4 opacity-30" />
-                    <p className="text-lg">Data kognitif belum tersedia.</p>
+                ))}
+              </div>
+              <div className="flex flex-col justify-center items-center p-6 bg-slate-900 border border-slate-800 rounded-xl">
+                 <p className="text-xs font-bold text-slate-500 uppercase mb-2">Rekomendasi Penjurusan / Bidang</p>
+                 <p className="text-lg font-bold text-teal-400 text-center">
+                   {testResults.find(r => r.tests?.code === "DAT")?.calculated_score?.calculatedData?.recommendation || "Generalis"}
+                 </p>
+                 <div className="flex gap-4 mt-4 text-xs font-bold text-slate-400">
+                   <div className="text-center">IPA/Teknik<br/><span className="text-blue-400">{testResults.find(r => r.tests?.code === "DAT")?.calculated_score?.calculatedData?.ipaScore || 0}</span></div>
+                   <div className="text-center">IPS/Bahasa<br/><span className="text-yellow-400">{testResults.find(r => r.tests?.code === "DAT")?.calculated_score?.calculatedData?.ipsScore || 0}</span></div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Profil Gaya Kerja (DISC) */}
+      {discResult && discRadarData.length > 0 && (
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Target className="w-5 h-5 text-blue-400" /> Profil Gaya Kerja (DISC)
+            </h2>
+            <div className="bg-blue-500/20 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-sm font-bold">
+              Pola: {discScore.archetype || "-"}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+             {/* We only have 1 combined radar chart in current data, but to mimic Lentera Batin, we'll show it in center */}
+             <div className="lg:col-start-2">
+               <ResponsiveContainer width="100%" height={250}>
+                  <RadarChart data={discRadarData}>
+                    <PolarGrid stroke="#334155" />
+                    <PolarAngleAxis dataKey="trait" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                    <PolarRadiusAxis domain={[0, 48]} tick={false} axisLine={false} />
+                    <Radar dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} />
+                  </RadarChart>
+                </ResponsiveContainer>
+             </div>
+          </div>
+
+          {/* Skor Tabel DISC */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-slate-300">
+              <thead className="text-xs uppercase bg-slate-950 text-slate-500 border-y border-slate-800">
+                <tr>
+                  <th className="px-4 py-3">Dimensi</th>
+                  <th className="px-4 py-3 text-center">Skor (Aktual)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                <tr className="hover:bg-slate-800/30">
+                  <td className="px-4 py-3 font-semibold text-red-400">Dominance (D)</td>
+                  <td className="px-4 py-3 text-center">{discScore.D || 24}</td>
+                </tr>
+                <tr className="hover:bg-slate-800/30">
+                  <td className="px-4 py-3 font-semibold text-yellow-400">Influence (I)</td>
+                  <td className="px-4 py-3 text-center">{discScore.I || 24}</td>
+                </tr>
+                <tr className="hover:bg-slate-800/30">
+                  <td className="px-4 py-3 font-semibold text-green-400">Steadiness (S)</td>
+                  <td className="px-4 py-3 text-center">{discScore.S || 24}</td>
+                </tr>
+                <tr className="hover:bg-slate-800/30">
+                  <td className="px-4 py-3 font-semibold text-blue-400">Compliance (C)</td>
+                  <td className="px-4 py-3 text-center">{discScore.C || 24}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Profil Karakter (HEXACO) */}
+      {hexacoResult && hexacoBars.length > 0 && (
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Star className="w-5 h-5 text-purple-400" /> Profil Karakter (HEXACO 100)
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {hexacoBars.map(bar => {
+              // Convert 1-5 score to 1-100 percentage
+              const percent = Math.round((bar.value / 5) * 100);
+              return (
+                <div key={bar.key} className="bg-slate-950 p-5 rounded-xl border border-slate-800">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-bold text-white">{bar.label}</h3>
+                    <span className="text-sm font-bold" style={{ color: bar.color }}>{percent}%</span>
                   </div>
-                )}
-              </motion.div>
-            )}
-
-            {activeTab === "personality" && (
-              <motion.div key="personality" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="space-y-6">
-                  {discResult && discRadarData.length > 0 && (
-                    <div className="border border-slate-200 rounded-2xl p-6">
-                      <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                        <Target className="w-5 h-5 text-blue-500" /> Profil Perilaku DISC
-                      </h2>
-                      <p className="text-sm text-slate-500 mb-5">
-                        Arketipe: <span className="font-bold text-slate-800">{discScore.archetype || "-"}</span>
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <ResponsiveContainer width="100%" height={250}>
-                          <RadarChart data={discRadarData}>
-                            <PolarGrid />
-                            <PolarAngleAxis dataKey="trait" tick={{ fontSize: 11 }} />
-                            <PolarRadiusAxis domain={[0, 48]} tick={{ fontSize: 9 }} />
-                            <Radar dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} />
-                          </RadarChart>
-                        </ResponsiveContainer>
-                        <div className="space-y-3 flex flex-col justify-center">
-                          {[
-                            { label: "Dominance (D)", val: discScore.D || 24, color: "#ef4444" },
-                            { label: "Influence (I)", val: discScore.I || 24, color: "#f59e0b" },
-                            { label: "Steadiness (S)", val: discScore.S || 24, color: "#22c55e" },
-                            { label: "Compliance (C)", val: discScore.C || 24, color: "#3b82f6" },
-                          ].map(({ label, val, color }) => (
-                            <TraitBar key={label} label={label} value={val} max={48} color={color} />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {hexacoResult && hexacoBars.length > 0 && (
-                    <div className="border border-slate-200 rounded-2xl p-6">
-                      <h2 className="text-lg font-semibold mb-5 flex items-center gap-2">
-                        <Star className="w-5 h-5 text-purple-500" /> Profil Kepribadian HEXACO
-                        {hexacoScore.validation_warning && (
-                          <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full ml-1">⚠ Tidak Valid</span>
-                        )}
-                      </h2>
-                      <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={hexacoBars} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="label" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                          <YAxis domain={[0, 5]} axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />
-                          <Tooltip formatter={(v: any) => v?.toFixed?.(2) || v} contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / .1)" }} />
-                          <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={50}>
-                            {hexacoBars.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                      {hexacoScore.validation_warning && (
-                        <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
-                          ⚠ {hexacoScore.validation_warning}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {wviResult && Object.keys(wviScore).length > 0 && (
-                    <div className="border border-slate-200 rounded-2xl p-6">
-                      <h2 className="text-lg font-semibold mb-5 flex items-center gap-2">
-                        <Star className="w-5 h-5 text-amber-500" /> Nilai Kerja (WVI)
-                      </h2>
-                      <div className="space-y-3">
-                        {Object.entries(wviScore)
-                          .filter(([k]) => typeof wviScore[k] === "number")
-                          .sort(([, a], [, b]) => (b as number) - (a as number))
-                          .slice(0, 8)
-                          .map(([key, val]) => (
-                            <TraitBar key={key} label={key.replace(/_/g, " ")} value={val as number} max={5} color="#f59e0b" />
-                          ))}
-                      </div>
-                    </div>
-                  )}
+                  <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden mb-3">
+                    <div className="h-full rounded-full transition-all" style={{ width: `${percent}%`, backgroundColor: bar.color }}></div>
+                  </div>
+                  {/* Facets mock since we don't have facet data extracted directly in the standard calc yet */}
+                  <div className="flex justify-between items-center text-xs text-slate-500 px-1">
+                    <span>Skor Dimensi</span>
+                    <span className="font-bold text-slate-400">{bar.value.toFixed(2)} / 5.00</span>
+                  </div>
                 </div>
-              </motion.div>
-            )}
+              );
+            })}
+          </div>
+        </div>
+      )}
 
-            {activeTab === "ai" && (
-              <motion.div key="ai" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="space-y-6">
-                  {aiNarrative ? (
-                    <div className="bg-gradient-to-br from-violet-50 via-white to-indigo-50 border border-violet-100 rounded-2xl p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="text-3xl">💡</div>
-                          <div>
-                            <h3 className="text-lg font-bold text-slate-800">Narasi AI Lentera Batin</h3>
-                          </div>
-                        </div>
-                        <button onClick={handleGenerateAI} disabled={aiGenerating} className="text-xs text-blue-600 flex items-center gap-1 border border-blue-200 bg-blue-50 px-3 py-1.5 rounded-lg">
-                          <RefreshCw className={`w-3 h-3 ${aiGenerating ? "animate-spin" : ""}`} /> Regenerate
-                        </button>
-                      </div>
-                      {aiNarrative.empData?.deskripsiTerintegrasi && (
-                        <div className="mb-6">
-                          <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-violet-100 pb-2">
-                            1. Deskripsi Kepribadian Terintegrasi
-                          </h4>
-                          <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed text-justify">
-                            {aiNarrative.empData.deskripsiTerintegrasi}
-                          </p>
-                        </div>
-                      )}
+      {/* 5. Profil Nilai Kerja (WVI) */}
+      {wviResult && Object.keys(wviScore).length > 0 && (
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Star className="w-5 h-5 text-amber-500" /> Profil Nilai Kerja (WVI)
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-emerald-950/20 border border-emerald-900/50 p-5 rounded-xl">
+               <h3 className="text-emerald-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-emerald-900/50 pb-2">3 Nilai Paling Diutamakan</h3>
+               <div className="space-y-4">
+                 {(wviScore.top3 || []).map((v: any, i: number) => {
+                   const pct = Math.round((v.score / 5) * 100);
+                   return (
+                     <div key={i}>
+                       <div className="flex justify-between text-sm mb-1">
+                         <span className="text-slate-300">{v.name}</span>
+                         <span className="text-emerald-400 font-bold">{v.score}</span>
+                       </div>
+                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                         <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%`}}></div>
+                       </div>
+                     </div>
+                   );
+                 })}
+               </div>
+            </div>
 
-                      {aiNarrative.empData?.kekuatanUtama && aiNarrative.empData.kekuatanUtama.length > 0 && (
-                        <div className="mb-6">
-                          <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-emerald-100 pb-2">
-                            2. Kekuatan Utama
-                          </h4>
-                          <ul className="list-disc pl-5 space-y-2">
-                            {aiNarrative.empData.kekuatanUtama.map((item: string, idx: number) => (
-                              <li key={idx} className="text-sm text-slate-700 leading-relaxed font-medium">{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+            <div className="bg-rose-950/20 border border-rose-900/50 p-5 rounded-xl">
+               <h3 className="text-rose-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-rose-900/50 pb-2">3 Nilai Paling Dihindari</h3>
+               <div className="space-y-4">
+                 {(wviScore.bottom3 || []).map((v: any, i: number) => {
+                   const pct = Math.round((v.score / 5) * 100);
+                   return (
+                     <div key={i}>
+                       <div className="flex justify-between text-sm mb-1">
+                         <span className="text-slate-300">{v.name}</span>
+                         <span className="text-rose-400 font-bold">{v.score}</span>
+                       </div>
+                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                         <div className="h-full bg-rose-500 rounded-full" style={{ width: `${pct}%`}}></div>
+                       </div>
+                     </div>
+                   );
+                 })}
+               </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-                      {aiNarrative.empData?.tantanganHambatan && (
-                        <div className="mb-6 bg-red-50/50 p-4 rounded-xl border border-red-100">
-                          <h4 className="text-sm font-bold text-red-800 mb-3 flex items-center gap-2 border-b border-red-200 pb-2">
-                            3. Tantangan & Hambatan
-                          </h4>
-                          
-                          {aiNarrative.empData.tantanganHambatan.areaFriksi && (
-                            <div className="mb-4">
-                              <h5 className="font-bold text-red-700 text-xs uppercase mb-1">Area Friksi / Hambatan</h5>
-                              <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                                {aiNarrative.empData.tantanganHambatan.areaFriksi}
-                              </p>
-                            </div>
-                          )}
+      {/* 6. AI Interpretasi */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+        <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-amber-400" /> Interpretasi Otomatis (Sistem)
+          </h2>
+          <button onClick={handleGenerateAI} disabled={aiGenerating} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
+             <RefreshCw className={`w-4 h-4 ${aiGenerating ? "animate-spin" : ""}`} /> 
+             {aiNarrative ? "Hasilkan Ulang Interpretasi" : "Generate Interpretasi"}
+          </button>
+        </div>
+        
+        <div className="p-6">
+          {aiNarrative ? (
+            <div className="space-y-6">
+              <ClinicalWorkspace 
+                reportType="EMPLOYEE"
+                clientName={client?.name}
+                aiDraft={aiNarrative} 
+                conflictFlags={evaluateConflicts('EMPLOYEE', {
+                  hexaco: hexacoScore,
+                  disc: discScore,
+                  projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
+                  wvi: wviResult?.calculated_score?.calculatedData
+                })}
+                onSave={async (finalHtml) => {
+                  try {
+                    // Cek apakah draf sudah pernah tersimpan sebelumnya untuk report ini
+                    const { data: existing } = await supabase
+                      .from("client_reports")
+                      .select("id")
+                      .eq("report_id", report.id)
+                      .single();
 
-                          {aiNarrative.empData.tantanganHambatan.karakterInternal && (
-                            <div>
-                              <h5 className="font-bold text-red-700 text-xs uppercase mb-1">Karakter Internal</h5>
-                              <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                                {aiNarrative.empData.tantanganHambatan.karakterInternal}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {aiNarrative.empData?.lingkunganIdeal && (
-                        <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                            <h4 className="text-sm font-bold text-blue-800 mb-2 border-b border-blue-200 pb-2">
-                              Ekosistem Kerja Ideal
-                            </h4>
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                              {aiNarrative.empData.lingkunganIdeal.ekosistemKerja}
-                            </p>
-                          </div>
-                          
-                          <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-                            <h4 className="text-sm font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-2">
-                              Kebutuhan Motivasi
-                            </h4>
-                            <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                              {aiNarrative.empData.lingkunganIdeal.kebutuhanMotivasi}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {aiNarrative.empData?.saranPengembangan && aiNarrative.empData.saranPengembangan.length > 0 && (
-                        <div className="mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                          <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2 border-b border-slate-100 pb-2">
-                            4. Saran Pengembangan Strategis
-                          </h4>
-                          <ul className="list-disc pl-5 space-y-2">
-                            {aiNarrative.empData.saranPengembangan.map((saran: string, idx: number) => (
-                              <li key={idx} className="text-sm text-slate-700 leading-relaxed">{saran}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {aiNarrative.empData?.rekomendasiAkhir && (
-                        <div className="mb-4 border-2 border-emerald-500 bg-emerald-50 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row gap-6 items-center">
-                          <div className="shrink-0 flex flex-col items-center justify-center bg-white border border-emerald-200 rounded-full w-24 h-24 md:w-28 md:h-28 shadow-sm">
-                            <span className="text-3xl md:text-4xl font-black text-emerald-600">{aiNarrative.empData.rekomendasiAkhir.persentaseJobFit}%</span>
-                            <span className="text-[10px] md:text-xs font-bold text-slate-500 uppercase mt-1 tracking-wider text-center leading-tight">Job Fit</span>
-                          </div>
-                          <div className="flex-1 text-center md:text-left">
-                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Rekomendasi Akhir</h4>
-                            <p className="text-lg md:text-xl font-black text-slate-800 mb-2">
-                              {aiNarrative.empData.rekomendasiAkhir.status}
-                            </p>
-                            <p className="text-sm text-slate-700 leading-relaxed italic">
-                              "{aiNarrative.empData.rekomendasiAkhir.keterangan}"
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="border border-dashed border-slate-300 rounded-2xl p-12 text-center">
-                      <Sparkles className="w-16 h-16 mx-auto mb-4 text-slate-300" />
-                      <h3 className="text-xl font-bold text-slate-600 mb-2">Narasi AI Belum Dibuat</h3>
-                      <button onClick={handleGenerateAI} disabled={aiGenerating} className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-indigo-500 text-white px-8 py-3 rounded-2xl font-bold">
-                        {aiGenerating ? "AI sedang menulis..." : "Generate Narasi AI"}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {activeTab === "notes" && (
-              <motion.div key="notes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <ObservationForm initialData={notes} onSave={handleSaveNotes} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    if (existing) {
+                      await supabase
+                        .from("client_reports")
+                        .update({
+                          final_synthesis_html: finalHtml,
+                          ai_generated_draft: aiNarrative,
+                          status: 'FINALIZED',
+                          finalized_at: new Date().toISOString()
+                        })
+                        .eq("id", existing.id);
+                    } else {
+                      await supabase
+                        .from("client_reports")
+                        .insert({
+                          client_id: client.id,
+                          report_id: report.id,
+                          ai_generated_draft: aiNarrative,
+                          final_synthesis_html: finalHtml,
+                          included_modules: ['DISC', 'HEXACO', 'GRAPHOLOGY'],
+                          status: 'FINALIZED',
+                          finalized_at: new Date().toISOString()
+                        });
+                    }
+                    alert("Draf Interpretasi berhasil disimpan secara permanen!");
+                  } catch (e: any) {
+                    alert("Gagal menyimpan: " + e.message);
+                  }
+                }}
+                onPrint={() => alert("Fitur cetak PDF akan segera hadir!")}
+              />
+            </div>
+          ) : (
+            <div className="py-16 text-center">
+               <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-slate-600" />
+               </div>
+               <p className="text-slate-400 mb-2">Interpretasi Belum Tersedia</p>
+               <p className="text-sm text-slate-500">Sistem AI belum menghasilkan interpretasi untuk laporan ini. Silakan klik tombol Generate.</p>
+            </div>
+          )}
         </div>
       </div>
+      
+      {/* 7. Observasi & Catatan (Bottom) */}
+      <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-emerald-400" /> Observasi & Catatan Psikolog
+         </h2>
+         <div className="text-slate-300">
+            <ObservationForm initialData={notes} onSave={handleSaveNotes} />
+         </div>
+      </div>
+
     </div>
   );
 }

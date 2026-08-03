@@ -2,9 +2,9 @@ import React from "react";
 import { PrintIQGauge, PrintBar } from "./SharedReportComponents";
 
 export default function EmployeePrintView({ 
-  report, testResults, client, ageYears, ageMonths, dateStr, viewMode, aiNarrative, notesData 
+  report, testResults, client, ageYears, ageMonths, dateStr, viewMode, aiNarrative, notesData, clientReports = []
 }: { 
-  report: any, testResults: any[], client: any, ageYears: number, ageMonths: number, dateStr: string, viewMode: "CLEAN" | "FULL", aiNarrative: any, notesData: any 
+  report: any, testResults: any[], client: any, ageYears: number, ageMonths: number, dateStr: string, viewMode: "CLEAN" | "FULL", aiNarrative: any, notesData: any, clientReports?: any[]
 }) {
   const cogResult = testResults.find((r: any) => ["CPM", "RAVEN2"].includes(r.tests?.code));
   const discResult = testResults.find((r: any) => r.tests?.code === "DISC");
@@ -18,6 +18,12 @@ export default function EmployeePrintView({
   const discScore = discResult?.calculated_score?.calculatedData || {};
   const hexacoScore = hexacoResult?.calculated_score?.calculatedData || {};
   const wviScore = wviResult?.calculated_score?.calculatedData || {};
+
+  // Coba ambil dari clientReports terlebih dahulu, jika belum ada, fallback ke test_results (untuk backward compatibility sementara)
+  const reportData = clientReports.find(r => r.report_id === report.id);
+  const finalHtml = reportData?.final_synthesis_html 
+                 || cogResult?.calculated_score?.final_html 
+                 || discResult?.calculated_score?.final_html;
 
   return (
     <>
@@ -132,118 +138,86 @@ export default function EmployeePrintView({
         </div>
       )}
 
-      {aiNarrative.empData && (
+      {(finalHtml || aiNarrative?.empData) && (
         <div className="mb-8">
           <div className="page-break" />
           <h3 className="font-bold bg-orange-600 text-white p-2 mb-4 text-sm uppercase rounded-t-lg">
-            C. Deskripsi Kepribadian
+            C. Deskripsi Kepribadian Terpadu
           </h3>
-          <div className="p-6 border-x border-b border-slate-200 rounded-b-lg">
-            
-            {aiNarrative.empData.deskripsiTerintegrasi && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">1. Deskripsi Kepribadian Terintegrasi</h4>
-                <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
-                  {aiNarrative.empData.deskripsiTerintegrasi}
-                </div>
-              </div>
-            )}
-
-            {aiNarrative.empData.kekuatanUtama && aiNarrative.empData.kekuatanUtama.length > 0 && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">2. Kekuatan Utama</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  {aiNarrative.empData.kekuatanUtama.map((item: string, idx: number) => (
-                    <li key={idx} className="text-sm text-slate-700 leading-relaxed font-serif">{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {aiNarrative.empData.tantanganHambatan && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">3. Tantangan & Hambatan</h4>
-                
-                {aiNarrative.empData.tantanganHambatan.areaFriksi && (
-                  <div className="mb-3">
-                    <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">Area Friksi / Hambatan:</h5>
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-serif text-justify">
-                      {aiNarrative.empData.tantanganHambatan.areaFriksi}
-                    </p>
+          <div className="p-8 border-x border-b border-slate-200 rounded-b-lg">
+            {finalHtml ? (
+              <div 
+                className="prose prose-sm max-w-none text-slate-800 font-serif leading-relaxed" 
+                dangerouslySetInnerHTML={{ __html: finalHtml }} 
+              />
+            ) : (
+              // Fallback jika belum disimpan dari TipTap
+              <>
+                {aiNarrative.empData?.deskripsiTerintegrasi && (
+                  <div className="mb-6 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">1. Deskripsi Kepribadian Terintegrasi</h4>
+                    <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
+                      {aiNarrative.empData.deskripsiTerintegrasi}
+                    </div>
                   </div>
                 )}
-                
-                {aiNarrative.empData.tantanganHambatan.karakterInternal && (
-                  <div>
-                    <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">Karakter Internal:</h5>
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-serif text-justify">
-                      {aiNarrative.empData.tantanganHambatan.karakterInternal}
-                    </p>
+
+                {aiNarrative.empData?.kekuatanUtama && aiNarrative.empData.kekuatanUtama.length > 0 && (
+                  <div className="mb-6 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">2. Kekuatan Utama</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {aiNarrative.empData.kekuatanUtama.map((item: string, idx: number) => (
+                        <li key={idx} className="text-sm text-slate-700 leading-relaxed font-serif">{item}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-              </div>
-            )}
 
-            {aiNarrative.empData.lingkunganIdeal && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">4. Analisis Lingkungan Ideal</h4>
-                
-                {aiNarrative.empData.lingkunganIdeal.ekosistemKerja && (
-                  <div className="mb-3">
-                    <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">Ekosistem Kerja:</h5>
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-serif text-justify">
-                      {aiNarrative.empData.lingkunganIdeal.ekosistemKerja}
-                    </p>
+                {aiNarrative.empData?.lingkunganIdeal && (
+                  <div className="mb-6 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">3. Lingkungan Berkembang Optimal</h4>
+                    {aiNarrative.empData.lingkunganIdeal.ekosistemKerja && (
+                      <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-serif text-justify mb-2">
+                        {aiNarrative.empData.lingkunganIdeal.ekosistemKerja}
+                      </p>
+                    )}
                   </div>
                 )}
-                
-                {aiNarrative.empData.lingkunganIdeal.kebutuhanMotivasi && (
-                  <div>
-                    <h5 className="font-bold text-slate-700 text-xs uppercase mb-1">Kebutuhan Motivasi:</h5>
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed font-serif text-justify">
-                      {aiNarrative.empData.lingkunganIdeal.kebutuhanMotivasi}
-                    </p>
+
+                {aiNarrative.empData?.saranPengembangan && aiNarrative.empData.saranPengembangan.length > 0 && (
+                  <div className="mb-8 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">4. Saran Pengembangan</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                      {aiNarrative.empData.saranPengembangan.map((item: string, idx: number) => (
+                        <li key={idx} className="text-sm text-slate-700 leading-relaxed font-serif">{item}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-              </div>
-            )}
 
-            {aiNarrative.empData.saranPengembangan && aiNarrative.empData.saranPengembangan.length > 0 && (
-              <div className="mb-8 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">5. Saran Pengembangan Strategis</h4>
-                <ul className="list-disc pl-5 space-y-1">
-                  {aiNarrative.empData.saranPengembangan.map((item: string, idx: number) => (
-                    <li key={idx} className="text-sm text-slate-700 leading-relaxed font-serif">{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {aiNarrative.empData.rekomendasiAkhir && (
-              <div className="keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-400 pb-1 uppercase">
-                  Rekomendasi Akhir — {client?.grade || "Posisi Umum"}
-                </h4>
-                <div className="border-2 border-orange-500 rounded-lg p-5 flex items-center justify-between mt-3 bg-orange-50/30">
-                  <div className="flex-1 text-center border-r-2 border-orange-200 pr-5">
-                    <p className="text-xs font-bold text-orange-600 uppercase tracking-widest mb-2">
-                      Rekomendasi Psikologis Untuk Posisi {client?.grade || "Terkait"}
-                    </p>
-                    <p className="text-xl font-black text-orange-600 uppercase mb-3">
-                      {aiNarrative.empData.rekomendasiAkhir.status}
-                    </p>
-                    <p className="text-xs text-slate-700 leading-relaxed font-serif">
-                      {aiNarrative.empData.rekomendasiAkhir.keterangan}
-                    </p>
+                {aiNarrative.empData?.rekomendasiAkhir && (
+                  <div className="keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-400 pb-1 uppercase">
+                      Rekomendasi Akhir — {client?.grade || "Posisi Umum"}
+                    </h4>
+                    <div className="border-2 border-orange-500 rounded-lg p-5 flex items-center justify-between mt-3 bg-orange-50/30">
+                      <div className="flex-1 text-center border-r-2 border-orange-200 pr-5">
+                        <p className="text-xl font-black text-orange-600 uppercase mb-3">
+                          {aiNarrative.empData.rekomendasiAkhir.status}
+                        </p>
+                        <p className="text-xs text-slate-700 leading-relaxed font-serif">
+                          {aiNarrative.empData.rekomendasiAkhir.keterangan}
+                        </p>
+                      </div>
+                      <div className="w-32 flex flex-col items-center justify-center pl-5">
+                        <span className="text-4xl font-black text-emerald-600">{aiNarrative.empData.rekomendasiAkhir.persentaseJobFit}%</span>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase mt-1">Job Fit</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-32 flex flex-col items-center justify-center pl-5">
-                    <span className="text-4xl font-black text-emerald-600">{aiNarrative.empData.rekomendasiAkhir.persentaseJobFit}%</span>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase mt-1">Job Fit</span>
-                  </div>
-                </div>
-              </div>
+                )}
+              </>
             )}
-
           </div>
         </div>
       )}

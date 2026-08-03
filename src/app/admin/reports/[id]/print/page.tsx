@@ -13,6 +13,7 @@ export default function PrintReportPage() {
 
   const [report, setReport] = useState<any>(null);
   const [testResults, setTestResults] = useState<any[]>([]);
+  const [clientReports, setClientReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [segment, setSegment] = useState<"CHI" | "STU" | "EMP">("CHI");
   const [viewMode, setViewMode] = useState<"CLEAN" | "FULL">("CLEAN");
@@ -40,6 +41,7 @@ export default function PrintReportPage() {
         setSegment(seg);
 
         setTestResults(data.testResults || []);
+        setClientReports(data.clientReports || []);
       } catch (err) {
         console.error("Gagal memuat laporan:", err);
         alert("Gagal memuat laporan.");
@@ -160,6 +162,7 @@ export default function PrintReportPage() {
             report={report} testResults={testResults} client={client} 
             ageYears={ageYears} ageMonths={ageMonths} dateStr={dateStr} 
             viewMode={viewMode} aiNarrative={aiNarrative} notesData={notesData} 
+            clientReports={clientReports}
           />
         )}
         
@@ -168,6 +171,7 @@ export default function PrintReportPage() {
             report={report} testResults={testResults} client={client} 
             ageYears={ageYears} ageMonths={ageMonths} dateStr={dateStr} 
             viewMode={viewMode} aiNarrative={aiNarrative} notesData={notesData} 
+            clientReports={clientReports}
           />
         )}
         
@@ -175,7 +179,8 @@ export default function PrintReportPage() {
           <EmployeePrintView 
             report={report} testResults={testResults} client={client} 
             ageYears={ageYears} ageMonths={ageMonths} dateStr={dateStr} 
-            viewMode={viewMode} aiNarrative={aiNarrative} notesData={notesData} 
+            viewMode={viewMode} aiNarrative={aiNarrative} notesData={notesData}
+            clientReports={clientReports}
           />
         )}
 

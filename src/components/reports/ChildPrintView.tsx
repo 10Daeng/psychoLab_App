@@ -2,14 +2,18 @@ import React from "react";
 import { PrintIQGauge, PrintBar } from "./SharedReportComponents";
 
 export default function ChildPrintView({ 
-  report, testResults, client, ageYears, ageMonths, dateStr, viewMode, aiNarrative, notesData 
+  report, testResults, client, ageYears, ageMonths, dateStr, viewMode, aiNarrative, notesData, clientReports = []
 }: { 
-  report: any, testResults: any[], client: any, ageYears: number, ageMonths: number, dateStr: string, viewMode: "CLEAN" | "FULL", aiNarrative: any, notesData: any 
+  report: any, testResults: any[], client: any, ageYears: number, ageMonths: number, dateStr: string, viewMode: "CLEAN" | "FULL", aiNarrative: any, notesData: any, clientReports?: any[] 
 }) {
   const cogResult = testResults.find((r: any) => ["CPM", "RAVEN2"].includes(r.tests?.code));
   const cogScore = cogResult?.calculated_score || {};
   const iqValue = cogScore.iq || cogScore.calculatedData?.iq || 0;
   const percentile = cogScore.percentile || 0;
+
+  const reportData = clientReports.find(r => r.report_id === report.id);
+  const finalHtml = reportData?.final_synthesis_html 
+                 || cogResult?.calculated_score?.final_html;
 
   return (
     <>
@@ -88,36 +92,45 @@ export default function ChildPrintView({
         </div>
       )}
 
-      {aiNarrative && (
+      {(finalHtml || aiNarrative) && (
         <div className="mb-8">
           <div className="page-break" />
           <h3 className="font-bold bg-orange-600 text-white p-2 mb-4 text-sm uppercase rounded-t-lg">
             C. Dinamika Psikologis & Kesimpulan
           </h3>
-          <div className="p-6 border-x border-b border-slate-200 rounded-b-lg">
-            {aiNarrative.interpretation && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Dinamika Kepribadian & Potensi</h4>
-                <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
-                  {aiNarrative.interpretation}
-                </div>
-              </div>
-            )}
-            {aiNarrative.conclusion && (
-              <div className="mb-6 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Kesimpulan Utama</h4>
-                <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
-                  {aiNarrative.conclusion}
-                </div>
-              </div>
-            )}
-            {aiNarrative.recommendation && (
-              <div className="mb-4 keep-together">
-                <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Rekomendasi Langkah</h4>
-                <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
-                  {aiNarrative.recommendation}
-                </div>
-              </div>
+          <div className="p-8 border-x border-b border-slate-200 rounded-b-lg">
+            {finalHtml ? (
+              <div 
+                className="prose prose-sm max-w-none text-slate-800 font-serif leading-relaxed" 
+                dangerouslySetInnerHTML={{ __html: finalHtml }} 
+              />
+            ) : (
+              <>
+                {aiNarrative.interpretation && (
+                  <div className="mb-6 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Dinamika Kepribadian & Potensi</h4>
+                    <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
+                      {aiNarrative.interpretation}
+                    </div>
+                  </div>
+                )}
+                {aiNarrative.conclusion && (
+                  <div className="mb-6 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Kesimpulan Utama</h4>
+                    <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
+                      {aiNarrative.conclusion}
+                    </div>
+                  </div>
+                )}
+                {aiNarrative.recommendation && (
+                  <div className="mb-4 keep-together">
+                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Rekomendasi Langkah</h4>
+                    <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
+                      {aiNarrative.recommendation}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -8,11 +8,20 @@ export default function Raven2TestPage() {
   const router = useRouter();
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, { answer: string, time_taken_ms: number }>>({});
+  const answersRef = useRef(answers);
   const [startTime, setStartTime] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [questions, setQuestions] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Global Timer (45 Menit = 2700 Detik)
+  const [remainingTime, setRemainingTime] = useState(2700);
+  const workerRef = useRef<Worker | null>(null);
+
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   useEffect(() => {
     // Load soal via API aman
@@ -22,10 +31,28 @@ export default function Raven2TestPage() {
         if (data.error) throw new Error(data.error);
         setQuestions(data);
         setIsLoaded(true);
+        
+        // Initialize Web Worker Timer for Raven 2 (45 Minutes)
+        workerRef.current = new Worker(new URL("/workers/timer.js", window.location.origin));
+        workerRef.current.onmessage = (e: MessageEvent) => {
+          if (e.data.type === "TICK") {
+            setRemainingTime(e.data.remainingSeconds);
+          } else if (e.data.type === "TIMEOUT") {
+            handleTimeout();
+          }
+        };
+        workerRef.current.postMessage({ command: "START", seconds: 2700 });
       })
       .catch(err => {
         console.error("Gagal memuat soal", err);
       });
+      
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.postMessage({ command: "STOP" });
+        workerRef.current.terminate();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -69,14 +96,23 @@ export default function Raven2TestPage() {
     }
   };
 
+  const handleTimeout = () => {
+    alert("Waktu pengerjaan tes Raven 2 (45 Menit) telah habis. Jawaban akan disimpan secara otomatis.");
+    handleSubmit(true);
+  };
+
   const isComplete = Object.keys(answers).length === questions.length;
 
-  const handleSubmit = async () => {
-    if (currentQuestionIdx < questions.length - 1) {
+  const handleSubmit = async (forceSubmit = false) => {
+    if (!forceSubmit && currentQuestionIdx < questions.length - 1) {
       setCurrentQuestionIdx(prev => prev + 1);
       window.scrollTo(0, 0);
     } else {
       setIsSubmitting(true);
+      if (workerRef.current) {
+        workerRef.current.postMessage({ command: "STOP" });
+        workerRef.current.terminate();
+      }
       
       try {
         const testResultId = sessionStorage.getItem("test_result_id");
@@ -88,7 +124,7 @@ export default function Raven2TestPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             test_result_id: testResultId,
-            resultsLog: answers,
+            resultsLog: forceSubmit ? answersRef.current : answers,
             clientData: clientDataStr ? JSON.parse(clientDataStr) : {}
           })
         });
@@ -144,11 +180,19 @@ export default function Raven2TestPage() {
     <div className="min-h-screen bg-slate-900 py-10 flex flex-col items-center justify-center">
       <div className="w-full max-w-5xl px-4">
         
-        {/* Header Progress */}
-        <div className="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-6 mb-6 flex justify-between items-center">
+        {/* Header Progress & Timer */}
+        <div className="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl font-bold text-white">Tes Kognitif (Matriks Penalaran)</h1>
-          <div className="text-slate-300 font-semibold text-lg">
-            Soal {currentQuestionIdx + 1} / {questions.length}
+          <div className="flex items-center gap-6">
+             <div className={`font-mono text-xl font-bold px-4 py-2 rounded-xl flex items-center gap-2 ${remainingTime <= 300 ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-slate-700 text-slate-300'}`}>
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+               </svg>
+               {Math.floor(remainingTime / 60).toString().padStart(2, '0')}:{(remainingTime % 60).toString().padStart(2, '0')}
+             </div>
+             <div className="text-slate-300 font-semibold text-lg bg-slate-700 px-4 py-2 rounded-xl">
+               Soal {currentQuestionIdx + 1} / {questions.length}
+             </div>
           </div>
         </div>
 
@@ -209,7 +253,7 @@ export default function Raven2TestPage() {
             {/* Tombol Submit di Akhir */}
             {isComplete && (
                <button
-                 onClick={handleSubmit}
+                 onClick={() => handleSubmit(false)}
                  disabled={isSubmitting}
                  className="mt-8 w-full py-4 bg-green-600 text-white rounded-xl font-bold text-lg disabled:opacity-50 hover:bg-green-700 transition-colors shadow-lg"
                >

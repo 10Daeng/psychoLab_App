@@ -56,10 +56,10 @@ export default function LenteraReportPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto" />
-          <p className="mt-6 text-slate-600">Memuat Laporan Lentera Batin...</p>
+          <div className="w-16 h-16 border-4 border-slate-700 border-t-violet-500 rounded-full animate-spin mx-auto" />
+          <p className="mt-6 text-slate-400">Memuat Laporan Lentera Batin...</p>
         </div>
       </div>
     );
@@ -68,14 +68,14 @@ export default function LenteraReportPage() {
   const config = segmentConfig[segment];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-950 text-slate-300">
       {/* Top Navigation */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+      <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-all text-sm"
+              className="flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all text-sm"
             >
               <ArrowLeft className="w-4 h-4" /> Kembali
             </button>
@@ -85,8 +85,20 @@ export default function LenteraReportPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => router.push(`/admin/reports/${reportId}/graphology`)}
+              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
+            >
+              ✍️ Input Grafologi
+            </button>
+            <button
+              onClick={() => router.push(`/admin/reports/${reportId}/wartegg`)}
+              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
+            >
+              ⬛ Input Wartegg
+            </button>
+            <button
               onClick={handleDownloadPDF}
-              className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
             >
               <Download className="w-4 h-4" /> Cetak / PDF
             </button>

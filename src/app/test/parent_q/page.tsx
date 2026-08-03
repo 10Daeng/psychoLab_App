@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAutoSave } from "@/hooks/useAutoSave";
 import { useRouter } from "next/navigation";
 
 export default function ParentQuestionnaire() {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const [step, setStep, clearStep] = useAutoSave('PQ_STEP', 1);
   const [loading, setLoading] = useState(false);
   const [clientData, setClientData] = useState<any>(null);
 
-  const [historyAnswers, setHistoryAnswers] = useState({ kehamilan: "", medis: "", perkembangan: "" });
-  const [sdqAnswers, setSdqAnswers] = useState<Record<string, number>>({});
-  const [abicAnswers, setAbicAnswers] = useState<Record<string, boolean>>({
+  const [historyAnswers, setHistoryAnswers, clearHistory] = useAutoSave('PQ_HISTORY', { kehamilan: "", medis: "", perkembangan: "" });
+  const [sdqAnswers, setSdqAnswers, clearSdq] = useAutoSave<Record<string, number>>('PQ_SDQ', {});
+  const [abicAnswers, setAbicAnswers, clearAbic] = useAutoSave<Record<string, boolean>>('PQ_ABIC', {
     makan: false, mandi: false, berpakaian: false, bergaul: false
   });
 
@@ -56,6 +57,11 @@ export default function ParentQuestionnaire() {
       if (!res.ok) throw new Error("Gagal menyimpan jawaban.");
 
       // Selesai
+      clearStep();
+      clearHistory();
+      clearSdq();
+      clearAbic();
+      
       router.push("/test/parent_q/finish");
     } catch (err: any) {
       alert(err.message);

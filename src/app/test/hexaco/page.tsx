@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { useRouter } from 'next/navigation';
 
 export default function HexacoTestPage() {
   const router = useRouter();
-  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<number, number>>('HEXACO', {});
   const [currentPage, setCurrentPage] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -79,6 +80,7 @@ export default function HexacoTestPage() {
           })
         });
 
+        clearAnswers();
         alert("Asesmen Kepribadian (HEXACO) Selesai! Seluruh Rangkaian Tes telah diselesaikan.");
         
         // Bersihkan session

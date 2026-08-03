@@ -1,21 +1,45 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { cookies } from 'next/headers';
+import { verifyAdminSession } from '@/lib/auth-helpers';
 
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('admin_session');
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const payload = await verifyAdminSession(session.value);
+    if (!payload) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     // 1. Dapatkan Total Klien
-    const { count: clientsCount } = await supabaseAdmin
+    let clientQuery = supabaseAdmin
       .from("clients")
       .select("*", { count: "exact", head: true });
 
-    // 2. Dapatkan Semua Token untuk dianalisa (Bypass RLS dengan supabaseAdmin)
-    const { data: allTokens, error: tokensError } = await supabaseAdmin
+    if (payload.role === 'Org_Admin' && payload.organization_id) {
+      clientQuery = clientQuery.eq('organization_id', payload.organization_id);
+    }
+
+    const { count: clientsCount } = await clientQuery;
+
+    // 2. Dapatkan Semua Token untuk dianalisa
+    let tokenQuery = supabaseAdmin
       .from("tokens")
       .select(`
         id, token_code, is_used, status, purpose, created_at,
         clients (name)
       `)
       .order("created_at", { ascending: false });
+
+    if (payload.role === 'Org_Admin' && payload.organization_id) {
+      tokenQuery = tokenQuery.eq('organization_id', payload.organization_id);
+    }
+
+    const { data: allTokens, error: tokensError } = await tokenQuery;
+
     if (tokensError) {
       console.error('dashboard db error:', tokensError);
       throw new Error('Gagal mengambil data dashboard');

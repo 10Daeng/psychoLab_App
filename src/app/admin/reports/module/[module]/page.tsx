@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect, useMemo, use } from 'react';
 import Link from 'next/link';
+import * as XLSX from 'xlsx';
+import { Download } from 'lucide-react';
 
 export default function ModuleRecapPage({ params }: { params: Promise<{ module: string }> }) {
   const { module } = use(params);
@@ -127,6 +129,65 @@ export default function ModuleRecapPage({ params }: { params: Promise<{ module: 
     return <th className="px-5 py-4">Detail</th>;
   };
 
+  const handleExportExcel = () => {
+    const exportData = sortedAndFiltered.map(item => {
+      const client = item.clients || item.tokens?.clients || {};
+      const type = item.tokens?.respondent_type || item.respondent_type || 'Unknown';
+      const score = item.calculated_score?.calculatedData || {};
+
+      let row: any = {
+        "Nama Klien": client.name || '-',
+        "Email": client.email || '-',
+        "Tipe Responden": type,
+      };
+
+      if (module === 'DISC') {
+        row["Pola Perilaku (Archetype)"] = score.archetype || '-';
+        row["Skor D"] = score.D || 0;
+        row["Skor I"] = score.I || 0;
+        row["Skor S"] = score.S || 0;
+        row["Skor C"] = score.C || 0;
+      } else if (module === 'HEXACO') {
+        row["Skor H"] = score.H?.toFixed(1) || '-';
+        row["Skor E"] = score.E?.toFixed(1) || '-';
+        row["Skor X"] = score.X?.toFixed(1) || '-';
+        row["Skor A"] = score.A?.toFixed(1) || '-';
+        row["Skor C"] = score.C?.toFixed(1) || '-';
+        row["Skor O"] = score.O?.toFixed(1) || '-';
+      } else if (module === 'WVI') {
+        row["Top 3 Nilai"] = (score.top3 || []).map((v: any) => v.name).join(', ');
+        row["Bottom 3 Nilai"] = (score.bottom3 || []).map((v: any) => v.name).join(', ');
+      } else if (module === 'SDS') {
+        row["Kode RIASEC"] = (score.topCodes || []).map((c: any) => c.code).join('');
+        row["Skor Activities"] = score.sectionScores?.activities || 0;
+        row["Skor Competencies"] = score.sectionScores?.competencies || 0;
+        row["Skor Occupations"] = score.sectionScores?.occupations || 0;
+      } else if (module === 'CPM' || module === 'RAVEN2') {
+        row["Skor Mentah"] = item.calculated_score?.rawScore || item.calculated_score?.totalRawScore || '-';
+        row["Persentil"] = item.calculated_score?.percentile || '-';
+        row["IQ"] = score.iq || '-';
+        row["Klasifikasi"] = score.classification || item.calculated_score?.level?.level || '-';
+      } else if (module === 'OBSERVASI_ANAK') {
+        row["Status Data"] = item.observation_data ? 'Ada Data' : '-';
+      } else if (module === 'WAWANCARA_ANAK') {
+        row["Status Data"] = item.interview_data ? 'Ada Data' : '-';
+      } else if (module === 'KUESIONER_ORTU') {
+        row["Status Data"] = 'Selesai Diisi';
+      } else {
+        row["Data JSON Mentah"] = JSON.stringify(score);
+      }
+
+      return row;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Rekap_${module}`);
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `Rekap_Hasil_${module}_${timestamp}.xlsx`);
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
@@ -134,13 +195,23 @@ export default function ModuleRecapPage({ params }: { params: Promise<{ module: 
           <h2 className="text-2xl font-bold text-white tracking-tight">Rekap Hasil: {module}</h2>
           <p className="text-slate-400 text-sm mt-1">Daftar seluruh klien yang telah menyelesaikan modul {module}</p>
         </div>
-        <input
-          type="text"
-          placeholder="Cari nama klien..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-xl text-sm focus:border-blue-500 outline-none w-64"
-        />
+        <div className="flex gap-3 w-full md:w-auto">
+          <input
+            type="text"
+            placeholder="Cari nama klien..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="bg-slate-900 border border-slate-700 text-white px-4 py-2.5 rounded-xl text-sm focus:border-blue-500 outline-none flex-1 md:w-64"
+          />
+          <button
+            onClick={handleExportExcel}
+            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-emerald-900/50"
+            title="Download ke Excel"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden md:inline">Export to Excel</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">

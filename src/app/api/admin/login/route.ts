@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import { loginSchema } from '@/lib/validations';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 // Basic in-memory rate limiter for login
 const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
@@ -28,22 +29,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: parseResult.error.issues[0].message }, { status: 400 });
     }
 
-    const { password } = parseResult.data;
+    const { username, password } = parseResult.data;
 
-    const correctPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const jwtSecret = process.env.JWT_SECRET;
     
-    if (!correctPasswordHash || !jwtSecret) {
-      console.error("ADMIN_PASSWORD_HASH or JWT_SECRET is not set in environment variables");
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is not set in environment variables");
       return NextResponse.json({ success: false, error: 'Server configuration error' }, { status: 500 });
     }
 
-    const isValid = await bcrypt.compare(password, correctPasswordHash);
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('admin_users')
+      .select('*')
+      .eq('username', username)
+      .single();
+
+    if (userError || !user) {
+      return NextResponse.json({ success: false, error: 'Nama pengguna atau kata sandi salah' }, { status: 401 });
+    }
+
+    const isValid = await bcrypt.compare(password, user.password_hash);
 
     if (isValid) {
       // Create JWT
       const secret = new TextEncoder().encode(jwtSecret);
-      const token = await new SignJWT({ role: 'admin' })
+      const token = await new SignJWT({ 
+        role: user.role, 
+        organization_id: user.organization_id 
+      })
         .setProtectedHeader({ alg: 'HS256' })
         .setExpirationTime('24h')
         .sign(secret);

@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 export default function Raven2TestPage() {
   const router = useRouter();
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, { answer: string, time_taken_ms: number }>>({});
+  const [currentQuestionIdx, setCurrentQuestionIdx, clearIdx] = useAutoSave('RAVEN_INDEX', 0);
+  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<number, { answer: string, time_taken_ms: number }>>('RAVEN_ANSWERS', {});
   const answersRef = useRef(answers);
   const [startTime, setStartTime] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -129,6 +130,8 @@ export default function Raven2TestPage() {
           })
         });
 
+        clearIdx();
+        clearAnswers();
         alert("Tes Kognitif Selesai! IQ Anda berhasil dikalkulasi.");
 
         const tokenCode = sessionStorage.getItem("token_code") || "";

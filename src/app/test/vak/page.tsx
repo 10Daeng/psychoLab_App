@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { useRouter } from 'next/navigation';
 
 export default function VakTestPage() {
   const router = useRouter();
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<number, string>>('VAK', {});
   const [currentGroup, setCurrentGroup] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -77,6 +78,7 @@ export default function VakTestPage() {
           })
         });
 
+        clearAnswers();
         // VAK is the last test for STU package
         router.push('/selesai');
         

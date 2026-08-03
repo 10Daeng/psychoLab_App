@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAutoSave } from "@/hooks/useAutoSave";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, ArrowRight, ArrowLeft, Home } from "lucide-react";
@@ -15,8 +16,8 @@ const steps = [
 
 export default function ParentQuestionnaireFlow() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [currentStep, setCurrentStep, clearStep] = useAutoSave('PARENT_STEP', 0);
+  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<string, any>>('PARENT_ANS', {});
   const [loading, setLoading] = useState(false);
   const [prtToken, setPrtToken] = useState("");
   const [chiToken, setChiToken] = useState("");
@@ -77,6 +78,8 @@ export default function ParentQuestionnaireFlow() {
         const result = await res.json();
         if (!res.ok) throw new Error(result.error);
 
+        clearStep();
+        clearAnswers();
         toast.success("Terima kasih! Jawaban Anda telah tersimpan.");
         router.push("/test/parent/complete");
       } catch (err: any) {

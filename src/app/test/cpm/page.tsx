@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useAutoSave } from "@/hooks/useAutoSave";
 import { useRouter } from "next/navigation";
 
 type Question = {
@@ -25,11 +26,11 @@ export default function CPMTestPage() {
   const router = useRouter();
   
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex, clearIndex] = useAutoSave('CPM_INDEX', 0);
   const [isLoaded, setIsLoaded] = useState(false);
   
   const [questionStartTime, setQuestionStartTime] = useState(0);
-  const [resultsLog, setResultsLog] = useState<ResultLog[]>([]);
+  const [resultsLog, setResultsLog, clearLogs] = useAutoSave<ResultLog[]>('CPM_LOGS', []);
   const resultsLogRef = useRef<ResultLog[]>([]); // Ref to hold latest state for timeouts
   
   const [optionsLocked, setOptionsLocked] = useState(false);
@@ -143,6 +144,8 @@ export default function CPMTestPage() {
       // Pastikan totalTime juga diset menggunakan state terakhir
       sessionStorage.setItem("cpmTotalTime", totalTime.toString());
       
+      clearIndex();
+      clearLogs();
       router.push("/test/cpm/finish");
       
     } catch (err) {

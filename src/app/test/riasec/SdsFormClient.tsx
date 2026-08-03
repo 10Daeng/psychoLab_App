@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useAutoSave } from "@/hooks/useAutoSave";
 
 import { SECTION_LABELS } from "@/lib/sds/constants";
 import type {
@@ -34,7 +35,7 @@ const CODE_LABELS: Record<RiasecCode, string> = {
 };
 
 export default function SdsFormClient({ items }: { items: SdsItem[] }) {
-  const [answers, setAnswers] = useState<SdsAnswerMap>({});
+  const [answers, setAnswers, clearAnswers] = useAutoSave<SdsAnswerMap>('RIASEC', {});
   const [studentId, setStudentId] = useState("");
   const [result, setResult] = useState<SdsResult | null>(null);
   const [error, setError] = useState("");
@@ -66,6 +67,7 @@ export default function SdsFormClient({ items }: { items: SdsItem[] }) {
         throw new Error(json.error || "Gagal menyimpan hasil SDS.");
       }
 
+      clearAnswers();
       alert("Laporan Karir (RIASEC) berhasil disimpan!");
       
       const tokenCode = sessionStorage.getItem("token_code") || "";

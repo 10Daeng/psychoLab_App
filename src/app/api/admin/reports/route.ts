@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
+import { verifyAdminSession } from '@/lib/auth-helpers';
 
 export async function GET(req: Request) {
   try {
@@ -10,6 +11,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const payload = await verifyAdminSession(session.value);
+    if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { searchParams } = new URL(req.url);
     const purpose = searchParams.get('purpose');
 
@@ -17,12 +21,18 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Purpose is required' }, { status: 400 });
     }
 
-    const { data: childTokens, error } = await supabase
+    let query = supabase
       .from("tokens")
       .select("id, token_code, created_at, clients(*), status, respondent_type")
       .eq("respondent_type", "SELF")
       .eq("purpose", purpose)
       .order("created_at", { ascending: false });
+
+    if (payload.role === 'Org_Admin' && payload.organization_id) {
+      query = query.eq('organization_id', payload.organization_id);
+    }
+
+    const { data: childTokens, error } = await query;
 
     if (error) throw error;
 

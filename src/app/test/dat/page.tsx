@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useAutoSave } from "@/hooks/useAutoSave";
 import { useRouter } from "next/navigation";
 import { Clock, AlertTriangle, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
@@ -24,10 +25,10 @@ const DAT_SUBTESTS = [
 
 export default function DATTestPage() {
   const router = useRouter();
-  const [currentSubtestIndex, setCurrentSubtestIndex] = useState(0);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentSubtestIndex, setCurrentSubtestIndex, clearSubIndex] = useAutoSave('DAT_SUBINDEX', 0);
+  const [currentQuestionIndex, setCurrentQuestionIndex, clearQIndex] = useAutoSave('DAT_QINDEX', 0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [answers, setAnswers] = useState<Record<string, Record<string, string>>>({});
+  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<string, Record<string, string>>>('DAT_ANSWERS', {});
   
   const [remainingTime, setRemainingTime] = useState(0);
   const workerRef = useRef<Worker | null>(null);
@@ -52,21 +53,26 @@ export default function DATTestPage() {
       }
     };
 
+    // Remove starting subtest 0 always if loaded from autosave
+    // Only start if we are effectively starting fresh or resuming
+    // Actually, startSubtest sets index to what we pass, which overrides the autosave!
+    // We should NOT call startSubtest(0) unconditionally.
+    // Let's just start the timer for the current saved subtest.
     setIsLoaded(true);
-    startSubtest(0);
+    startSubtest(currentSubtestIndex); // this will use the autosaved index if available, but startSubtest sets index again. Wait, if we use the state currentSubtestIndex, it's captured on mount.
 
     return () => {
       workerRef.current?.terminate();
     };
   }, []);
 
-  const startSubtest = (index: number) => {
+  const startSubtest = (index: number, resetQuestion = true) => {
     if (index >= DAT_SUBTESTS.length) {
       finishTest();
       return;
     }
     setCurrentSubtestIndex(index);
-    setCurrentQuestionIndex(0);
+    if (resetQuestion) setCurrentQuestionIndex(0);
     const timeLimit = DAT_SUBTESTS[index].timeLimitSeconds;
     setRemainingTime(timeLimit);
     
@@ -103,6 +109,11 @@ export default function DATTestPage() {
   const finishTest = async () => {
     workerRef.current?.terminate();
     sessionStorage.setItem("datResults", JSON.stringify(answers));
+    
+    clearAnswers();
+    clearSubIndex();
+    clearQIndex();
+    
     router.push("/test/dat/finish"); // Will trigger save-result
   };
 

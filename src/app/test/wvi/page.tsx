@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { useRouter } from 'next/navigation';
 
 export default function WviTestPage() {
   const router = useRouter();
-  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<number, number>>('WVI', {});
   const [currentGroup, setCurrentGroup] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -77,6 +78,7 @@ export default function WviTestPage() {
           })
         });
 
+        clearAnswers();
         // WVI is the last test for EMP package
         router.push('/selesai');
         

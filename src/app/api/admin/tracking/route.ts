@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
+import { verifyAdminSession } from '@/lib/auth-helpers';
 
 export async function GET() {
   try {
@@ -10,20 +11,35 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: childTokens, error: err1 } = await supabase
+    const payload = await verifyAdminSession(session.value);
+    if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    let queryChild = supabase
       .from("tokens")
       .select("id, token_code, status, clients(name)")
       .eq("respondent_type", "SELF")
       .eq("purpose", "CHILD")
       .order("created_at", { ascending: false });
 
+    if (payload.role === 'Org_Admin' && payload.organization_id) {
+      queryChild = queryChild.eq('organization_id', payload.organization_id);
+    }
+
+    const { data: childTokens, error: err1 } = await queryChild;
+
     if (err1) throw err1;
 
-    const { data: parentTokens, error: err2 } = await supabase
+    let queryParent = supabase
       .from("tokens")
       .select("id, token_code, status, parent_token_id")
       .eq("respondent_type", "PARENT")
       .eq("purpose", "CHILD");
+
+    if (payload.role === 'Org_Admin' && payload.organization_id) {
+      queryParent = queryParent.eq('organization_id', payload.organization_id);
+    }
+
+    const { data: parentTokens, error: err2 } = await queryParent;
 
     if (err2) throw err2;
 

@@ -1,9 +1,20 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { cookies } from 'next/headers';
+import { verifyAdminSession } from '@/lib/auth-helpers';
 
 export async function GET() {
   try {
-    const { data: tokensData, error } = await supabaseAdmin
+    const cookieStore = await cookies();
+    const session = cookieStore.get('admin_session');
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const payload = await verifyAdminSession(session.value);
+    if (!payload) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
+    let query = supabaseAdmin
       .from("tokens")
       .select(`
         id, token_code, is_used, created_at, status, purpose, respondent_type,
@@ -12,6 +23,12 @@ export async function GET() {
       `)
       .order("created_at", { ascending: false })
       .limit(50);
+
+    if (payload.role === 'Org_Admin' && payload.organization_id) {
+      query = query.eq('organization_id', payload.organization_id);
+    }
+
+    const { data: tokensData, error } = await query;
 
     if (error) {
       console.error('get-tokens db error:', error);

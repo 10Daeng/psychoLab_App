@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { useRouter } from 'next/navigation';
 
 export default function DiscTestPage() {
   const router = useRouter();
-  const [answers, setAnswers] = useState<Record<number, { most?: string, least?: string }>>({});
+  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<number, { most?: string, least?: string }>>('DISC', {});
   const [currentGroup, setCurrentGroup] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -92,6 +93,7 @@ export default function DiscTestPage() {
           })
         });
 
+        clearAnswers();
         alert("Asesmen Gaya Kerja (DISC) Selesai!");
 
         const tokenCode = sessionStorage.getItem("token_code") || "";

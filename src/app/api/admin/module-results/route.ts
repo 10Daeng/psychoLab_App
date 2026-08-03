@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
+import { verifyAdminSession } from '@/lib/auth-helpers';
 
 export async function GET(req: Request) {
   try {
@@ -9,6 +10,9 @@ export async function GET(req: Request) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const payload = await verifyAdminSession(session.value);
+    if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { searchParams } = new URL(req.url);
     const module = searchParams.get('module');
@@ -19,7 +23,7 @@ export async function GET(req: Request) {
 
     // Special Case: OBSERVASI_ANAK
     if (module === 'OBSERVASI_ANAK') {
-      const { data, error } = await supabase
+      let queryObs = supabase
         .from('tokens')
         .select(`
           id, token_code, purpose, created_at, clients(*),
@@ -27,13 +31,19 @@ export async function GET(req: Request) {
         `)
         .not('observations.observation_data', 'is', null)
         .order('created_at', { ascending: false });
+
+      if (payload.role === 'Org_Admin' && payload.organization_id) {
+        queryObs = queryObs.eq('organization_id', payload.organization_id);
+      }
+
+      const { data, error } = await queryObs;
       if (error) throw error;
       return NextResponse.json({ data: data || [] });
     }
 
     // Special Case: WAWANCARA_ANAK
     if (module === 'WAWANCARA_ANAK') {
-      const { data, error } = await supabase
+      let queryWaw = supabase
         .from('tokens')
         .select(`
           id, token_code, purpose, created_at, clients(*),
@@ -41,6 +51,12 @@ export async function GET(req: Request) {
         `)
         .not('observations.interview_data', 'is', null)
         .order('created_at', { ascending: false });
+
+      if (payload.role === 'Org_Admin' && payload.organization_id) {
+        queryWaw = queryWaw.eq('organization_id', payload.organization_id);
+      }
+
+      const { data, error } = await queryWaw;
       if (error) throw error;
       return NextResponse.json({ data: data || [] });
     }
@@ -60,20 +76,27 @@ export async function GET(req: Request) {
     }
 
     // Step 2: Fetch all test results for this test ID, including the token and client
-    const { data: results, error: resultsErr } = await supabase
+    let queryRes = supabase
       .from('test_results')
       .select(`
         *,
-        tokens(
+        tokens!inner(
           id,
           token_code,
           purpose,
           created_at,
+          organization_id,
           clients(*)
         )
       `)
       .eq('test_id', testData.id)
       .order('completed_at', { ascending: false });
+
+    if (payload.role === 'Org_Admin' && payload.organization_id) {
+      queryRes = queryRes.eq('tokens.organization_id', payload.organization_id);
+    }
+
+    const { data: results, error: resultsErr } = await queryRes;
 
     if (resultsErr) throw resultsErr;
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
 import { verifyAdminSession } from '@/lib/auth-helpers';
+import { encryptClientData, decryptClientData } from '@/lib/encryption';
 
 export async function GET(req: Request) {
   try {
@@ -35,7 +36,9 @@ export async function GET(req: Request) {
 
     if (error) throw error;
     
-    return NextResponse.json(data);
+    const decryptedData = data?.map((client: any) => decryptClientData(client));
+    
+    return NextResponse.json(decryptedData);
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
@@ -52,15 +55,20 @@ export async function POST(req: Request) {
     const payload = await verifyAdminSession(session.value);
     if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const data = await req.json();
+    let clientsToInsert = await req.json();
 
     if (payload.role === 'Org_Admin' && payload.organization_id) {
-      data.organization_id = payload.organization_id;
+      clientsToInsert = clientsToInsert.map((c: any) => ({
+        ...c,
+        organization_id: payload.organization_id
+      }));
     }
+
+    clientsToInsert = clientsToInsert.map((c: any) => encryptClientData(c));
 
     const { error } = await supabase
       .from('clients')
-      .insert(data);
+      .insert(clientsToInsert);
 
     if (error) throw error;
     

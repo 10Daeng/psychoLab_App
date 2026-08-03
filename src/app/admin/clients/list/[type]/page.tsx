@@ -232,8 +232,10 @@ export default function AdminClients() {
     <div className="p-6 md:p-10 space-y-8 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
-            <Users className="text-blue-400 w-8 h-8" /> 
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3 drop-shadow-md">
+            <div className="p-2 bg-blue-500/20 rounded-xl border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+              <Users className="text-blue-400 w-6 h-6" /> 
+            </div>
             {config.title}
           </h1>
           <p className="text-slate-400 mt-2">Kelola data peserta tes secara manual maupun massal, serta generate token tes tertutup.</p>
@@ -241,7 +243,7 @@ export default function AdminClients() {
         <div className="flex gap-3 flex-wrap">
           <button 
             onClick={handleDownloadTemplate}
-            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl transition text-sm font-semibold"
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 px-4 py-2.5 rounded-xl transition text-sm font-semibold backdrop-blur-md"
           >
             <Download size={18} />
             Template Excel
@@ -255,7 +257,7 @@ export default function AdminClients() {
                disabled={isUploading}
                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
              />
-             <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl transition text-sm font-semibold">
+             <button className="flex items-center gap-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 px-4 py-2.5 rounded-xl transition text-sm font-semibold backdrop-blur-md shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                <Upload size={18} />
                {isUploading ? 'Memproses...' : 'Upload Data Klien'}
              </button>
@@ -263,7 +265,7 @@ export default function AdminClients() {
 
           <button 
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl transition text-sm font-semibold"
+            className="flex items-center gap-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-400 px-4 py-2.5 rounded-xl transition text-sm font-semibold backdrop-blur-md shadow-[0_0_10px_rgba(59,130,246,0.2)]"
           >
             <Plus size={18} />
             Tambah Manual
@@ -271,7 +273,7 @@ export default function AdminClients() {
         </div>
       </div>
 
-      <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-700 rounded-2xl p-6">
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
         <div className="flex justify-between mb-6 flex-wrap gap-4">
           <div className="relative w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -280,14 +282,14 @@ export default function AdminClients() {
               placeholder="Cari nama atau instansi..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder-slate-500"
             />
           </div>
           
           <div className="flex gap-2">
             <button 
               onClick={() => handleGenerateToken(currentPurpose)}
-              className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2"
+              className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-400 px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
               disabled={isUploading}
             >
               Generate Token Klien Baru
@@ -297,8 +299,8 @@ export default function AdminClients() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-700 text-slate-400 text-sm">
+            <thead className="bg-white/5 border-b border-white/10">
+              <tr className="text-slate-400 text-sm">
                 <th className="pb-3 px-4 font-medium">Nama Klien</th>
                 <th className="pb-3 px-4 font-medium">Institusi / Kelas</th>
                 <th className="pb-3 px-4 font-medium">Tgl Lahir</th>
@@ -321,9 +323,9 @@ export default function AdminClients() {
                 filteredClients.map((client) => {
                   const hasToken = client.tokens && client.tokens.length > 0;
                   return (
-                    <tr key={client.id} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition">
+                    <tr key={client.id} className="border-b border-white/5 hover:bg-white/5 transition group">
                       <td className="py-4 px-4">
-                        <div className="font-medium text-slate-200">{client.name}</div>
+                        <div className="font-medium text-white group-hover:text-blue-400 transition-colors">{client.name}</div>
                         {currentPurpose === 'CHILD' && client.parent_name && (
                            <div className="text-[11px] text-slate-500 mt-1">Ortu: {client.parent_name} ({client.parent_phone || '-'})</div>
                         )}
@@ -339,7 +341,7 @@ export default function AdminClients() {
                         
                         const renderToken = (t: any) => t ? (
                            <div className="flex flex-col items-start gap-1">
-                             <span className="text-[11px] font-mono font-bold bg-slate-800 px-2 py-0.5 rounded text-slate-300 border border-slate-700">
+                             <span className="text-[11px] font-mono font-bold bg-slate-950/50 px-2 py-0.5 rounded text-slate-300 border border-white/10 shadow-inner">
                                {t.token_code}
                              </span>
                              <div className="flex items-center gap-2">
@@ -369,7 +371,7 @@ export default function AdminClients() {
                              <div className="flex flex-col gap-2">
                                {client.tokens.map((t: any) => (
                                  <div key={t.id} className="flex flex-col items-start gap-1">
-                                   <span className="text-[11px] font-mono font-bold bg-slate-800 px-2 py-0.5 rounded text-slate-300 border border-slate-700">
+                                   <span className="text-[11px] font-mono font-bold bg-slate-950/50 px-2 py-0.5 rounded text-slate-300 border border-white/10 shadow-inner">
                                      {t.respondent_type === 'PARENT' ? '👨‍👩‍👧 PARENT' : currentPurpose === 'STU' ? '🎓 REMAJA' : currentPurpose === 'EMP' ? '💼 PEGAWAI' : '👶 CHILD'}: {t.token_code}
                                    </span>
                                    <div className="flex items-center gap-2">
@@ -403,11 +405,14 @@ export default function AdminClients() {
 
       {/* MODAL TAMBAH MANUAL */}
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="flex justify-between items-center p-5 border-b border-slate-800">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Plus className="text-blue-500" /> Tambah Data {currentPurpose === 'CHILD' ? 'Anak' : 'Klien'} Manual
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-3xl w-full max-w-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex justify-between items-center p-6 border-b border-white/10">
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+                  <Plus className="text-blue-400 w-4 h-4" />
+                </div>
+                Tambah Data {currentPurpose === 'CHILD' ? 'Anak' : 'Klien'} Manual
               </h2>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white transition">
                 <X />
@@ -418,17 +423,17 @@ export default function AdminClients() {
               <form id="manualForm" onSubmit={handleManualSubmit} className="space-y-5">
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nama Lengkap (Wajib)</label>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="Masukkan nama lengkap klien" />
+                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" placeholder="Masukkan nama lengkap klien" />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nomor Pendaftaran / NIK</label>
-                    <input type="text" value={formData.registration_number} onChange={e => setFormData({...formData, registration_number: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="Opsional" />
+                    <input type="text" value={formData.registration_number} onChange={e => setFormData({...formData, registration_number: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Jenis Kelamin</label>
-                    <select value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
+                    <select value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition">
                       <option value="">-- Pilih --</option>
                       <option value="L">Laki-laki (L)</option>
                       <option value="P">Perempuan (P)</option>
@@ -439,22 +444,22 @@ export default function AdminClients() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tempat Lahir</label>
-                    <input type="text" value={formData.birth_place} onChange={e => setFormData({...formData, birth_place: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="Kota Lahir" />
+                    <input type="text" value={formData.birth_place} onChange={e => setFormData({...formData, birth_place: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" placeholder="Kota Lahir" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tanggal Lahir</label>
-                    <input type="date" value={formData.birth_date} onChange={e => setFormData({...formData, birth_date: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" />
+                    <input type="date" value={formData.birth_date} onChange={e => setFormData({...formData, birth_date: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Asal {currentPurpose === 'CHILD' || currentPurpose === 'STU' ? 'Sekolah / TK' : 'Institusi / Perusahaan'}</label>
-                    <input type="text" value={formData.school_or_institution} onChange={e => setFormData({...formData, school_or_institution: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="Opsional" />
+                    <input type="text" value={formData.school_or_institution} onChange={e => setFormData({...formData, school_or_institution: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Kelas / Jabatan Saat Ini</label>
-                    <input type="text" value={formData.grade} onChange={e => setFormData({...formData, grade: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="Opsional" />
+                    <input type="text" value={formData.grade} onChange={e => setFormData({...formData, grade: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" placeholder="Opsional" />
                   </div>
                 </div>
 
@@ -465,11 +470,11 @@ export default function AdminClients() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nama Ayah / Ibu / Wali</label>
-                          <input type="text" value={formData.parent_name} onChange={e => setFormData({...formData, parent_name: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="Nama Orang Tua" />
+                          <input type="text" value={formData.parent_name} onChange={e => setFormData({...formData, parent_name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" placeholder="Nama Orang Tua" />
                         </div>
                         <div>
                           <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Nomor Telepon / WA</label>
-                          <input type="text" value={formData.parent_phone} onChange={e => setFormData({...formData, parent_phone: e.target.value})} className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" placeholder="08123456789" />
+                          <input type="text" value={formData.parent_phone} onChange={e => setFormData({...formData, parent_phone: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:bg-white/10 transition" placeholder="08123456789" />
                         </div>
                       </div>
                     </div>
@@ -478,9 +483,9 @@ export default function AdminClients() {
               </form>
             </div>
             
-            <div className="p-5 border-t border-slate-800 flex justify-end gap-3 bg-slate-800/20">
-              <button onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">Batal</button>
-              <button type="submit" form="manualForm" disabled={isUploading} className="px-5 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg transition disabled:opacity-50 flex items-center gap-2">
+            <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-black/20 backdrop-blur-md">
+              <button onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-white/5 transition">Batal</button>
+              <button type="submit" form="manualForm" disabled={isUploading} className="px-5 py-2.5 rounded-xl font-bold bg-blue-500/20 border border-blue-500/30 hover:bg-blue-500/40 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)] transition disabled:opacity-50 flex items-center gap-2">
                 {isUploading ? <RefreshCw className="animate-spin w-4 h-4"/> : <CheckCircle className="w-4 h-4"/>} Simpan Data
               </button>
             </div>

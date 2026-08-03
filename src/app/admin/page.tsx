@@ -75,18 +75,18 @@ export default function AdminDashboard() {
   const getStatusBadge = (status: string) => {
     if (status === "COMPLETED")
       return (
-        <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
+        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
           Selesai
         </span>
       );
     if (status === "IN_PROGRESS")
       return (
-        <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full border border-amber-200">
+        <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]">
           Sedang Ujian
         </span>
       );
     return (
-      <span className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">
+      <span className="px-3 py-1 bg-slate-500/20 text-slate-400 text-xs font-bold rounded-full border border-slate-500/30">
         Menunggu
       </span>
     );
@@ -105,16 +105,18 @@ export default function AdminDashboard() {
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-4">
-            <img
-              src="/logo-lentera-batin.png"
-              alt="Lentera Batin"
-              className="w-12 h-12"
-            />
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center p-2 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+               <img
+                 src="/logo-lentera-batin.png"
+                 alt="Lentera Batin"
+                 className="w-full h-full object-contain"
+               />
+            </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tighter text-slate-800">
+              <h1 className="text-4xl font-bold tracking-tighter text-white drop-shadow-md">
                 Lentera Batin Assessment
               </h1>
-              <p className="text-slate-600">
+              <p className="text-slate-400">
                 Dashboard Administrasi & Monitoring Asesmen Psikometri
               </p>
             </div>
@@ -131,19 +133,19 @@ export default function AdminDashboard() {
         {/* Card 1: Total Klien */}
         <motion.div
           variants={itemVariants}
-          className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group"
+          className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 relative overflow-hidden group hover:bg-white/10 transition-colors shadow-2xl"
         >
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out" />
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/20 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out blur-xl" />
           <div className="relative z-10 flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500 mb-1">
+              <p className="text-sm font-medium text-slate-400 mb-1">
                 Total Klien Terdaftar
               </p>
-              <h3 className="text-4xl font-black text-slate-800">
+              <h3 className="text-4xl font-black text-white drop-shadow-lg">
                 {stats.clients}
               </h3>
             </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600">
+            <div className="w-12 h-12 bg-blue-500/20 border border-blue-500/30 rounded-2xl flex items-center justify-center text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.5)]">
               <Users className="w-6 h-6" />
             </div>
           </div>
@@ -152,19 +154,19 @@ export default function AdminDashboard() {
         {/* Card 2: Ujian Selesai */}
         <motion.div
           variants={itemVariants}
-          className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group"
+          className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 relative overflow-hidden group hover:bg-white/10 transition-colors shadow-2xl"
         >
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out" />
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/20 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out blur-xl" />
           <div className="relative z-10 flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500 mb-1">
+              <p className="text-sm font-medium text-slate-400 mb-1">
                 Ujian Selesai
               </p>
-              <h3 className="text-4xl font-black text-slate-800">
+              <h3 className="text-4xl font-black text-white drop-shadow-lg">
                 {stats.completed}
               </h3>
             </div>
-            <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600">
+            <div className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/30 rounded-2xl flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
               <CheckCircle2 className="w-6 h-6" />
             </div>
           </div>
@@ -173,19 +175,19 @@ export default function AdminDashboard() {
         {/* Card 3: Sedang Dikerjakan */}
         <motion.div
           variants={itemVariants}
-          className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group"
+          className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 relative overflow-hidden group hover:bg-white/10 transition-colors shadow-2xl"
         >
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out" />
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-500/20 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out blur-xl" />
           <div className="relative z-10 flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500 mb-1">
+              <p className="text-sm font-medium text-slate-400 mb-1">
                 Sedang Mengerjakan
               </p>
-              <h3 className="text-4xl font-black text-slate-800">
+              <h3 className="text-4xl font-black text-white drop-shadow-lg">
                 {stats.active}
               </h3>
             </div>
-            <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
+            <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.5)]">
               <Activity className="w-6 h-6" />
             </div>
           </div>
@@ -194,19 +196,19 @@ export default function AdminDashboard() {
         {/* Card 4: Menunggu (Pending) */}
         <motion.div
           variants={itemVariants}
-          className="bg-white p-6 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden group"
+          className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 relative overflow-hidden group hover:bg-white/10 transition-colors shadow-2xl"
         >
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-purple-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out" />
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-purple-500/20 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out blur-xl" />
           <div className="relative z-10 flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500 mb-1">
+              <p className="text-sm font-medium text-slate-400 mb-1">
                 Token Belum Dipakai
               </p>
-              <h3 className="text-4xl font-black text-slate-800">
+              <h3 className="text-4xl font-black text-white drop-shadow-lg">
                 {stats.pending}
               </h3>
             </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
+            <div className="w-12 h-12 bg-purple-500/20 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)]">
               <Clock className="w-6 h-6" />
             </div>
           </div>
@@ -220,8 +222,8 @@ export default function AdminDashboard() {
         transition={{ delay: 0.2 }}
         className="mb-8"
       >
-        <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-blue-600" />
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <Users className="w-5 h-5 text-blue-400" />
           Menu Akses Cepat (Direktori Klien)
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -274,13 +276,13 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="lg:col-span-1 bg-white p-6 md:p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
+          className="lg:col-span-1 bg-white/5 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl"
         >
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-              <FileBarChart2 className="w-5 h-5 text-indigo-600" />
+            <div className="w-10 h-10 bg-indigo-500/20 border border-indigo-500/30 rounded-xl flex items-center justify-center shadow-[0_0_10px_rgba(99,102,241,0.3)]">
+              <FileBarChart2 className="w-5 h-5 text-indigo-400" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800">Distribusi Tes</h2>
+            <h2 className="text-xl font-bold text-white">Distribusi Tes</h2>
           </div>
 
           <div className="h-64 w-full">
@@ -332,14 +334,14 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="lg:col-span-2 bg-white p-6 md:p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
+          className="lg:col-span-2 bg-white/5 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl"
         >
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-rose-600" />
+              <div className="w-10 h-10 bg-rose-500/20 border border-rose-500/30 rounded-xl flex items-center justify-center shadow-[0_0_10px_rgba(225,29,72,0.3)]">
+                <AlertCircle className="w-5 h-5 text-rose-400" />
               </div>
-              <h2 className="text-xl font-bold text-slate-800">
+              <h2 className="text-xl font-bold text-white">
                 Aktivitas Terbaru
               </h2>
             </div>
@@ -347,14 +349,14 @@ export default function AdminDashboard() {
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-slate-500 uppercase bg-slate-50 rounded-xl">
+              <thead className="text-xs text-slate-400 uppercase bg-white/5 rounded-xl border-b border-white/10">
                 <tr>
-                  <th className="px-4 py-4 rounded-l-xl font-semibold">
+                  <th className="px-4 py-4 rounded-tl-xl font-semibold">
                     Peserta / Token
                   </th>
                   <th className="px-4 py-4 font-semibold">Tujuan Tes</th>
                   <th className="px-4 py-4 font-semibold">Status</th>
-                  <th className="px-4 py-4 rounded-r-xl font-semibold text-right">
+                  <th className="px-4 py-4 rounded-tr-xl font-semibold text-right">
                     Waktu
                   </th>
                 </tr>
@@ -364,7 +366,7 @@ export default function AdminDashboard() {
                   <tr>
                     <td
                       colSpan={4}
-                      className="px-4 py-8 text-center text-slate-500"
+                      className="px-4 py-8 text-center text-slate-400"
                     >
                       Belum ada aktivitas terekam.
                     </td>
@@ -373,21 +375,21 @@ export default function AdminDashboard() {
                   recentActivity.map((act) => (
                     <tr
                       key={act.id}
-                      className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors"
+                      className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group"
                     >
                       <td className="px-4 py-4">
-                        <p className="font-bold text-slate-800">{act.name}</p>
-                        <p className="text-xs text-slate-500 font-mono mt-0.5">
+                        <p className="font-bold text-white group-hover:text-blue-400 transition-colors">{act.name}</p>
+                        <p className="text-xs text-slate-400 font-mono mt-0.5">
                           {act.code}
                         </p>
                       </td>
-                      <td className="px-4 py-4 text-slate-600 font-medium">
+                      <td className="px-4 py-4 text-slate-300 font-medium">
                         {act.purpose?.replace(/_/g, " ") || "-"}
                       </td>
                       <td className="px-4 py-4">
                         {getStatusBadge(act.status)}
                       </td>
-                      <td className="px-4 py-4 text-right text-slate-500 text-xs">
+                      <td className="px-4 py-4 text-right text-slate-400 text-xs">
                         {new Date(act.created_at).toLocaleDateString("id-ID", {
                           day: "numeric",
                           month: "short",

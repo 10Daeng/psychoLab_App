@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
 import { verifyAdminSession } from '@/lib/auth-helpers';
+import { decrypt } from '@/lib/encryption';
 
 export async function GET() {
   try {
@@ -85,7 +86,7 @@ export async function GET() {
     // 4. Ambil 5 aktivitas terbaru (5 token teratas karena sudah di-order)
     const recentActivity = allTokens?.slice(0, 5).map(token => ({
       id: token.id,
-      name: token.clients ? (token.clients as any).name : 'Belum Diketahui (Token Terbuka)',
+      name: token.clients ? decrypt((token.clients as any).name) : 'Belum Diketahui (Token Terbuka)',
       code: token.token_code,
       purpose: token.purpose,
       status: token.status,

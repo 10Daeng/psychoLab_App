@@ -3,6 +3,7 @@ import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { saveResultSchema } from "@/lib/validations";
+import { decryptClientData } from "@/lib/encryption";
 
 export async function POST(request: Request) {
   try {
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     const engine = EngineFactory.getEngine(testCode);
     
     // Gunakan data client dari database untuk mencegah manipulasi umur (Data Tampering)
-    const validClientData = currentTestResult.client;
+    const validClientData = decryptClientData(currentTestResult.client);
     const assessmentResult = await engine.calculateScores(resultsLog, validClientData);
 
     // 3. Update Test Results yang sudah dibuat saat start (verify-token)

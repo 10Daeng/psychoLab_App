@@ -75,10 +75,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen bg-slate-950 overflow-hidden relative">
-      {/* Background Ornaments */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-0 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-900/20 rounded-full blur-[120px]" />
+      {/* Background Ornaments (Mesh Gradient) */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-0 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3], rotate: [0, 90, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] bg-blue-600/30 rounded-full blur-[140px]" 
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.5, 0.3], rotate: [0, -90, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[60%] bg-emerald-600/20 rounded-full blur-[140px]" 
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[20%] right-[20%] w-[30%] h-[40%] bg-purple-600/20 rounded-full blur-[120px]" 
+        />
       </div>
 
       {/* Mobile Drawer Overlay */}
@@ -95,8 +108,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900/50 backdrop-blur-2xl border-r border-slate-800/60 text-white flex flex-col transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"}`}>
-        <div className="h-20 flex items-center justify-between px-8 border-b border-slate-800/50">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900/40 backdrop-blur-3xl border-r border-white/10 text-white flex flex-col transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0 shadow-[0_0_40px_rgba(0,0,0,0.5)]" : "-translate-x-full"}`}>
+        <div className="h-20 flex items-center justify-between px-8 border-b border-white/5">
           <div className="flex items-center gap-3">
              <div className="flex items-center gap-3">
 	               <img src="/logo-lentera-batin.png" alt="Lentera Batin" className="w-9 h-9 object-contain" />
@@ -125,19 +138,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-4 font-semibold group relative overflow-hidden ${isActive ? "text-white" : "text-slate-400 hover:text-slate-200"}`}
+                    className={`px-4 py-3 rounded-xl transition-all duration-300 flex items-center gap-4 font-semibold group relative overflow-hidden ${isActive ? "text-white" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
                   >
                     {isActive && (
                        <motion.div
                          layoutId={`active-nav-${idx}`}
-                         className="absolute inset-0 bg-blue-600/20 border border-blue-500/30 rounded-xl"
+                         className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-emerald-600/10 border border-blue-500/30 rounded-xl"
                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
                        />
                     )}
-                    <div className={`relative z-10 ${isActive ? 'text-blue-400' : 'group-hover:text-blue-400 transition-colors'}`}>
+                    <div className={`relative z-10 transition-transform duration-300 ${isActive ? 'text-blue-400 scale-110' : 'group-hover:text-blue-400 group-hover:scale-110'}`}>
                       {link.icon}
                     </div>
-                    <span className="relative z-10 text-sm">{link.label}</span>
+                    <span className="relative z-10 text-sm group-hover:translate-x-1 transition-transform duration-300">{link.label}</span>
                   </Link>
                 )
               })}
@@ -145,7 +158,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           ))}
         </nav>
 
-        <div className="p-6 border-t border-slate-800/50 space-y-4">
+        <div className="p-6 border-t border-white/5 space-y-4">
           <div className="bg-slate-800/30 border border-slate-700/50 p-4 rounded-2xl flex items-center gap-4">
              <div className="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center shrink-0">
                 <Users className="w-5 h-5 text-slate-300" />
@@ -168,7 +181,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative z-10">
         {/* Mobile Header */}
-        <header className="h-16 bg-slate-900/50 backdrop-blur-xl border-b border-slate-800 flex items-center px-4 md:hidden shrink-0 gap-3">
+        <header className="h-16 bg-slate-900/40 backdrop-blur-2xl border-b border-white/10 flex items-center px-4 md:hidden shrink-0 gap-3">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="p-2 -ml-2 text-slate-400 hover:text-slate-200 rounded-lg transition-colors"

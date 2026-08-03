@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { SignJWT } from "jose";
+import { decrypt } from "@/lib/encryption";
 
 // Rate limiter untuk mencegah brute-force token
 const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
       const clientData = tokenData.client as any;
       const safeClient = {
         id: clientData.id,
-        name: clientData.name,
+        name: decrypt(clientData.name),
         birth_date: clientData.birth_date,
         gender: clientData.gender,
         school_or_institution: clientData.school_or_institution,

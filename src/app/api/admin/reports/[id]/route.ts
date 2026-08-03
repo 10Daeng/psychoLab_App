@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
+import { decryptClientData } from '@/lib/encryption';
 
 export async function GET(
   req: Request,
@@ -40,6 +41,10 @@ export async function GET(
       
     if (err3 && err3.code !== '42P01') {
       console.warn("client_reports error (or table missing):", err3);
+    }
+
+    if (tokenData && tokenData.clients) {
+      tokenData.clients = decryptClientData(tokenData.clients);
     }
 
     return NextResponse.json({

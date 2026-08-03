@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
 import { verifyAdminSession } from '@/lib/auth-helpers';
+import { decrypt } from '@/lib/encryption';
 
 export async function GET() {
   try {
@@ -43,8 +44,13 @@ export async function GET() {
 
     if (err2) throw err2;
 
+    const decryptedChildTokens = childTokens?.map(ct => ({
+      ...ct,
+      clients: ct.clients ? { ...ct.clients, name: decrypt((ct.clients as any).name) } : ct.clients
+    })) || [];
+
     return NextResponse.json({
-      childTokens: childTokens || [],
+      childTokens: decryptedChildTokens,
       parentTokens: parentTokens || []
     });
   } catch (error: any) {

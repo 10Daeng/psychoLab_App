@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { encrypt } from '@/lib/encryption';
 
 const generateTokenString = (prefix: string) => {
   const array = new Uint8Array(4);
@@ -61,15 +62,15 @@ export async function POST(request: Request) {
     const { data: newClient, error: clientError } = await supabaseAdmin
       .from('clients')
       .insert({
-        name,
+        name: encrypt(name),
         birth_date,
         gender: gender || null,
         school_or_institution: school_or_institution || null,
         grade: grade || null,
-        parent_name: parent_name || null,
-        parent_phone: parent_phone || null,
-        address: address || null,
-        registration_number: registration_number || null,
+        parent_name: encrypt(parent_name || null),
+        parent_phone: encrypt(parent_phone || null),
+        address: encrypt(address || null),
+        registration_number: encrypt(registration_number || null),
         test_purpose: purpose,
       })
       .select()

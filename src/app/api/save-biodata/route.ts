@@ -3,6 +3,7 @@ import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { saveBiodataSchema } from "@/lib/validations";
+import { encryptClientData } from "@/lib/encryption";
 
 export async function POST(request: Request) {
   try {
@@ -48,9 +49,9 @@ export async function POST(request: Request) {
       // Update Klien Lama (Revisi/Edit)
       const { data, error } = await supabase
         .from("clients")
-        .update({
+        .update(encryptClientData({
           name, birth_date, gender, school_or_institution, grade, parent_name, parent_phone, address, registration_number, test_registration_number, target_institution, test_purpose, birth_place, birth_order, special_needs, parent_job, parent_education
-        })
+        }))
         .eq("id", validClientId)
         .select("*")
         .single();
@@ -60,9 +61,9 @@ export async function POST(request: Request) {
       // Buat Klien Baru
       const { data, error } = await supabase
         .from("clients")
-        .insert({
+        .insert(encryptClientData({
           name, birth_date, gender, school_or_institution, grade, parent_name, parent_phone, address, registration_number, test_registration_number, target_institution, test_purpose, birth_place, birth_order, special_needs, parent_job, parent_education
-        })
+        }))
         .select("*")
         .single();
       if (error) throw error;

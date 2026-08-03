@@ -166,15 +166,16 @@ export default function DiscTestPage() {
                   </div>
                   
                   {q.options.map((opt: any, idx: number) => {
-                    const isMostSelected = qAnswers.most === opt.trait;
-                    const isLeastSelected = qAnswers.least === opt.trait;
+                    const traitValue = opt.trait || opt.value || opt.key || opt.type || opt.m || opt.karakter || opt.kategori;
+                    const isMostSelected = traitValue !== undefined && qAnswers.most === traitValue;
+                    const isLeastSelected = traitValue !== undefined && qAnswers.least === traitValue;
                     
                     return (
                       <div 
                         key={idx} 
                         className={`grid grid-cols-12 gap-0 border-b border-slate-100 last:border-0 transition-colors
-                          \${isMostSelected ? 'bg-blue-50/50' : ''} 
-                          \${isLeastSelected ? 'bg-rose-50/50' : ''}
+                          ${isMostSelected ? 'bg-blue-50/50' : ''} 
+                          ${isLeastSelected ? 'bg-rose-50/50' : ''}
                           hover:bg-slate-50
                         `}
                       >
@@ -185,9 +186,9 @@ export default function DiscTestPage() {
                         {/* MOST Radio Button */}
                         <div 
                           className="col-span-2 md:col-span-1 p-4 flex items-center justify-center border-l border-slate-100 cursor-pointer"
-                          onClick={() => handleSelect(q.no, 'most', opt.trait)}
+                          onClick={() => traitValue && handleSelect(q.no, 'most', traitValue)}
                         >
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all \${isMostSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-300'} \${isLeastSelected ? 'opacity-30 cursor-not-allowed' : 'hover:border-blue-400'}`}>
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isMostSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-300'} ${isLeastSelected ? 'opacity-30 cursor-not-allowed' : 'hover:border-blue-400'}`}>
                             {isMostSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
                           </div>
                         </div>
@@ -195,9 +196,9 @@ export default function DiscTestPage() {
                         {/* LEAST Radio Button */}
                         <div 
                           className="col-span-2 md:col-span-1 p-4 flex items-center justify-center border-l border-slate-100 cursor-pointer"
-                          onClick={() => handleSelect(q.no, 'least', opt.trait)}
+                          onClick={() => traitValue && handleSelect(q.no, 'least', traitValue)}
                         >
-                           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all \${isLeastSelected ? 'border-rose-500 bg-rose-500' : 'border-slate-300'} \${isMostSelected ? 'opacity-30 cursor-not-allowed' : 'hover:border-rose-400'}`}>
+                           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isLeastSelected ? 'border-rose-500 bg-rose-500' : 'border-slate-300'} ${isMostSelected ? 'opacity-30 cursor-not-allowed' : 'hover:border-rose-400'}`}>
                             {isLeastSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
                           </div>
                         </div>
@@ -223,9 +224,9 @@ export default function DiscTestPage() {
             onClick={handleNext}
             disabled={!isGroupComplete() || isSubmitting}
             className={`px-8 py-3 rounded-xl font-medium transition-all shadow-sm
-              \${isGroupComplete() 
+              ${isGroupComplete() 
                 ? 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5' 
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-slate-200 text-slate-500 cursor-not-allowed'
               }
             `}
           >

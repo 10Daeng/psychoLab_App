@@ -29,7 +29,6 @@ export class ParentQEngine extends BaseTestEngine {
     return {
       rawScore: 0,
       classification: "Observasi Selesai",
-      independent: independent,
       calculatedData: {
         history: historyData,
         independent: independent

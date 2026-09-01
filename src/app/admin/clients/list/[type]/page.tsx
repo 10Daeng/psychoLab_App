@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from 'next/navigation';
-import { Users, Upload, Download, CheckCircle, Search, Plus, X, RefreshCw, PenTool, ClipboardCheck, CheckCircle2 } from "lucide-react";
+import { Users, Upload, Download, CheckCircle, Search, Plus, X, RefreshCw, PenTool, ClipboardCheck, CheckCircle2, LayoutDashboard, Trash2 } from "lucide-react";
 import * as XLSX from 'xlsx';
 import DapScoringModal from "@/components/admin/DapScoringModal";
 import ObservationModal from "@/components/admin/ObservationModal";
+import AssessmentHubModal from "@/components/admin/AssessmentHubModal";
 
 export default function AdminClients() {
   const [clients, setClients] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function AdminClients() {
   // Modals state untuk Aksi Penilaian
   const [dapModalOpen, setDapModalOpen] = useState(false);
   const [obsModalOpen, setObsModalOpen] = useState(false);
+  const [hubModalOpen, setHubModalOpen] = useState(false);
   const [activeToken, setActiveToken] = useState<any>(null);
   const [activeClient, setActiveClient] = useState<any>(null);
   
@@ -234,6 +236,19 @@ export default function AdminClients() {
     }
   };
 
+  const handleDeleteToken = async (tokenId: string) => {
+    if (!confirm("Peringatan: Menghapus token utama juga akan menghapus token pendamping (jika ada) dan seluruh hasil tes yang terkait. Yakin ingin menghapus?")) return;
+    try {
+      const res = await fetch(`/api/admin/delete-token?id=${tokenId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      alert("Token berhasil dihapus.");
+      fetchClients();
+    } catch (err: any) {
+      alert("Gagal menghapus token: " + err.message);
+    }
+  };
+
   const handleFinalizeToken = async (tokenId: string) => {
     const confirm = window.confirm("Tandai sesi tes ini sebagai Selesai? Status token akan ditutup secara permanen.");
     if (!confirm) return;
@@ -380,21 +395,21 @@ export default function AdminClients() {
                              </div>
                              
                              <div className="flex flex-wrap items-center gap-1.5">
-                               {t.respondent_type === 'SELF' && (
-                                 <>
-                                   <button 
-                                     onClick={() => { setActiveToken(t); setActiveClient(client); setDapModalOpen(true); }}
-                                     className="text-[10px] bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
-                                   >
-                                     <PenTool size={10} /> DAP
-                                   </button>
-                                   <button 
-                                     onClick={() => { setActiveToken(t); setActiveClient(client); setObsModalOpen(true); }}
-                                     className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
-                                   >
-                                     <ClipboardCheck size={10} /> Observasi
-                                   </button>
-                                 </>
+                               {t.respondent_type === 'SELF' && currentPurpose === 'CHILD' && (
+                                 <button 
+                                   onClick={() => { setActiveToken(t); setActiveClient(client); setHubModalOpen(true); }}
+                                   className="text-[10px] bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 border border-indigo-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                 >
+                                   <LayoutDashboard size={10} /> Kelola Penilaian
+                                 </button>
+                               )}
+                               {t.respondent_type === 'SELF' && currentPurpose !== 'CHILD' && (
+                                 <button 
+                                   onClick={() => { setActiveToken(t); setActiveClient(client); setObsModalOpen(true); }}
+                                   className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                 >
+                                   <ClipboardCheck size={10} /> Observasi
+                                 </button>
                                )}
                                {t.status !== 'COMPLETED' && (
                                  <button 
@@ -416,9 +431,15 @@ export default function AdminClients() {
                                )}
                                <button 
                                  onClick={() => handleResetToken(t.id)}
-                                 className="text-[10px] bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                 className="text-[10px] bg-slate-500/10 text-slate-400 hover:bg-slate-500/20 border border-slate-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
                                >
                                  <RefreshCw size={10} /> Reset
+                               </button>
+                               <button 
+                                 onClick={() => handleDeleteToken(t.id)}
+                                 className="text-[10px] bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                               >
+                                 <Trash2 size={10} /> Hapus
                                </button>
                              </div>
                            </div>
@@ -466,9 +487,15 @@ export default function AdminClients() {
                                      )}
                                      <button 
                                        onClick={() => handleResetToken(t.id)}
-                                       className="text-[10px] bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                       className="text-[10px] bg-slate-500/10 text-slate-400 hover:bg-slate-500/20 border border-slate-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
                                      >
                                        <RefreshCw size={10} /> Reset
+                                     </button>
+                                     <button 
+                                       onClick={() => handleDeleteToken(t.id)}
+                                       className="text-[10px] bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                     >
+                                       <Trash2 size={10} /> Hapus
                                      </button>
                                    </div>
                                  </div>
@@ -597,6 +624,13 @@ export default function AdminClients() {
             clientName={activeClient.name}
             tokenCode={activeToken.token_code}
             onSuccess={() => fetchClients()}
+          />
+
+          <AssessmentHubModal
+            isOpen={hubModalOpen}
+            onClose={() => setHubModalOpen(false)}
+            client={activeClient}
+            onSuccess={fetchClients}
           />
         </>
       )}

@@ -16,6 +16,12 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: "Format ID tidak valid" }, { status: 400 });
     }
 
+    // Hapus juga token parent (PRT) yang terhubung dengan token ini
+    await supabaseAdmin
+      .from('tokens')
+      .delete()
+      .eq('parent_token_id', id);
+
     const { error } = await supabaseAdmin
       .from('tokens')
       .delete()

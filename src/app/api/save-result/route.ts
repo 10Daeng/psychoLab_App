@@ -67,30 +67,42 @@ export async function POST(request: Request) {
     
     // 4. Generate Token Pendamping (Parent) HANYA JIKA TEST-NYA CPM
     if (testCode === 'CPM') {
-      const { data: parentQTest } = await supabase
-        .from('tests')
-        .select('id')
-        .eq('code', 'PARENT_Q')
+      // Cek apakah sudah ada token PRT untuk token CHI ini
+      const { data: existingPrt } = await supabase
+        .from('tokens')
+        .select('token_code')
+        .eq('parent_token_id', currentTestResult.token_id)
+        .eq('respondent_type', 'PARENT')
         .single();
         
-      const testIds = parentQTest ? [parentQTest.id] : [];
+      if (existingPrt) {
+        parentTokenCode = existingPrt.token_code;
+      } else {
+        const { data: parentQTest } = await supabase
+          .from('tests')
+          .select('id')
+          .eq('code', 'PARENT_Q')
+          .single();
+          
+        const testIds = parentQTest ? [parentQTest.id] : [];
 
-      const array = new Uint8Array(4);
-      crypto.getRandomValues(array);
-      const randomHex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('').substring(0, 6).toUpperCase();
-      parentTokenCode = "PRT-" + randomHex;
-      
-      await supabase
-        .from('tokens')
-        .insert({
-          token_code: parentTokenCode,
-          client_id: currentTestResult.client_id,
-          test_ids: testIds, 
-          respondent_type: 'PARENT',
-          purpose: 'KESIAPAN_SD',
-          parent_token_id: currentTestResult.token_id,
-          status: 'PENDING'
-        });
+        const array = new Uint8Array(4);
+        crypto.getRandomValues(array);
+        const randomHex = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('').substring(0, 6).toUpperCase();
+        parentTokenCode = "PRT-" + randomHex;
+        
+        await supabase
+          .from('tokens')
+          .insert({
+            token_code: parentTokenCode,
+            client_id: currentTestResult.client_id,
+            test_ids: testIds, 
+            respondent_type: 'PARENT',
+            purpose: 'KESIAPAN SD',
+            parent_token_id: currentTestResult.token_id,
+            status: 'PENDING'
+          });
+      }
     }
 
     return NextResponse.json({ 

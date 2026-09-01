@@ -25,7 +25,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       title: "Dashboard & Tools",
       links: [
         { href: "/admin", icon: <Home className="w-4 h-4" />, label: "Dashboard" },
-        { href: "/admin/dap", icon: <FileBarChart2 className="w-4 h-4" />, label: "Penilaian Grafis" },
         { href: "/admin/validity", icon: <ShieldAlert className="w-4 h-4" />, label: "Analisis Validitas" },
       ]
     },
@@ -36,7 +35,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { href: "/admin/clients/list/student", icon: <Users className="w-4 h-4" />, label: "Klien Penjurusan" },
         { href: "/admin/clients/list/employee", icon: <Users className="w-4 h-4" />, label: "Klien Rekrutmen" },
         { href: "/admin/reports", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan & Sertifikat" },
-        { href: "/admin/tracking", icon: <Activity className="w-4 h-4" />, label: "Tracking Progres Ortu" },
       ]
     },
     {
@@ -47,7 +45,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { href: "/admin/reports/module/WVI", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil WVI" },
         { href: "/admin/reports/module/SDS", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil SDS" },
         { href: "/admin/reports/module/CPM", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil CPM" },
-        { href: "/admin/reports/module/KUESIONER_ORTU", icon: <ClipboardCheck className="w-4 h-4" />, label: "Kuesioner Ortu" },
       ]
     }
   ];

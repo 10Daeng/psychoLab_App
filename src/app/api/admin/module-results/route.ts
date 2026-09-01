@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
 import { verifyAdminSession } from '@/lib/auth-helpers';
+import { decryptClientData } from '@/lib/encryption';
 
 export async function GET(req: Request) {
   try {
@@ -38,7 +39,13 @@ export async function GET(req: Request) {
 
       const { data, error } = await queryObs;
       if (error) throw error;
-      return NextResponse.json({ data: data || [] });
+      
+      const decryptedData = data?.map(item => {
+        if (item.clients) item.clients = decryptClientData(item.clients);
+        return item;
+      }) || [];
+      
+      return NextResponse.json({ data: decryptedData });
     }
 
     // Special Case: WAWANCARA_ANAK
@@ -58,7 +65,13 @@ export async function GET(req: Request) {
 
       const { data, error } = await queryWaw;
       if (error) throw error;
-      return NextResponse.json({ data: data || [] });
+      
+      const decryptedData = data?.map(item => {
+        if (item.clients) item.clients = decryptClientData(item.clients);
+        return item;
+      }) || [];
+      
+      return NextResponse.json({ data: decryptedData });
     }
 
     // Standard test codes (including KUESIONER_ORTU -> PARENT_Q)
@@ -100,7 +113,14 @@ export async function GET(req: Request) {
 
     if (resultsErr) throw resultsErr;
 
-    return NextResponse.json({ data: results || [] });
+    const decryptedResults = results?.map(item => {
+      if (item.tokens?.clients) {
+        item.tokens.clients = decryptClientData(item.tokens.clients);
+      }
+      return item;
+    }) || [];
+
+    return NextResponse.json({ data: decryptedResults });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }

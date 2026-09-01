@@ -44,9 +44,26 @@ export default function ParentConfirmPage() {
     });
   }
 
-  const handleContinue = () => {
-    // Lanjut ke dashboard kuesioner ortu
-    router.push("/test/parent/dashboard");
+  const handleContinue = async () => {
+    try {
+      const res = await fetch("/api/start-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token_id: sessionStorage.getItem("current_token_id"),
+          client_id: clientData.id,
+          test_code: "PARENT_Q"
+        })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal memulai sesi");
+      
+      sessionStorage.setItem("test_result_id", data.test_result_id);
+      router.push("/test/parent_q");
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const csMessage = encodeURIComponent(`Halo Admin, saya mencoba memasukkan Kode Token ${tokenCode} untuk Kuesioner Orang Tua, namun data anak yang muncul tidak sesuai. Mohon bantuannya.`);

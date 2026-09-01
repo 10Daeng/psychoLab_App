@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { cookies } from 'next/headers';
 import { verifyAdminSession } from '@/lib/auth-helpers';
+import { decrypt } from '@/lib/encryption';
 
 export async function GET() {
   try {
@@ -35,7 +36,14 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'Gagal mengambil data dari database.' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, tokens: tokensData });
+    const decryptedTokens = tokensData?.map((t: any) => {
+      if (t.clients && t.clients.name) {
+        t.clients.name = decrypt(t.clients.name);
+      }
+      return t;
+    });
+
+    return NextResponse.json({ success: true, tokens: decryptedTokens });
   } catch (error: any) {
     console.error('get-tokens error:', error);
     return NextResponse.json({ success: false, error: 'Terjadi kesalahan internal.' }, { status: 500 });

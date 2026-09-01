@@ -3,7 +3,7 @@ import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { saveBiodataSchema } from "@/lib/validations";
-import { encryptClientData } from "@/lib/encryption";
+import { encryptClientData, decryptClientData } from "@/lib/encryption";
 
 export async function POST(request: Request) {
   try {
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         .eq("id", token_id);
     }
 
-    return NextResponse.json({ success: true, client: finalClient });
+    return NextResponse.json({ success: true, client: decryptClientData(finalClient) });
     
   } catch (err: any) {
     console.error("save-biodata error:", err);

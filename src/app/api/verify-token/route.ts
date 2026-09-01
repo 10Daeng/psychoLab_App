@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { SignJWT } from "jose";
-import { decrypt } from "@/lib/encryption";
+import { decrypt, decryptClientData } from "@/lib/encryption";
 
 // Rate limiter untuk mencegah brute-force token
 const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
@@ -51,6 +51,8 @@ export async function POST(request: Request) {
     const tCode = token.toUpperCase();
     if (tCode.startsWith("CHI-")) {
       testCode = "CPM";
+    } else if (tCode.startsWith("PRT-")) {
+      testCode = "PARENT_Q";
     } else if (tCode.startsWith("STU-")) {
       testCode = "RAVEN2"; // Remaja mulai dengan RAVEN2
     } else if (tCode.startsWith("EMP-")) {
@@ -65,16 +67,9 @@ export async function POST(request: Request) {
         .setExpirationTime('12h')
         .sign(secret);
 
-      // Filter data klien: hanya kirim field yang dibutuhkan frontend
+      // Kembalikan seluruh data klien yang sudah didekripsi agar form edit terisi penuh
       const clientData = tokenData.client as any;
-      const safeClient = {
-        id: clientData.id,
-        name: decrypt(clientData.name),
-        birth_date: clientData.birth_date,
-        gender: clientData.gender,
-        school_or_institution: clientData.school_or_institution,
-        grade: clientData.grade,
-      };
+      const safeClient = decryptClientData(clientData);
 
       const response = NextResponse.json({
         success: true,

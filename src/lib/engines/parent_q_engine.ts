@@ -6,14 +6,33 @@ export class ParentQEngine extends BaseTestEngine {
   }
 
   async calculateScores(answers: any, clientData?: any): Promise<AssessmentResult> {
-    // answers dari custom form
-    const historyData = answers || {};
+    let historyData = {};
+    let abicData = {};
+
+    if (Array.isArray(answers)) {
+      const historyLog = answers.find((a: any) => a.type === 'HISTORY');
+      if (historyLog && historyLog.responses) {
+        historyData = historyLog.responses;
+      }
+      const abicLog = answers.find((a: any) => a.type === 'ABIC');
+      if (abicLog && abicLog.responses) {
+        abicData = abicLog.responses;
+      }
+    } else {
+      historyData = answers || {};
+    }
+
+    // Hitung kemandirian (independent) dari data ABIC
+    const values = Object.values(abicData);
+    const independent = values.length > 0 && values.filter(Boolean).length >= Math.floor(values.length / 2);
 
     return {
       rawScore: 0,
       classification: "Observasi Selesai",
+      independent: independent,
       calculatedData: {
-        history: historyData
+        history: historyData,
+        independent: independent
       }
     };
   }

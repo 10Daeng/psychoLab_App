@@ -10,7 +10,14 @@ export default function ParentQuestionnaire() {
   const [loading, setLoading] = useState(false);
   const [clientData, setClientData] = useState<any>(null);
 
-  const [historyAnswers, setHistoryAnswers, clearHistory] = useAutoSave('PQ_HISTORY', { kehamilan: "", medis: "", perkembangan: "" });
+  const [historyAnswers, setHistoryAnswers, clearHistory] = useAutoSave('PQ_HISTORY', { 
+    kehamilan: "", 
+    motorikKasar: "", 
+    bahasa: "", 
+    sosial: "", 
+    emosi: "", 
+    catatan: "" 
+  });
   const [sdqAnswers, setSdqAnswers, clearSdq] = useAutoSave<Record<string, number>>('PQ_SDQ', {});
   const [abicAnswers, setAbicAnswers, clearAbic] = useAutoSave<Record<string, boolean>>('PQ_ABIC', {
     makan: false, mandi: false, berpakaian: false, bergaul: false
@@ -92,28 +99,59 @@ export default function ParentQuestionnaire() {
               <label className="block text-sm font-bold text-slate-600 mb-2">1. Bagaimana kondisi selama kehamilan dan proses persalinan?</label>
               <textarea 
                 className="w-full p-4 border-2 rounded-xl focus:border-blue-500 outline-none" 
-                rows={3} 
+                rows={2} 
                 value={historyAnswers.kehamilan}
                 onChange={e => setHistoryAnswers({...historyAnswers, kehamilan: e.target.value})}
                 placeholder="Misal: Lahir prematur, normal, dll..." 
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-600 mb-2">2. Apakah anak memiliki riwayat penyakit medis khusus / kejang / trauma?</label>
+              <label className="block text-sm font-bold text-slate-600 mb-2">2. Bagaimana perkembangan motorik kasar & halus anak?</label>
               <textarea 
                 className="w-full p-4 border-2 rounded-xl focus:border-blue-500 outline-none" 
-                rows={3} 
-                value={historyAnswers.medis}
-                onChange={e => setHistoryAnswers({...historyAnswers, medis: e.target.value})}
+                rows={2} 
+                value={historyAnswers.motorikKasar}
+                onChange={e => setHistoryAnswers({...historyAnswers, motorikKasar: e.target.value})}
+                placeholder="Misal: Kapan bisa berjalan, menulis, dll..." 
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-600 mb-2">3. Kapan anak mulai bisa berjalan dan berbicara kalimat?</label>
+              <label className="block text-sm font-bold text-slate-600 mb-2">3. Bagaimana perkembangan bahasa anak?</label>
               <textarea 
                 className="w-full p-4 border-2 rounded-xl focus:border-blue-500 outline-none" 
-                rows={3} 
-                value={historyAnswers.perkembangan}
-                onChange={e => setHistoryAnswers({...historyAnswers, perkembangan: e.target.value})}
+                rows={2} 
+                value={historyAnswers.bahasa}
+                onChange={e => setHistoryAnswers({...historyAnswers, bahasa: e.target.value})}
+                placeholder="Misal: Usia mulai bicara 2 kata, apakah ada cadel..." 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-600 mb-2">4. Bagaimana interaksi sosial dan pertemanannya?</label>
+              <textarea 
+                className="w-full p-4 border-2 rounded-xl focus:border-blue-500 outline-none" 
+                rows={2} 
+                value={historyAnswers.sosial}
+                onChange={e => setHistoryAnswers({...historyAnswers, sosial: e.target.value})}
+                placeholder="Misal: Mudah bergaul, sering menyendiri, pemalu..." 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-600 mb-2">5. Bagaimana kematangan emosinya saat ini?</label>
+              <textarea 
+                className="w-full p-4 border-2 rounded-xl focus:border-blue-500 outline-none" 
+                rows={2} 
+                value={historyAnswers.emosi}
+                onChange={e => setHistoryAnswers({...historyAnswers, emosi: e.target.value})}
+                placeholder="Misal: Sering tantrum, mudah marah, penyabar..." 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-600 mb-2">6. Apakah ada catatan tambahan / riwayat medis?</label>
+              <textarea 
+                className="w-full p-4 border-2 rounded-xl focus:border-blue-500 outline-none" 
+                rows={2} 
+                value={historyAnswers.catatan}
+                onChange={e => setHistoryAnswers({...historyAnswers, catatan: e.target.value})}
               />
             </div>
             <button onClick={() => setStep(2)} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl">Lanjut ke Bagian 2</button>

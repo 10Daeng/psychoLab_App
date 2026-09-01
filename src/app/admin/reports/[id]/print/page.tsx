@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import html2canvas from "html2canvas-pro";
+import { jsPDF } from "jspdf";
 
 import ChildPrintView from "@/components/reports/ChildPrintView";
 import StudentPrintView from "@/components/reports/StudentPrintView";
@@ -18,12 +20,71 @@ export default function PrintReportPage() {
   const [segment, setSegment] = useState<"CHI" | "STU" | "EMP">("CHI");
   const [viewMode, setViewMode] = useState<"CLEAN" | "FULL">("CLEAN");
 
+  const searchParams = useSearchParams();
+  const autoDownload = searchParams.get("download") === "1";
+  
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (report) {
-      const timer = setTimeout(() => window.print(), 1000);
+    if (report && autoDownload) {
+      const timer = setTimeout(() => handleDownloadPDF(), 1000);
       return () => clearTimeout(timer);
     }
-  }, [report]);
+  }, [report, autoDownload]);
+
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current) return;
+    setIsGeneratingPdf(true);
+    
+    try {
+      const element = reportRef.current;
+      
+      // html2canvas config for high quality
+      const canvas = await html2canvas(element, {
+        scale: 2, // 2x resolution
+        useCORS: true,
+        logging: false,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      
+      // A4 format: 210 x 297 mm
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      let heightLeft = pdfHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pdf.internal.pageSize.getHeight();
+
+      // Add subsequent pages if content is longer than one page
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pdf.internal.pageSize.getHeight();
+      }
+
+      const safeName = (client?.name || "Klien").replace(/[^a-zA-Z0-9]/g, "_");
+      pdf.save(`Laporan_LenteraBatin_${safeName}.pdf`);
+      
+      if (autoDownload) {
+        // Attempt to close the tab automatically
+        window.close();
+      }
+    } catch (error) {
+      console.error("Gagal generate PDF:", error);
+      alert("Terjadi kesalahan saat membuat file PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   useEffect(() => {
     if (!reportId) return;
@@ -133,15 +194,16 @@ export default function PrintReportPage() {
           </button>
         </div>
         <button
-          onClick={() => window.print()}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2"
+          onClick={handleDownloadPDF}
+          disabled={isGeneratingPdf}
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
         >
-          🖨️ Cetak / Simpan PDF
+          {isGeneratingPdf ? "⏳ Menyusun PDF..." : "🖨️ Cetak / Simpan PDF"}
         </button>
       </div>
 
       {/* KONTEN LAPORAN */}
-      <div className="max-w-4xl mx-auto py-4 px-8 print:px-0 print:max-w-full">
+      <div ref={reportRef} className="max-w-4xl mx-auto py-4 px-8 print:px-0 print:max-w-full bg-white">
         {/* KOP SURAT */}
         <div className="text-center mb-8 border-b-4 border-slate-800 pb-6 keep-together">
           <h2 className="text-base text-slate-500 font-semibold mb-0.5">Lembaga Konseling dan Psikoterapi Islam</h2>

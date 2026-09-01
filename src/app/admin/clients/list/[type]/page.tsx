@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from 'next/navigation';
-import { Users, Upload, Download, CheckCircle, Search, Plus, X, RefreshCw } from "lucide-react";
+import { Users, Upload, Download, CheckCircle, Search, Plus, X, RefreshCw, PenTool, ClipboardCheck, CheckCircle2 } from "lucide-react";
 import * as XLSX from 'xlsx';
+import DapScoringModal from "@/components/admin/DapScoringModal";
+import ObservationModal from "@/components/admin/ObservationModal";
 
 export default function AdminClients() {
   const [clients, setClients] = useState<any[]>([]);
@@ -11,7 +13,13 @@ export default function AdminClients() {
   const [search, setSearch] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   
-  // Modal states
+  // Modals state untuk Aksi Penilaian
+  const [dapModalOpen, setDapModalOpen] = useState(false);
+  const [obsModalOpen, setObsModalOpen] = useState(false);
+  const [activeToken, setActiveToken] = useState<any>(null);
+  const [activeClient, setActiveClient] = useState<any>(null);
+  
+  // Modal states untuk Tambah Manual
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -226,6 +234,27 @@ export default function AdminClients() {
     }
   };
 
+  const handleFinalizeToken = async (tokenId: string) => {
+    const confirm = window.confirm("Tandai sesi tes ini sebagai Selesai? Status token akan ditutup secara permanen.");
+    if (!confirm) return;
+    try {
+      const res = await fetch('/api/admin/finalize-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        fetchClients();
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (err: any) {
+      alert("Gagal menyelesaikan token: " + err.message);
+    }
+  };
+
   const filteredClients = clients.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()) || c.school_or_institution?.toLowerCase().includes(search.toLowerCase()));
 
   return (
@@ -340,18 +369,54 @@ export default function AdminClients() {
                         const tParent = client.tokens?.find((t: any) => t.respondent_type === 'PARENT');
                         
                         const renderToken = (t: any) => t ? (
-                           <div className="flex flex-col items-start gap-1">
-                             <span className="text-[11px] font-mono font-bold bg-slate-950/50 px-2 py-0.5 rounded text-slate-300 border border-white/10 shadow-inner">
-                               {t.token_code}
-                             </span>
+                           <div className="flex flex-col items-start gap-2">
                              <div className="flex items-center gap-2">
+                               <span className="text-[11px] font-mono font-bold bg-slate-950/50 px-2 py-0.5 rounded text-slate-300 border border-white/10 shadow-inner">
+                                 {t.token_code}
+                               </span>
                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${t.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
                                  {t.status}
                                </span>
+                             </div>
+                             
+                             <div className="flex flex-wrap items-center gap-1.5">
+                               {t.respondent_type === 'SELF' && (
+                                 <>
+                                   <button 
+                                     onClick={() => { setActiveToken(t); setActiveClient(client); setDapModalOpen(true); }}
+                                     className="text-[10px] bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                   >
+                                     <PenTool size={10} /> DAP
+                                   </button>
+                                   <button 
+                                     onClick={() => { setActiveToken(t); setActiveClient(client); setObsModalOpen(true); }}
+                                     className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                   >
+                                     <ClipboardCheck size={10} /> Observasi
+                                   </button>
+                                 </>
+                               )}
+                               {t.status !== 'COMPLETED' && (
+                                 <button 
+                                   onClick={() => handleFinalizeToken(t.id)}
+                                   className="text-[10px] bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                 >
+                                   <CheckCircle2 size={10} /> Selesai
+                                 </button>
+                               )}
+                               {t.status === 'COMPLETED' && (
+                                 <a 
+                                   href={`/admin/reports/${t.id}/print?download=1`}
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   className="text-[10px] bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                 >
+                                   <Download size={10} /> Unduh PDF
+                                 </a>
+                               )}
                                <button 
                                  onClick={() => handleResetToken(t.id)}
-                                 className="text-[10px] bg-red-500/10 text-red-400 hover:bg-red-500/20 px-2 py-0.5 rounded transition"
-                                 title="Reset Status Token"
+                                 className="text-[10px] bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
                                >
                                  <RefreshCw size={10} /> Reset
                                </button>
@@ -368,20 +433,40 @@ export default function AdminClients() {
                       })() : (
                         <td className="py-4 px-4">
                           {hasToken ? (
-                             <div className="flex flex-col gap-2">
+                             <div className="flex flex-col gap-3">
                                {client.tokens.map((t: any) => (
-                                 <div key={t.id} className="flex flex-col items-start gap-1">
-                                   <span className="text-[11px] font-mono font-bold bg-slate-950/50 px-2 py-0.5 rounded text-slate-300 border border-white/10 shadow-inner">
-                                     {t.respondent_type === 'PARENT' ? '👨‍👩‍👧 PARENT' : currentPurpose === 'STU' ? '🎓 REMAJA' : currentPurpose === 'EMP' ? '💼 PEGAWAI' : '👶 CHILD'}: {t.token_code}
-                                   </span>
+                                 <div key={t.id} className="flex flex-col items-start gap-2 border-l-2 border-slate-700 pl-3">
                                    <div className="flex items-center gap-2">
+                                     <span className="text-[11px] font-mono font-bold bg-slate-950/50 px-2 py-0.5 rounded text-slate-300 border border-white/10 shadow-inner">
+                                       {t.respondent_type === 'PARENT' ? '👨‍👩‍👧 PARENT' : currentPurpose === 'STU' ? '🎓 REMAJA' : currentPurpose === 'EMP' ? '💼 PEGAWAI' : '👶 CHILD'}: {t.token_code}
+                                     </span>
                                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${t.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
                                        {t.status}
                                      </span>
+                                   </div>
+                                   
+                                   <div className="flex items-center gap-1.5">
+                                     {t.status !== 'COMPLETED' && (
+                                       <button 
+                                         onClick={() => handleFinalizeToken(t.id)}
+                                         className="text-[10px] bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                       >
+                                         <CheckCircle2 size={10} /> Selesai
+                                       </button>
+                                     )}
+                                     {t.status === 'COMPLETED' && (
+                                       <a 
+                                         href={`/admin/reports/${t.id}/print?download=1`}
+                                         target="_blank"
+                                         rel="noopener noreferrer"
+                                         className="text-[10px] bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                       >
+                                         <Download size={10} /> Unduh PDF
+                                       </a>
+                                     )}
                                      <button 
                                        onClick={() => handleResetToken(t.id)}
-                                       className="text-[10px] bg-red-500/10 text-red-400 hover:bg-red-500/20 px-2 py-0.5 rounded transition"
-                                       title="Reset Status Token"
+                                       className="text-[10px] bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
                                      >
                                        <RefreshCw size={10} /> Reset
                                      </button>
@@ -491,6 +576,29 @@ export default function AdminClients() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODALS PENILAIAN */}
+      {activeToken && activeClient && (
+        <>
+          <DapScoringModal 
+            isOpen={dapModalOpen}
+            onClose={() => setDapModalOpen(false)}
+            tokenId={activeToken.id}
+            clientId={activeClient.id}
+            clientName={activeClient.name}
+            onSuccess={() => fetchClients()}
+          />
+
+          <ObservationModal
+            isOpen={obsModalOpen}
+            onClose={() => setObsModalOpen(false)}
+            tokenId={activeToken.id}
+            clientName={activeClient.name}
+            tokenCode={activeToken.token_code}
+            onSuccess={() => fetchClients()}
+          />
+        </>
       )}
     </div>
   );

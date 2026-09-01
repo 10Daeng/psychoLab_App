@@ -124,6 +124,67 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* QUICK LINKS (Akses Cepat dipindah ke atas) */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-8"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <a
+            href="/admin/clients/list/child"
+            className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-all group shadow-lg"
+          >
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-blue-500/20 rounded-full group-hover:scale-150 transition-transform duration-500 blur-xl"></div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-lg text-white">Kesiapan SD</p>
+                <p className="text-slate-400 text-sm mt-1">
+                  Daftar Anak / Siswa TK
+                </p>
+              </div>
+              <div className="w-10 h-10 border border-blue-500/30 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 group-hover:bg-blue-500/30 group-hover:text-white transition-colors">
+                →
+              </div>
+            </div>
+          </a>
+          <a
+            href="/admin/clients/list/student"
+            className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-all group shadow-lg"
+          >
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-emerald-500/20 rounded-full group-hover:scale-150 transition-transform duration-500 blur-xl"></div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-lg text-white">Penjurusan</p>
+                <p className="text-slate-400 text-sm mt-1">Siswa SMP / SMA</p>
+              </div>
+              <div className="w-10 h-10 border border-emerald-500/30 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/30 group-hover:text-white transition-colors">
+                →
+              </div>
+            </div>
+          </a>
+          <a
+            href="/admin/clients/list/employee"
+            className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-2xl hover:bg-white/10 transition-all group shadow-lg"
+          >
+            <div className="absolute -right-8 -top-8 w-24 h-24 bg-purple-500/20 rounded-full group-hover:scale-150 transition-transform duration-500 blur-xl"></div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-lg text-white">Rekrutmen</p>
+                <p className="text-slate-400 text-sm mt-1">
+                  Calon Pegawai / Karyawan
+                </p>
+              </div>
+              <div className="w-10 h-10 border border-purple-500/30 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 group-hover:bg-purple-500/30 group-hover:text-white transition-colors">
+                →
+              </div>
+            </div>
+          </a>
+        </div>
+      </motion.div>
+
+      {/* KARTU STATISTIK */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -213,61 +274,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         </motion.div>
-      </motion.div>
-
-      {/* QUICK LINKS */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mb-8"
-      >
-        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-blue-400" />
-          Menu Akses Cepat (Direktori Klien)
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <a
-            href="/admin/clients/list/child"
-            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-5 rounded-2xl shadow-lg shadow-blue-500/30 hover:scale-[1.02] transition-transform flex items-center justify-between group"
-          >
-            <div>
-              <p className="font-bold text-lg">Kesiapan SD</p>
-              <p className="text-blue-100 text-sm mt-1">
-                Daftar Anak / Siswa TK
-              </p>
-            </div>
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors">
-              →
-            </div>
-          </a>
-          <a
-            href="/admin/clients/list/student"
-            className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-5 rounded-2xl shadow-lg shadow-emerald-500/30 hover:scale-[1.02] transition-transform flex items-center justify-between group"
-          >
-            <div>
-              <p className="font-bold text-lg">Penjurusan</p>
-              <p className="text-emerald-100 text-sm mt-1">Siswa SMP / SMA</p>
-            </div>
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors">
-              →
-            </div>
-          </a>
-          <a
-            href="/admin/clients/list/employee"
-            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-5 rounded-2xl shadow-lg shadow-purple-500/30 hover:scale-[1.02] transition-transform flex items-center justify-between group"
-          >
-            <div>
-              <p className="font-bold text-lg">Rekrutmen</p>
-              <p className="text-purple-100 text-sm mt-1">
-                Calon Pegawai / Karyawan
-              </p>
-            </div>
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors">
-              →
-            </div>
-          </a>
-        </div>
+        </motion.div>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -341,22 +348,27 @@ export default function AdminDashboard() {
               <div className="w-10 h-10 bg-rose-500/20 border border-rose-500/30 rounded-xl flex items-center justify-center shadow-[0_0_10px_rgba(225,29,72,0.3)]">
                 <AlertCircle className="w-5 h-5 text-rose-400" />
               </div>
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
                 Aktivitas Terbaru
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
               </h2>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-slate-400 uppercase bg-white/5 rounded-xl border-b border-white/10">
+              <thead className="text-xs text-slate-400 uppercase bg-white/5 border-y border-white/10">
                 <tr>
-                  <th className="px-4 py-4 rounded-tl-xl font-semibold">
+                  <th className="px-4 py-4 font-semibold">
                     Peserta / Token
                   </th>
+                  <th className="px-4 py-4 font-semibold">Instansi</th>
                   <th className="px-4 py-4 font-semibold">Tujuan Tes</th>
                   <th className="px-4 py-4 font-semibold">Status</th>
-                  <th className="px-4 py-4 rounded-tr-xl font-semibold text-right">
+                  <th className="px-4 py-4 font-semibold text-right">
                     Waktu
                   </th>
                 </tr>
@@ -365,7 +377,7 @@ export default function AdminDashboard() {
                 {recentActivity.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="px-4 py-8 text-center text-slate-400"
                     >
                       Belum ada aktivitas terekam.
@@ -375,13 +387,16 @@ export default function AdminDashboard() {
                   recentActivity.map((act) => (
                     <tr
                       key={act.id}
-                      className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group"
+                      className="border-b border-white/5 last:border-0 hover:bg-white/10 transition-colors group"
                     >
                       <td className="px-4 py-4">
                         <p className="font-bold text-white group-hover:text-blue-400 transition-colors">{act.name}</p>
                         <p className="text-xs text-slate-400 font-mono mt-0.5">
                           {act.code}
                         </p>
+                      </td>
+                      <td className="px-4 py-4 text-slate-400">
+                        {act.institution || "-"}
                       </td>
                       <td className="px-4 py-4 text-slate-300 font-medium">
                         {act.purpose?.replace(/_/g, " ") || "-"}

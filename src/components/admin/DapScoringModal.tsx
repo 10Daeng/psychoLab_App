@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Save, ArrowLeft, CheckSquare, Square, CheckCircle2, UserCircle2 } from "lucide-react";
-import Link from "next/link";
-import toast, { Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Save, CheckSquare, Square, CheckCircle2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 const DAP_ITEMS = [
   { id: 1, category: "Kepala", text: "Kepala digambar" },
@@ -83,45 +81,47 @@ const DAP_ITEMS = [
   { id: 73, category: "Proporsi", text: "Titik pusat gravitasi gambar (keseimbangan) terlihat natural berdiri tegak" }
 ];
 
-export default function DapScoringPage({ params }: { params: Promise<{ token_id: string }> }) {
-  const router = useRouter();
-  
-  // Unwrap params
-  const { token_id } = React.use(params);
+interface DapScoringModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  tokenId: string;
+  clientId: string;
+  clientName: string;
+  onSuccess?: () => void;
+}
 
+export default function DapScoringModal({ isOpen, onClose, tokenId, clientId, clientName, onSuccess }: DapScoringModalProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [clientData, setClientData] = useState<any>(null);
-  
   const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
   const [clinicalNotes, setClinicalNotes] = useState("");
+  const [activeTab, setActiveTab] = useState("Kepala");
 
   useEffect(() => {
+    if (!isOpen) return;
+    
     async function fetchData() {
       try {
-        const res = await fetch(`/api/admin/dap/${token_id}`);
+        setLoading(true);
+        const res = await fetch(`/api/admin/dap/${tokenId}`);
         const data = await res.json();
 
-        if (!res.ok) {
-          toast.error(data.error || "Token tidak ditemukan");
-          router.push("/admin/dap");
-          return;
-        }
-
-        setClientData(data.tokenData);
-
-        if (data.dapData) {
+        if (res.ok && data.dapData) {
           setCheckedItems(data.dapData.checklist_data || {});
           setClinicalNotes(data.dapData.clinical_notes || "");
+        } else {
+          // Reset jika belum ada data
+          setCheckedItems({});
+          setClinicalNotes("");
         }
       } catch (err: any) {
-        toast.error("Gagal mengambil data: " + err.message);
+        toast.error("Gagal mengambil data DAP: " + err.message);
       } finally {
         setLoading(false);
       }
     }
     fetchData();
-  }, [token_id, router]);
+  }, [isOpen, tokenId]);
 
   const toggleItem = (id: number) => {
     setCheckedItems(prev => ({
@@ -130,35 +130,30 @@ export default function DapScoringPage({ params }: { params: Promise<{ token_id:
     }));
   };
 
-  const getScore = () => {
-    return Object.values(checkedItems).filter(v => v).length;
-  };
+  const getScore = () => Object.values(checkedItems).filter(v => v).length;
 
   const getMaturityLevel = (score: number) => {
-    // Estimasi sangat kasar: 0-25 Kurang, 26-50 Rata-rata, 51-73 Tinggi
-    // Pada aslinya harus dikonversi dengan mental age
     if (score < 25) return "Rendah / Kurang Matang";
     if (score <= 50) return "Rata-rata / Cukup";
     return "Tinggi / Sangat Matang";
   };
 
   const handleSave = async () => {
-    if (!clientData?.client_id) return;
     setSaving(true);
     const score = getScore();
     const maturity = getMaturityLevel(score);
 
     try {
       const payload = {
-        client_id: clientData.client_id,
-        token_id: token_id,
+        client_id: clientId,
+        token_id: tokenId,
         score,
         cognitive_maturity_level: maturity,
         checklist_data: checkedItems,
         clinical_notes: clinicalNotes
       };
 
-      const res = await fetch(`/api/admin/dap/${token_id}`, {
+      const res = await fetch(`/api/admin/dap/${tokenId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -168,81 +163,88 @@ export default function DapScoringPage({ params }: { params: Promise<{ token_id:
       if (!res.ok) throw new Error(result.error || "Gagal menyimpan data");
 
       toast.success("Skoring DAP berhasil disimpan!");
-      setTimeout(() => {
-        router.push("/admin/dap");
-      }, 1500);
-
+      if (onSuccess) onSuccess();
+      onClose();
     } catch (err: any) {
-      console.error(err);
       toast.error("Gagal menyimpan data: " + err.message);
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950">
-      <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
-    </div>
-  );
-
-  // Mengelompokkan item berdasarkan kategori untuk UI
   const groupedItems = DAP_ITEMS.reduce((acc, item) => {
     if (!acc[item.category]) acc[item.category] = [];
     acc[item.category].push(item);
     return acc;
   }, {} as Record<string, typeof DAP_ITEMS>);
 
+  const tabs = Object.keys(groupedItems);
   const currentScore = getScore();
 
+  if (!isOpen) return null;
+
   return (
-    <div className="min-h-screen bg-slate-950 p-6 md:p-8 pb-32">
-      <Toaster position="top-center" />
-      <div className="max-w-5xl mx-auto">
-        <Link href="/admin/dap" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6">
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Direktori</span>
-        </Link>
-
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
-              <UserCircle2 className="w-6 h-6 text-blue-400" />
-            </div>
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-5xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col max-h-[90vh]"
+        >
+          {/* Header */}
+          <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-900/50">
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">{clientData?.clients?.name}</h1>
-              <p className="text-slate-400 font-mono text-sm mt-1">{clientData?.token_code}</p>
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                Penilaian Grafis (DAP)
+              </h2>
+              <p className="text-slate-400 text-sm mt-1">Klien: <span className="font-semibold text-blue-400">{clientName}</span></p>
             </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-white transition p-2 rounded-xl hover:bg-white/5">
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <div className="text-right">
-            <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Skor Saat Ini</div>
-            <div className="text-4xl font-black text-emerald-400">{currentScore} <span className="text-lg text-slate-500">/ 73</span></div>
-          </div>
-        </div>
+          
+          <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center p-12">
+                <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <>
+                {/* Kiri: Checklist */}
+                <div className="flex-1 flex flex-col border-r border-slate-800 bg-slate-900/30 overflow-hidden">
+                  {/* Tabs */}
+                  <div className="flex overflow-x-auto p-4 gap-2 border-b border-slate-800 scrollbar-hide">
+                    {tabs.map(tab => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${activeTab === tab ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-slate-400 hover:text-slate-300 hover:bg-slate-800/50 border border-transparent'}`}
+                      >
+                        {tab}
+                        <span className="ml-2 text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400">
+                          {groupedItems[tab].filter(i => checkedItems[i.id]).length}/{groupedItems[tab].length}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold text-white mb-2">Checklist Goodenough-Harris</h2>
-              <p className="text-slate-400 text-sm mb-6">Silakan amati kertas gambar anak, lalu beri centang pada indikator yang ada secara jelas pada gambar.</p>
-              
-              <div className="space-y-8">
-                {Object.entries(groupedItems).map(([category, items]) => (
-                  <div key={category}>
-                    <h3 className="text-sm font-bold text-blue-400 uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">{category}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {items.map(item => {
+                  {/* Checklist Items */}
+                  <div className="flex-1 overflow-y-auto p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {groupedItems[activeTab]?.map(item => {
                         const isChecked = !!checkedItems[item.id];
                         return (
                           <div 
                             key={item.id}
                             onClick={() => toggleItem(item.id)}
-                            className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all border ${isChecked ? 'bg-blue-500/10 border-blue-500/30' : 'bg-slate-950/50 border-slate-800/50 hover:border-slate-700'}`}
+                            className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all border ${isChecked ? 'bg-blue-500/10 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]' : 'bg-slate-950/50 border-slate-800 hover:border-slate-700'}`}
                           >
                             <div className="mt-0.5 shrink-0">
                               {isChecked ? <CheckSquare className="w-5 h-5 text-blue-400" /> : <Square className="w-5 h-5 text-slate-600" />}
                             </div>
-                            <span className={`text-sm ${isChecked ? 'text-blue-100 font-medium' : 'text-slate-400'}`}>
+                            <span className={`text-sm leading-relaxed ${isChecked ? 'text-blue-100 font-medium' : 'text-slate-400'}`}>
                               {item.text}
                             </span>
                           </div>
@@ -250,45 +252,46 @@ export default function DapScoringPage({ params }: { params: Promise<{ token_id:
                       })}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sticky top-6">
-              <h3 className="text-lg font-bold text-white mb-4">Catatan Klinis Tester</h3>
-              <p className="text-xs text-slate-400 mb-4">Tuliskan observasi kualitatif terkait gaya belajar, tekanan emosional, ukuran gambar, posisi di kertas, atau keraguan saat anak menggambar.</p>
-              <textarea
-                value={clinicalNotes}
-                onChange={(e) => setClinicalNotes(e.target.value)}
-                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-slate-700 min-h-[200px]"
-                placeholder="Contoh: Garis gambar tipis dan terputus-putus, mengindikasikan kecemasan. Gambar diposisikan sangat kecil di sudut kiri atas kertas..."
-              ></textarea>
-
-              <div className="mt-6 pt-6 border-t border-slate-800">
-                <div className="flex items-center justify-between mb-4">
-                   <span className="text-sm font-medium text-slate-400">Estimasi Kematangan</span>
-                   <span className="text-sm font-bold text-emerald-400">{getMaturityLevel(currentScore)}</span>
                 </div>
-                <button 
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-[0_0_20px_rgba(37,99,235,0.2)] flex items-center justify-center gap-2"
-                >
-                  {saving ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5" /> Simpan Hasil Skoring
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+
+                {/* Kanan: Catatan & Skor */}
+                <div className="w-full lg:w-[320px] shrink-0 p-6 flex flex-col bg-slate-900/50">
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 mb-6 text-center">
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Total Skor</div>
+                    <div className="text-4xl font-black text-emerald-400">{currentScore} <span className="text-lg text-slate-600">/ 73</span></div>
+                    <div className="mt-4 pt-4 border-t border-slate-800">
+                       <span className="text-xs text-slate-400 block mb-1">Estimasi Kematangan:</span>
+                       <span className="text-sm font-bold text-blue-400">{getMaturityLevel(currentScore)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 flex flex-col min-h-[200px]">
+                    <label className="text-sm font-bold text-white mb-2 block">Catatan Klinis</label>
+                    <textarea
+                      value={clinicalNotes}
+                      onChange={(e) => setClinicalNotes(e.target.value)}
+                      className="flex-1 w-full bg-slate-950/50 border border-slate-800 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none text-sm placeholder:text-slate-600"
+                      placeholder="Observasi kualitatif gaya gambar, ukuran, tekanan..."
+                    ></textarea>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
-        </div>
+          
+          <div className="p-6 border-t border-slate-800 flex justify-end gap-3 bg-slate-900/80">
+            <button onClick={onClose} className="px-6 py-2.5 rounded-xl font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition">Tutup</button>
+            <button 
+              onClick={handleSave} 
+              disabled={loading || saving} 
+              className="px-6 py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] transition disabled:opacity-50 flex items-center gap-2"
+            >
+              {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <Save className="w-4 h-4"/>} 
+              Simpan Penilaian
+            </button>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { PrintIQGauge, PrintBar } from "./SharedReportComponents";
+import { PrintIQGauge } from "./SharedReportComponents";
 
 export default function ChildPrintView({ 
   report, testResults, client, ageYears, ageMonths, dateStr, viewMode, aiNarrative, notesData, clientReports = []
@@ -10,181 +10,181 @@ export default function ChildPrintView({
   const cogScore = cogResult?.calculated_score || {};
   const iqValue = cogScore.iq || cogScore.calculatedData?.iq || 0;
   const percentile = cogScore.percentile || 0;
+  
+  const levelGrade = cogScore.level?.grade || cogScore.calculatedData?.level?.grade || "-";
+  
+  const attempt1 = cogScore.calculatedData?.attempt1_correct ?? 0;
+  const attempt2 = cogScore.calculatedData?.attempt2_correct ?? 0;
+  const totalScore = cogScore.calculatedData?.totalRawScore ?? 0;
+
+  const psychogramPremium = cogScore.calculatedData?.psychogramPremium;
 
   const reportData = clientReports.find(r => r.report_id === report.id);
   const finalHtml = reportData?.final_synthesis_html 
-                 || cogResult?.calculated_score?.final_html;
+                 || cogScore.final_html;
+
+  const printBar = (score: number, colorClass: string) => {
+    return (
+      <div className="w-full bg-slate-200 h-3 rounded-sm overflow-hidden flex items-center">
+        <div className={`h-full ${colorClass}`} style={{ width: `${score}%` }}></div>
+      </div>
+    );
+  };
+
+  const renderDomain = (domainName: string, aspects: any, colorClass: string, textClass: string) => {
+    if (!aspects) return null;
+    return (
+      <React.Fragment key={domainName}>
+        <tr>
+          <td colSpan={2} className={`py-1.5 px-3 font-bold text-xs uppercase bg-slate-50 border-y border-slate-200 ${textClass}`}>
+            {domainName}
+          </td>
+        </tr>
+        {Object.entries(aspects).map(([aspectName, score]: [string, any]) => (
+          <tr key={aspectName}>
+            <td className="py-1.5 px-6 text-[11px] font-medium text-slate-700 w-1/2 align-middle border-b border-slate-100">
+              - {aspectName}
+            </td>
+            <td className="py-1.5 px-4 w-1/2 align-middle border-b border-slate-100 flex items-center gap-2">
+              <div className="flex-grow">
+                {printBar(score, colorClass)}
+              </div>
+              <span className="text-[10px] text-slate-500 w-8 text-right font-medium">({Math.round(score)}%)</span>
+            </td>
+          </tr>
+        ))}
+      </React.Fragment>
+    );
+  };
 
   return (
-    <>
-      <div className="mb-8 keep-together border border-slate-200 p-4 rounded-xl">
-        <h3 className="font-bold text-slate-800 mb-3 text-sm uppercase border-b border-slate-200 pb-2">Identitas Peserta</h3>
-        <table className="w-full text-sm">
+    <div className="font-sans text-slate-800 pb-10">
+      {/* PAGE 1: IDENTITAS */}
+      <div className="keep-together mb-12">
+        <h2 className="text-xl font-bold text-center text-slate-800 mb-10 uppercase tracking-widest">Laporan Hasil Pemeriksaan Psikologis</h2>
+        
+        <table className="w-full text-[13px] leading-[2.2] mx-auto max-w-3xl">
           <tbody>
-            <tr>
-              <td className="py-1 w-48 text-slate-600 font-medium">Nama Lengkap</td>
-              <td className="py-1 font-semibold">: {client?.name || "-"}</td>
-              <td className="py-1 w-48 text-slate-600 font-medium">No. Pendaftaran</td>
-              <td className="py-1">: {client?.registration_number || "-"}</td>
-            </tr>
-            <tr>
-              <td className="py-1 text-slate-600 font-medium">Tanggal Lahir</td>
-              <td className="py-1">: {client?.birth_date ? new Date(client.birth_date).toLocaleDateString("id-ID", { dateStyle: "long" }) : "-"}</td>
-              <td className="py-1 text-slate-600 font-medium">Jenis Kelamin</td>
-              <td className="py-1">: {client?.gender === "L" ? "Laki-laki" : client?.gender === "P" ? "Perempuan" : "-"}</td>
-            </tr>
-            <tr>
-              <td className="py-1 text-slate-600 font-medium">Asal Sekolah/Instansi</td>
-              <td className="py-1">: {client?.school_or_institution || "-"}</td>
-              <td className="py-1 text-slate-600 font-medium">Kelas</td>
-              <td className="py-1">: {client?.grade || "-"}</td>
-            </tr>
-            <tr>
-              <td className="py-1 text-slate-600 font-medium">Usia saat Tes</td>
-              <td className="py-1">: {ageYears} tahun {ageMonths} bulan</td>
-              <td className="py-1 text-slate-600 font-medium">Tanggal Pemeriksaan</td>
-              <td className="py-1">: {report?.created_at ? new Date(report.created_at).toLocaleDateString("id-ID", { dateStyle: "long" }) : "-"}</td>
-            </tr>
+            <tr><td className="w-48 font-medium">No. Pendaftaran</td><td>: {client?.registration_number || "-"}</td></tr>
+            <tr><td className="font-medium">Nama Lengkap</td><td className="font-bold uppercase">: {client?.name || "-"}</td></tr>
+            <tr><td className="font-medium">Nama Panggilan</td><td className="capitalize">: {client?.name?.split(' ')[0] || "-"}</td></tr>
+            <tr><td className="font-medium">Tempat, Tanggal Lahir</td><td>: {client?.birth_place || "-"}, {client?.birth_date ? new Date(client.birth_date).toLocaleDateString("id-ID", { dateStyle: "long" }) : "-"}</td></tr>
+            <tr><td className="font-medium">Usia saat Tes</td><td>: {ageYears} tahun {ageMonths} bulan</td></tr>
+            <tr><td className="font-medium">Asal Sekolah</td><td className="uppercase">: {client?.school_or_institution || "-"}</td></tr>
+            <tr><td className="font-medium">Pilihan Kelas</td><td className="uppercase">: {client?.grade || "-"}</td></tr>
+            <tr><td className="font-medium">Nama Ayah</td><td className="capitalize">: {client?.parent_name || "-"}</td></tr>
+            <tr><td className="font-medium">Nama Ibu</td><td className="capitalize">: -</td></tr>
+            <tr><td className="font-medium">Alamat</td><td className="capitalize">: {client?.address || "-"}</td></tr>
+            <tr><td className="font-medium">Tanggal Pemeriksaan</td><td>: {report?.created_at ? new Date(report.created_at).toLocaleDateString("id-ID", { dateStyle: "long" }) : "-"}</td></tr>
           </tbody>
         </table>
       </div>
 
-      {cogResult && (
-        <div className="mb-8 keep-together">
-          <h3 className="font-bold bg-blue-700 text-white p-2 mb-4 text-sm uppercase rounded-t-lg">A. Profil Kognitif ({cogResult.tests?.code})</h3>
-          <div className="grid grid-cols-3 gap-6 p-4 border-x border-b border-slate-200 rounded-b-lg">
-            <div className="col-span-1 flex justify-center border-r border-slate-200">
-              {iqValue > 0 ? <PrintIQGauge iq={iqValue} /> : <div className="text-slate-400 p-8">IQ Tidak Tersedia</div>}
-            </div>
-            <div className="col-span-2">
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr>
-                    <td className="py-2 text-slate-600 border-b border-slate-100">Skor Mentah (Raw Score)</td>
-                    <td className="py-2 font-bold text-right border-b border-slate-100">{cogScore.rawScore ?? cogScore.totalRawScore ?? "-"}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 text-slate-600 border-b border-slate-100">Persentil</td>
-                    <td className="py-2 font-bold text-right border-b border-slate-100">{percentile || "-"}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 text-slate-600 border-b border-slate-100">Klasifikasi Kognitif</td>
-                    <td className="py-2 font-bold text-right text-blue-700 border-b border-slate-100">{cogScore.classification || cogScore.level?.level || "-"}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+      <div className="break-before-page pt-4"></div>
+
+      {/* PAGE 2: PROFIL PSIKOLOGIS */}
+      <div className="keep-together mb-8">
+        <div className="bg-[#3498db] text-white font-bold px-4 py-2 mb-4 text-sm w-full">
+          PROFIL PSIKOLOGIS
+        </div>
+        
+        <div className="mb-6">
+          <h3 className="font-bold text-slate-800 text-[13px] mb-3">A. Kapasitas Kognitif Umum</h3>
+          <div className="flex justify-between w-full text-[12px] leading-relaxed">
+            <table className="w-[45%]">
+              <tbody>
+                <tr><td className="w-24">IQ Estimasi</td><td className="font-semibold">: {iqValue}</td></tr>
+                <tr><td>Persentil</td><td className="font-semibold">: {percentile}</td></tr>
+                <tr><td>Grade</td><td className="font-semibold">: {levelGrade} - {cogScore.classification || cogScore.level?.level || "-"}</td></tr>
+              </tbody>
+            </table>
+            <table className="w-[45%]">
+              <tbody>
+                <tr><td className="w-28">Skor Total</td><td className="font-semibold">: {totalScore} / 36</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      )}
 
-      {viewMode === "FULL" && cogScore.psychogram?.processProfile && (
-        <div className="mb-8 keep-together">
-          <h3 className="font-bold bg-slate-700 text-white p-2 mb-4 text-sm uppercase rounded-t-lg">B. Indeks Perilaku dan Proses Pengerjaan</h3>
-          <div className="p-4 border-x border-b border-slate-200 rounded-b-lg">
-            {Object.values(cogScore.psychogram.processProfile).map((item: any, idx) => (
-              <PrintBar key={idx} label={item.construct} value={item.score} max={100} color="#6366f1" />
-            ))}
-            <p className="text-[10px] text-slate-500 mt-4 font-medium italic">
-              *Indeks di atas merupakan ekstraksi otomatis dari pola waktu respons (response latency) dan persistensi selama tes, disajikan sebagai data objektif internal (1-100) pendamping hasil observasi klinis psikolog.
+        {psychogramPremium && (
+          <div>
+            <h3 className="font-bold text-slate-800 text-[13px] mb-3">B. Dinamika Aspek Psikologis</h3>
+            <table className="w-full border border-slate-200">
+              <thead>
+                <tr className="bg-slate-100">
+                  <th className="py-2 px-3 text-left text-xs font-bold text-slate-800 border-b border-slate-200">DOMAIN / ASPEK</th>
+                  <th className="py-2 px-3 text-left text-xs font-bold text-slate-800 border-b border-slate-200">LEVEL (PERSENTIL)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {renderDomain('COGNITIVE', psychogramPremium.COGNITIVE, 'bg-[#2c3e50]', 'text-[#2c3e50]')}
+                {renderDomain('ATTENTION & CONCENTRATION', psychogramPremium['ATTENTION & CONCENTRATION'], 'bg-[#2980b9]', 'text-[#2980b9]')}
+                {renderDomain('EXECUTIVE FUNCTIONS', psychogramPremium['EXECUTIVE FUNCTIONS'], 'bg-[#27ae60]', 'text-[#27ae60]')}
+                {renderDomain('TASK COMMITMENT', psychogramPremium['TASK COMMITMENT'], 'bg-[#f39c12]', 'text-[#f39c12]')}
+                {renderDomain('EMOTIONAL REGULATION', psychogramPremium['EMOTIONAL REGULATION'], 'bg-[#c0392b]', 'text-[#c0392b]')}
+                {renderDomain('LEARNING CHARACTERISTICS', psychogramPremium['LEARNING CHARACTERISTICS'], 'bg-[#8e44ad]', 'text-[#8e44ad]')}
+              </tbody>
+            </table>
+            <p className="text-[9px] text-slate-500 mt-2">
+              KETERANGAN: P = Persentil (berdasarkan observasi dan norma informal) | Bar Warna = Level kemampuan/karakteristik
             </p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {(finalHtml || aiNarrative) && (
-        <div className="mb-8">
-          <div className="page-break" />
-          <h3 className="font-bold bg-orange-600 text-white p-2 mb-4 text-sm uppercase rounded-t-lg">
-            C. Dinamika Psikologis & Kesimpulan
-          </h3>
-          <div className="p-8 border-x border-b border-slate-200 rounded-b-lg">
-            {finalHtml ? (
-              <div 
-                className="prose prose-sm max-w-none text-slate-800 font-serif leading-relaxed" 
-                dangerouslySetInnerHTML={{ __html: finalHtml }} 
-              />
-            ) : (
-              <>
-                {aiNarrative.interpretation && (
-                  <div className="mb-6 keep-together">
-                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Dinamika Kepribadian & Potensi</h4>
-                    <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
-                      {aiNarrative.interpretation}
-                    </div>
-                  </div>
-                )}
-                {aiNarrative.conclusion && (
-                  <div className="mb-6 keep-together">
-                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Kesimpulan Utama</h4>
-                    <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
-                      {aiNarrative.conclusion}
-                    </div>
-                  </div>
-                )}
-                {aiNarrative.recommendation && (
-                  <div className="mb-4 keep-together">
-                    <h4 className="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">Rekomendasi Langkah</h4>
-                    <div className="text-sm leading-relaxed text-slate-700 text-justify whitespace-pre-wrap font-serif">
-                      {aiNarrative.recommendation}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <div className="break-before-page pt-4"></div>
 
-      {viewMode === "FULL" && (
-        <div className="mb-8 keep-together">
-          <div className="page-break" />
-          <h3 className="font-bold bg-slate-800 text-white p-2 mb-4 text-sm uppercase rounded-t-lg">Catatan Klinis & Observasi (Rahasia)</h3>
-          <div className="p-6 border border-slate-300 bg-yellow-50/30 rounded-b-lg min-h-[200px]">
-            {notesData.isJson ? (
-              <>
-                <div className="mb-6">
-                  <h4 className="font-bold text-sm mb-3 underline decoration-slate-300">A. Ringkasan Observasi Perilaku</h4>
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-xs text-slate-800">
-                    {Object.entries(notesData.obs).map(([k, v]: [string, any]) => (
-                      <div key={k} className="border-b border-slate-200/50 pb-2">
-                        <strong className="capitalize text-slate-900">{k.replace(/([A-Z])/g, ' $1').trim()}:</strong> 
-                        <span className="ml-1 text-slate-700">
-                          {Object.entries(v).filter(([kk, vv]) => vv === true && kk !== 'notes').map(([kk]) => kk).join(', ') || 'Normal'}
-                        </span>
-                        {v.notes && <p className="italic mt-1.5 text-slate-600 bg-white/50 p-1.5 rounded border border-slate-200/50">{v.notes}</p>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="mb-6">
-                  <h4 className="font-bold text-sm mb-3 underline decoration-slate-300">B. Hasil Wawancara Anamnesa</h4>
-                  <div className="space-y-3 text-xs">
-                     {['q1', 'q2', 'q3'].map(q => (notesData.inv[`${q}Ans`] || notesData.inv[`${q}Notes`]) ? (
-                       <div key={q} className="border-l-2 border-slate-400 pl-3 py-1 bg-white/30">
-                         <p className="mb-1"><strong className="text-slate-700">Respons Klien:</strong> {notesData.inv[`${q}Ans`] || '-'}</p>
-                         <p className="italic text-slate-600"><strong className="text-slate-700 font-semibold">Interpretasi:</strong> {notesData.inv[`${q}Notes`] || '-'}</p>
-                       </div>
-                     ) : null)}
-                  </div>
-                </div>
-                
-                <div className="mt-6 border-t-2 border-slate-300 pt-4">
-                  <h4 className="font-bold text-sm mb-2 underline decoration-slate-300">C. Catatan Tambahan Psikolog</h4>
-                  <div className="text-sm leading-relaxed text-slate-800 whitespace-pre-wrap font-serif">
-                    {notesData.notes || "-"}
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="text-sm leading-relaxed text-slate-800 whitespace-pre-wrap font-serif">
-                {notesData.notes || "Tidak ada catatan klinis yang dilampirkan."}
-              </div>
-            )}
-          </div>
+      {/* PAGE 3: DINAMIKA KEPRIBADIAN & BELAJAR */}
+      <div className="keep-together mb-8">
+        <div className="bg-[#3498db] text-white font-bold px-4 py-2 mb-6 uppercase text-sm w-full">
+          Dinamika Kepribadian & Belajar
         </div>
-      )}
-    </>
+        
+        <div className="text-[12px] leading-[1.8] text-slate-800 text-justify font-serif">
+          {finalHtml ? (
+             <div className="prose prose-sm max-w-none prose-p:leading-[1.8] prose-p:mb-4" dangerouslySetInnerHTML={{ __html: finalHtml }} />
+          ) : (
+            <>
+              {aiNarrative?.interpretation ? (
+                <div className="whitespace-pre-wrap">{aiNarrative.interpretation}</div>
+              ) : (
+                <div className="whitespace-pre-wrap">{cogScore.calculatedData?.interpretationText || "Analisis sedang diproses."}</div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* PAGE 4: KESIMPULAN & REKOMENDASI (Continuous Flow) */}
+      <div className="keep-together mb-12">
+        <div className="bg-[#3498db] text-white font-bold px-4 py-2 mb-4 uppercase text-sm w-full mt-6">
+          Kesimpulan
+        </div>
+        <div className="text-[12px] leading-[1.8] text-slate-800 text-justify font-serif mb-6 whitespace-pre-wrap">
+          {aiNarrative?.conclusion || "Menunggu kesimpulan klinis."}
+        </div>
+
+        <div className="bg-[#3498db] text-white font-bold px-4 py-2 mb-4 uppercase text-sm w-full">
+          Rekomendasi
+        </div>
+        <div className="text-[12px] leading-[1.8] text-slate-800 text-justify font-serif whitespace-pre-wrap">
+          {aiNarrative?.recommendation || cogScore.calculatedData?.recommendationText || "Saran akan ditambahkan oleh psikolog."}
+        </div>
+        
+        {viewMode === "FULL" && notesData?.notes && (
+          <div className="mt-8 border-t-2 border-slate-300 pt-4">
+            <h4 className="font-bold text-[13px] mb-2 text-red-600">Catatan Khusus (Internal)</h4>
+            <div className="text-[12px] leading-relaxed text-slate-800 whitespace-pre-wrap font-serif">
+              {notesData.notes}
+            </div>
+          </div>
+        )}
+      </div>
+      
+      <div className="mt-16 text-[9px] text-slate-500 text-justify leading-relaxed">
+        <strong>DISCLAIMER:</strong><br/>
+        Laporan ini merupakan gambaran kondisi psikologis anak pada saat pemeriksaan dilakukan. Kondisi psikologis anak dapat berubah seiring dengan perkembangan usia, stimulasi lingkungan, dan kondisi fisik/kesehatan. Hasil pemeriksaan ini bersifat rahasia dan hanya diperuntukkan bagi orang tua dan pihak sekolah (jika diizinkan) untuk kepentingan pendidikan anak.
+      </div>
+    </div>
   );
 }

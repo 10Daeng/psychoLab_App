@@ -31,7 +31,7 @@ export async function GET() {
       .from("tokens")
       .select(`
         id, token_code, is_used, status, purpose, created_at,
-        clients (name)
+        clients (name, school_or_institution)
       `)
       .order("created_at", { ascending: false });
 
@@ -87,6 +87,7 @@ export async function GET() {
     const recentActivity = allTokens?.slice(0, 5).map(token => ({
       id: token.id,
       name: token.clients ? decrypt((token.clients as any).name) : 'Belum Diketahui (Token Terbuka)',
+      institution: token.clients ? (token.clients as any).school_or_institution : '-',
       code: token.token_code,
       purpose: token.purpose,
       status: token.status,

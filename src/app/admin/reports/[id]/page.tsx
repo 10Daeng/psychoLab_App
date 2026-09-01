@@ -84,18 +84,22 @@ export default function LenteraReportPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => router.push(`/admin/reports/${reportId}/graphology`)}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
-            >
-              ✍️ Input Grafologi
-            </button>
-            <button
-              onClick={() => router.push(`/admin/reports/${reportId}/wartegg`)}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
-            >
-              ⬛ Input Wartegg
-            </button>
+            {segment === "EMP" && (
+              <>
+                <button
+                  onClick={() => router.push(`/admin/reports/${reportId}/graphology`)}
+                  className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
+                >
+                  ✍️ Input Grafologi
+                </button>
+                <button
+                  onClick={() => router.push(`/admin/reports/${reportId}/wartegg`)}
+                  className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
+                >
+                  ⬛ Input Wartegg
+                </button>
+              </>
+            )}
             <button
               onClick={handleDownloadPDF}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"

@@ -91,6 +91,9 @@ export function calculateAdvancedMetrics(rawData: any[], ageDecimal: number, cli
       else diffScores.sulit += 1;
     }
 
+    // Detect if this is a single attempt mode (secondAttemptTimeMs is missing or 0)
+    const isSingleAttemptMode = rawData.every((r: any) => !r.secondAttemptTimeMs);
+
     // Learning Stats
     if (!item.isFirstAttemptCorrect) {
       learningStats.totalErrors += 1;
@@ -99,9 +102,12 @@ export function calculateAdvancedMetrics(rawData: any[], ageDecimal: number, cli
       } else {
         learningStats.persistentErrors += 1;
       }
-      const t2 = item.secondAttemptTimeMs || 0;
-      if (t2 < 3000 || item.secondAttemptAnswer === null) {
-        learningStats.gaveUp += 1;
+      
+      if (!isSingleAttemptMode) {
+        const t2 = item.secondAttemptTimeMs || 0;
+        if (t2 < 3000 || item.secondAttemptAnswer === null) {
+          learningStats.gaveUp += 1;
+        }
       }
     } else {
       if (index >= rawData.length - 12) {
@@ -166,56 +172,76 @@ export function calculateAdvancedMetrics(rawData: any[], ageDecimal: number, cli
     return val;
   };
 
-  // --- Psychogram Calculation (Empirical Behavioral Indices) ---
-  const responseCaution = sanitize(Math.max(0, 100 - (timingData.impulsiveCnt * 10)));
-  const reviewResponsiveness = sanitize(learningStats.totalErrors > 0 ? (learningStats.learnedFromErrors / learningStats.totalErrors * 100) : 80);
-  const taskPersistence = sanitize(Math.max(0, 100 - (learningStats.gaveUp * 15)));
-  const systematicApproach = sanitize(Math.max(0, 100 - (variance * 5))); 
+  // --- Psychogram Premium Calculation ---
+  const vis_spatial = (setScores.A / 12) * 100;
+  const pattern_rec = (setScores.Ab / 12) * 100;
+  const abstract = (setScores.B / 12) * 100;
+  
+  const sustained = (lateCorrect / 12) * 100;
+  const stability = sanitize(Math.max(0, 100 - (variance * 5)));
+  const resistance = (stability + sustained) / 2;
+  
+  const planning = sanitize(Math.max(0, 100 - (timingData.impulsiveCnt * 10)));
+  
+  // Deteksi mode satu kesempatan dari awal untuk kalkulasi yang bergantung pada percobaan ke-2
+  const isSingleAttemptMode = rawData.every((r: any) => !r.secondAttemptTimeMs);
+  
+  let flexibility = 80;
+  if (!isSingleAttemptMode && learningStats.totalErrors > 0) {
+    flexibility = (learningStats.learnedFromErrors / learningStats.totalErrors) * 100;
+  } else if (isSingleAttemptMode) {
+    // Estimasi aman berdasarkan akurasi umum dan kehati-hatian
+    flexibility = sanitize((accuracyPct + planning) / 2);
+  }
+  
+  const impulse_control = planning;
+  
+  const persistence = sanitize(Math.max(0, 100 - (learningStats.gaveUp * 15)));
+  const accuracy = accuracyPct;
+  
+  let speed = 40;
+  const avg_time = avgTimePerItem;
+  if (avg_time < 5) speed = 90;
+  else if (avg_time < 10) speed = 80;
+  else if (avg_time < 15) speed = 60;
+  
+  const frustration = persistence;
+  const confidence = 100 - (learningStats.totalErrors * 2);
 
-  const processProfile = {
-    responseCaution: {
-      score: responseCaution,
-      construct: "Kehati-hatian dan pemeriksaan respons selama CPM",
-      status: "INTERNAL_EMPIRICAL_INDEX"
+  const psychogramPremium = {
+    COGNITIVE: {
+      'Visual-Spatial Reasoning': vis_spatial,
+      'Pattern Recognition': pattern_rec,
+      'Abstract Reasoning': abstract
     },
-    reviewResponsiveness: {
-      score: reviewResponsiveness,
-      construct: "Kemampuan memanfaatkan kesempatan peninjauan",
-      status: "INTERNAL_EMPIRICAL_INDEX"
+    'ATTENTION & CONCENTRATION': {
+      'Sustained Attention': sustained,
+      'Focus Stability': stability,
+      'Resistance to Distraction': resistance
     },
-    taskPersistence: {
-      score: taskPersistence,
-      construct: "Keberlanjutan usaha selama pengerjaan CPM",
-      status: "INTERNAL_EMPIRICAL_INDEX"
+    'EXECUTIVE FUNCTIONS': {
+      'Planning & Organization': planning,
+      'Cognitive Flexibility': flexibility,
+      'Impulse Control': impulse_control
     },
-    systematicApproach: {
-      score: systematicApproach,
-      construct: "Konsistensi pendekatan mengamati sebelum memilih",
-      status: "INTERNAL_EMPIRICAL_INDEX"
+    'TASK COMMITMENT': {
+      'Task Persistence': persistence,
+      'Effort & Motivation': (persistence + 80) / 2,
+      'Speed of Work': speed,
+      'Accuracy/Carefulness': accuracy
+    },
+    'EMOTIONAL REGULATION': {
+      'Frustration Tolerance': frustration,
+      'Anxiety Management': (frustration + 70) / 2,
+      'Emotional Stability': (frustration + stability) / 2,
+      'Self-Confidence': confidence
+    },
+    'LEARNING CHARACTERISTICS': {
+      'Systematic Approach': planning,
+      'Trial-Error Learning': 100 - flexibility,
+      'Reflective Thinking': planning,
+      'Independent Problem-Solving': (accuracy + persistence) / 2
     }
-  };
-
-  const clinicalFormulation = {
-    selfConfidence: {
-      score: null,
-      narrative: null,
-      sources: ["interview", "observation", "parent_report"]
-    },
-    emotionalRegulation: {
-      score: null,
-      narrative: null,
-      sources: ["SDQ", "observation", "parent_report"]
-    },
-    personalityDynamics: {
-      score: null,
-      narrative: null,
-      sources: ["interview", "DAP", "observation"]
-    }
-  };
-
-  const psychogram = {
-    processProfile,
-    clinicalFormulation
   };
 
   // --- Narasi Gaya Kerja ---
@@ -237,12 +263,16 @@ export function calculateAdvancedMetrics(rawData: any[], ageDecimal: number, cli
 
   // --- Narasi Adaptasi / Learning Rate ---
   let learningDesc = "";
-  if (learningRate >= 60) {
-    learningDesc = `${clientName} menunjukkan kemampuan adaptasi yang sangat baik. Dari ${learningStats.totalErrors} kesalahan di percobaan pertama, ia berhasil memperbaiki ${learningStats.learnedFromErrors} di percobaan kedua (Tingkat Adaptasi: ${learningRate.toFixed(0)}%). Ini menunjukkan fleksibilitas kognitif yang baik.`;
-  } else if (learningRate >= 40) {
-    learningDesc = `${clientName} menunjukkan kemampuan adaptasi yang cukup baik dengan Tingkat Adaptasi ${learningRate.toFixed(0)}%. Dengan dukungan yang tepat, kemampuan belajar dari kesalahan ini dapat terus ditingkatkan.`;
+  if (isSingleAttemptMode) {
+    learningDesc = `${clientName} menyelesaikan rangkaian tugas ini dalam sekali kesempatan. Karena ini adalah format pengujian tunggal, daya tangkapnya diukur dari akurasi awal secara langsung. Berdasarkan skor dan kehati-hatiannya, ia diestimasi memiliki fleksibilitas kognitif di level ${flexibility.toFixed(0)}%.`;
   } else {
-    learningDesc = `${clientName} tampak memerlukan waktu lebih untuk memproses umpan balik (Tingkat Adaptasi: ${learningRate.toFixed(0)}%). Ini menunjukkan perlunya pendekatan pembelajaran yang lebih terstruktur dan berulang.`;
+    if (learningRate >= 60) {
+      learningDesc = `${clientName} menunjukkan kemampuan adaptasi yang sangat baik. Dari ${learningStats.totalErrors} kesalahan di percobaan pertama, ia berhasil memperbaiki ${learningStats.learnedFromErrors} di percobaan kedua (Tingkat Adaptasi: ${learningRate.toFixed(0)}%). Ini menunjukkan fleksibilitas kognitif yang baik.`;
+    } else if (learningRate >= 40) {
+      learningDesc = `${clientName} menunjukkan kemampuan adaptasi yang cukup baik dengan Tingkat Adaptasi ${learningRate.toFixed(0)}%. Dengan dukungan yang tepat, kemampuan belajar dari kesalahan ini dapat terus ditingkatkan.`;
+    } else {
+      learningDesc = `${clientName} tampak memerlukan waktu lebih untuk memproses umpan balik (Tingkat Adaptasi: ${learningRate.toFixed(0)}%). Ini menunjukkan perlunya pendekatan pembelajaran yang lebih terstruktur dan berulang.`;
+    }
   }
 
   // --- Narasi Pola Kesulitan ---
@@ -335,6 +365,6 @@ export function calculateAdvancedMetrics(rawData: any[], ageDecimal: number, cli
     learningRate,
     interpretationText,
     recommendationText,
-    psychogram
+    psychogramPremium
   };
 }

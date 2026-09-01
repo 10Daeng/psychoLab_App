@@ -30,28 +30,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ]
     },
     {
-      title: "Kesiapan SD (Anak)",
+      title: "Manajemen Klien & Laporan",
       links: [
-        { href: "/admin/clients/list/child", icon: <Users className="w-4 h-4" />, label: "Direktori Klien" },
-        { href: "/admin/reports/list/child", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan Asesmen" },
-        { href: "/admin/observation/child", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi & Wawancara" },
+        { href: "/admin/clients/list/child", icon: <Users className="w-4 h-4" />, label: "Klien Asesmen Anak" },
+        { href: "/admin/clients/list/student", icon: <Users className="w-4 h-4" />, label: "Klien Penjurusan" },
+        { href: "/admin/clients/list/employee", icon: <Users className="w-4 h-4" />, label: "Klien Rekrutmen" },
+        { href: "/admin/reports", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan & Sertifikat" },
         { href: "/admin/tracking", icon: <Activity className="w-4 h-4" />, label: "Tracking Progres Ortu" },
-      ]
-    },
-    {
-      title: "Penjurusan (Remaja)",
-      links: [
-        { href: "/admin/clients/list/student", icon: <Users className="w-4 h-4" />, label: "Direktori Klien" },
-        { href: "/admin/reports/list/student", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan Asesmen" },
-        { href: "/admin/observation/student", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi & Wawancara" },
-      ]
-    },
-    {
-      title: "Rekrutmen (Pegawai)",
-      links: [
-        { href: "/admin/clients/list/employee", icon: <Users className="w-4 h-4" />, label: "Direktori Klien" },
-        { href: "/admin/reports/list/employee", icon: <FileBarChart2 className="w-4 h-4" />, label: "Laporan Asesmen" },
-        { href: "/admin/observation/employee", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi & Wawancara" },
       ]
     },
     {
@@ -62,8 +47,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { href: "/admin/reports/module/WVI", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil WVI" },
         { href: "/admin/reports/module/SDS", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil SDS" },
         { href: "/admin/reports/module/CPM", icon: <FileBarChart2 className="w-4 h-4" />, label: "Hasil CPM" },
-        { href: "/admin/reports/module/OBSERVASI_ANAK", icon: <ClipboardCheck className="w-4 h-4" />, label: "Observasi Anak" },
-        { href: "/admin/reports/module/WAWANCARA_ANAK", icon: <ClipboardCheck className="w-4 h-4" />, label: "Wawancara Anak" },
         { href: "/admin/reports/module/KUESIONER_ORTU", icon: <ClipboardCheck className="w-4 h-4" />, label: "Kuesioner Ortu" },
       ]
     }

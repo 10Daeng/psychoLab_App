@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import {
   Save, RefreshCw, CheckCircle2, ChevronDown, ChevronUp,
-  ClipboardCheck, MessageSquare, Star, AlertTriangle
+  ClipboardCheck, MessageSquare, Star, AlertTriangle, X
 } from "lucide-react";
 
 interface RecruitmentObsData {
@@ -30,6 +30,11 @@ export default function RecruitmentObservationForm({ initialData, onSave }: Prop
   const [anamnesa, setAnamnesa] = useState<Record<string, string>>(initialData.anamnesa || {});
   const [impression, setImpression] = useState<Record<string, any>>(initialData.impression || {});
   const [notes, setNotes] = useState(initialData.notes || "");
+
+  const initialCustomKeys = Object.keys(initialData.anamnesa || {})
+    .filter(k => k.startsWith("custom_") && k.endsWith("_label"))
+    .map(k => k.replace("_label", ""));
+  const [customQKeys, setCustomQKeys] = useState<string[]>(initialCustomKeys);
 
   const setObsVal = (key: string, value: any) => setObs(p => ({ ...p, [key]: value }));
   const setAnaVal = (key: string, value: string) => setAnamnesa(p => ({ ...p, [key]: value }));
@@ -331,6 +336,68 @@ export default function RecruitmentObservationForm({ initialData, onSave }: Prop
           label="Apa kelemahan yang sedang Anda kembangkan?"
           hint="Menilai self-awareness dan growth mindset"
         />
+        <AnaQ
+          qKey="integritas"
+          label="Ceritakan situasi di mana Anda harus mengambil keputusan yang bertentangan dengan instruksi atasan atau kebijakan perusahaan."
+          hint="Cross-check dimensi Honesty-Humility di HEXACO"
+        />
+        <AnaQ
+          qKey="tim"
+          label="Bagaimana peran Anda biasanya dalam sebuah tim: memimpin, mendukung, atau eksekutor? Berikan contohnya."
+          hint="Validasi silang dimensi Dominance/Influence di DISC"
+        />
+        <AnaQ
+          qKey="kritik"
+          label="Ceritakan pengalaman Anda menerima kritik yang cukup keras dari atasan. Bagaimana reaksi Anda saat itu?"
+          hint="Melengkapi pertanyaan kelemahan dengan data perilaku aktual"
+        />
+
+        {customQKeys.map(kKey => (
+          <div key={kKey} className="p-4 bg-white border border-blue-200 rounded-xl space-y-2 relative">
+            <button
+              onClick={() => {
+                setCustomQKeys(p => p.filter(k => k !== kKey));
+                const newAna = { ...anamnesa };
+                delete newAna[`${kKey}_label`];
+                delete newAna[`${kKey}_ans`];
+                delete newAna[`${kKey}_int`];
+                setAnamnesa(newAna);
+              }}
+              className="absolute top-3 right-3 text-rose-400 hover:text-rose-600 bg-rose-50 p-1 rounded-md transition"
+              title="Hapus pertanyaan ini"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <input
+              type="text"
+              className="font-semibold text-slate-700 text-sm w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-500 pb-1 pr-8"
+              placeholder="Ketik pertanyaan kustom di sini..."
+              value={anamnesa[`${kKey}_label`] || ""}
+              onChange={e => setAnaVal(`${kKey}_label`, e.target.value)}
+            />
+            <textarea
+              rows={2}
+              className="w-full text-sm p-3 mt-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 bg-slate-50"
+              placeholder="Jawaban kandidat..."
+              value={anamnesa[`${kKey}_ans`] || ""}
+              onChange={e => setAnaVal(`${kKey}_ans`, e.target.value)}
+            />
+            <textarea
+              rows={2}
+              className="w-full text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 bg-blue-50/50"
+              placeholder="Interpretasi psikolog..."
+              value={anamnesa[`${kKey}_int`] || ""}
+              onChange={e => setAnaVal(`${kKey}_int`, e.target.value)}
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setCustomQKeys(p => [...p, `custom_${Date.now()}`])}
+          className="w-full py-3 border-2 border-dashed border-blue-200 text-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-50 transition"
+        >
+          + Tambah Pertanyaan Baru
+        </button>
       </Section>
 
       {/* ── C. KESAN UMUM ───────────────────────────────────────────────────── */}

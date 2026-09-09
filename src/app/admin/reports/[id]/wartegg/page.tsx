@@ -166,7 +166,10 @@ export default function WarteggAssessorPage() {
            </div>
 
            <div className="bg-slate-950 border border-slate-800 p-6 rounded-xl mb-8">
-             <h3 className="font-bold text-slate-300 mb-4">Pilihan Klien (Preferensi)</h3>
+             <h3 className="font-bold text-slate-300 mb-4">
+               Pilihan Klien (Preferensi) 
+               <span className="text-xs text-slate-500 font-normal ml-2">(Isi dengan nomor kotak 1-8)</span>
+             </h3>
              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                <div>
                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Paling Disukai (+)</label>

@@ -48,12 +48,25 @@ export async function POST(req: Request) {
       const anaMap: Record<string, string> = {
         alasan: "Alasan melamar", riwayat: "Riwayat pekerjaan & alasan keluar",
         tekanan: "Pengalaman tekanan/konflik kerja", gaji: "Ekspektasi gaji",
-        karir: "Rencana karir 3-5 tahun", kekuatan: "Kekuatan diri", kelemahan: "Kelemahan yang dikembangkan"
+        karir: "Rencana karir 3-5 tahun", kekuatan: "Kekuatan diri", kelemahan: "Kelemahan yang dikembangkan",
+        integritas: "Integritas & Keputusan Etis", tim: "Peran dalam Tim", kritik: "Menerima Umpan Balik/Kritik"
       };
       const anaLines: string[] = [];
       Object.entries(anaMap).forEach(([key, label]) => {
         const ans = ana[`${key}_ans`]; const int = ana[`${key}_int`];
         if (ans || int) {
+          anaLines.push(`  • ${label}: ${ans || "-"} ${int ? `[Interpretasi: ${int}]` : ""}`);
+        }
+      });
+      // Membaca input dinamis custom
+      const customKeys = Object.keys(ana)
+        .filter(k => k.startsWith("custom_") && k.endsWith("_label"))
+        .map(k => k.replace("_label", ""));
+      customKeys.forEach(kKey => {
+        const label = ana[`${kKey}_label`];
+        const ans = ana[`${kKey}_ans`];
+        const int = ana[`${kKey}_int`];
+        if (label && (ans || int)) {
           anaLines.push(`  • ${label}: ${ans || "-"} ${int ? `[Interpretasi: ${int}]` : ""}`);
         }
       });

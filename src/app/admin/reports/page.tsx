@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FileBarChart2, Search, Download, Eye, RefreshCw, Filter, FileJson } from "lucide-react";
+import { FileBarChart2, Search, Eye, RefreshCw, ClipboardCheck } from "lucide-react";
 import { motion } from "framer-motion";
+import RecruitmentObservationModal from "@/components/admin/RecruitmentObservationModal";
 
 const PURPOSE_OPTIONS = [
   { value: "CHILD", label: "Asesmen Anak", color: "blue", emoji: "👶" },
@@ -23,6 +24,8 @@ export default function ReportsIndexPage() {
   const [tokens, setTokens] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
+  const [obsToken, setObsToken] = useState<any>(null);
+  const [obsModalOpen, setObsModalOpen] = useState(false);
 
   const fetchReports = async (purpose: string) => {
     setLoading(true);
@@ -182,6 +185,14 @@ export default function ReportsIndexPage() {
                     </td>
                     <td className="py-4 px-4 text-right">
                       <div className="flex items-center justify-end gap-2 flex-wrap">
+                        {selectedPurpose === "EMP" && (
+                          <button
+                            onClick={() => { setObsToken(token); setObsModalOpen(true); }}
+                            className="px-3 py-2 bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/30 text-teal-400 font-bold rounded-xl transition-all active:scale-95 text-[11px] flex items-center gap-1.5"
+                          >
+                            <ClipboardCheck size={13} /> Observasi
+                          </button>
+                        )}
                         {token.status === "COMPLETED" ? (
                           <button
                             onClick={() => router.push(`/admin/reports/${token.id}`)}
@@ -212,6 +223,18 @@ export default function ReportsIndexPage() {
           </p>
         )}
       </div>
+
+      {/* Modal Observasi Rekrutmen */}
+      {obsToken && (
+        <RecruitmentObservationModal
+          isOpen={obsModalOpen}
+          onClose={() => { setObsModalOpen(false); setObsToken(null); }}
+          tokenId={obsToken.id}
+          clientName={obsToken.clients?.name || "-"}
+          tokenCode={obsToken.token_code}
+          onSuccess={() => fetchReports(selectedPurpose)}
+        />
+      )}
     </div>
   );
 }

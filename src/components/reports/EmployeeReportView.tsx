@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Users, Brain, Target, Lightbulb, FileText, RefreshCw, Sparkles, Star, Download } from "lucide-react";
-import ObservationForm from "@/app/admin/reports/[id]/ObservationForm";
+import RecruitmentObservationForm from "@/components/admin/RecruitmentObservationForm";
 import { IQGauge } from "./SharedReportComponents";
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import ClinicalWorkspace from "./ClinicalWorkspace";
@@ -13,10 +13,21 @@ const config = { label: "Karyawan", color: "violet", accent: "bg-violet-600", li
 
 export default function EmployeeReportView({ report, testResults }: { report: any, testResults: any[] }) {
   const initialObs = report?.observations?.[0] || report?.observations;
-  const initialNotesString = initialObs 
-    ? JSON.stringify({ notes: initialObs.notes || "", observation: initialObs.observation_data || {}, interview: initialObs.interview_data || {} }) 
-    : (report?.psychologist_notes || "");
-  const [notes, setNotes] = useState(initialNotesString);
+  
+  // Parse observasi rekrutmen (format baru: JSON string dengan kunci anamnesa)
+  let parsedObsData = { observation: {}, anamnesa: {}, impression: {}, notes: "" };
+  if (initialObs?.notes) {
+    try {
+      const inner = JSON.parse(initialObs.notes);
+      if (inner.anamnesa !== undefined) {
+        parsedObsData = inner;
+      } else {
+        parsedObsData.notes = initialObs.notes;
+      }
+    } catch { parsedObsData.notes = initialObs.notes || ""; }
+  }
+  
+  const [obsData, setObsData] = useState(parsedObsData);
   const [aiNarrative, setAiNarrative] = useState<any>(null);
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiError, setAiError] = useState("");
@@ -36,6 +47,12 @@ export default function EmployeeReportView({ report, testResults }: { report: an
 
   const handleSaveNotes = async (dataToSave: string) => {
     try {
+      // Update local state
+      try {
+        const inner = JSON.parse(dataToSave);
+        if (inner.anamnesa !== undefined) setObsData(inner);
+      } catch {}
+
       const res = await fetch(`/api/admin/reports/${report.id}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,7 +90,8 @@ export default function EmployeeReportView({ report, testResults }: { report: an
           projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
           wvi: wviResult?.calculated_score?.calculatedData
         },
-        conflictFlags: detectedFlags
+        conflictFlags: detectedFlags,
+        observationData: (obsData && Object.keys(obsData.anamnesa || {}).length > 0) ? obsData : null
       };
 
       const res = await fetch("/api/generate-narrative", {
@@ -449,13 +467,13 @@ export default function EmployeeReportView({ report, testResults }: { report: an
         </div>
       </div>
       
-      {/* 7. Observasi & Catatan (Bottom) */}
+      {/* 7. Observasi Rekrutmen (Bottom) */}
       <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
          <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <FileText className="w-5 h-5 text-emerald-400" /> Observasi & Catatan Psikolog
          </h2>
          <div className="text-slate-300">
-            <ObservationForm initialData={notes} onSave={handleSaveNotes} />
+            <RecruitmentObservationForm initialData={obsData} onSave={handleSaveNotes} />
          </div>
       </div>
 

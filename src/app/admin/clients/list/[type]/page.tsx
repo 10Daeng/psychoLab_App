@@ -6,6 +6,7 @@ import { Users, Upload, Download, CheckCircle, Search, Plus, X, RefreshCw, PenTo
 import * as XLSX from 'xlsx';
 import DapScoringModal from "@/components/admin/DapScoringModal";
 import ObservationModal from "@/components/admin/ObservationModal";
+import RecruitmentObservationModal from "@/components/admin/RecruitmentObservationModal";
 import AssessmentHubModal from "@/components/admin/AssessmentHubModal";
 
 export default function AdminClients() {
@@ -18,6 +19,7 @@ export default function AdminClients() {
   // Modals state untuk Aksi Penilaian
   const [dapModalOpen, setDapModalOpen] = useState(false);
   const [obsModalOpen, setObsModalOpen] = useState(false);
+  const [recruitmentObsModalOpen, setRecruitmentObsModalOpen] = useState(false);
   const [hubModalOpen, setHubModalOpen] = useState(false);
   const [activeToken, setActiveToken] = useState<any>(null);
   const [activeClient, setActiveClient] = useState<any>(null);
@@ -446,7 +448,15 @@ export default function AdminClients() {
                                    <LayoutDashboard size={10} /> Kelola Penilaian
                                  </button>
                                )}
-                               {t.respondent_type === 'SELF' && currentPurpose !== 'CHILD' && (
+                               {t.respondent_type === 'SELF' && currentPurpose === 'EMP' && (
+                                 <button 
+                                   onClick={() => { setActiveToken(t); setActiveClient(client); setRecruitmentObsModalOpen(true); }}
+                                   className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                 >
+                                   <ClipboardCheck size={10} /> Observasi
+                                 </button>
+                               )}
+                               {t.respondent_type === 'SELF' && currentPurpose === 'STU' && (
                                  <button 
                                    onClick={() => { setActiveToken(t); setActiveClient(client); setObsModalOpen(true); }}
                                    className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
@@ -663,6 +673,15 @@ export default function AdminClients() {
           <ObservationModal
             isOpen={obsModalOpen}
             onClose={() => setObsModalOpen(false)}
+            tokenId={activeToken.id}
+            clientName={activeClient.name}
+            tokenCode={activeToken.token_code}
+            onSuccess={() => fetchClients()}
+          />
+
+          <RecruitmentObservationModal
+            isOpen={recruitmentObsModalOpen}
+            onClose={() => setRecruitmentObsModalOpen(false)}
             tokenId={activeToken.id}
             clientName={activeClient.name}
             tokenCode={activeToken.token_code}

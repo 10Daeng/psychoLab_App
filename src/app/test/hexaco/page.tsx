@@ -82,9 +82,6 @@ export default function HexacoTestPage() {
 
         clearAnswers();
         
-        // Bersihkan session
-        sessionStorage.removeItem("current_participant");
-        sessionStorage.removeItem("test_result_id");
         const tokenCode = sessionStorage.getItem("token_code") || "";
         const tokenId = sessionStorage.getItem("valid_token_id") || sessionStorage.getItem("current_token_id");
         const clientData = clientDataStr ? JSON.parse(clientDataStr) : {};

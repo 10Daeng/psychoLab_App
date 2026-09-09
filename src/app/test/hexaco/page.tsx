@@ -81,7 +81,6 @@ export default function HexacoTestPage() {
         });
 
         clearAnswers();
-        alert("Asesmen Kepribadian (HEXACO) Selesai! Seluruh Rangkaian Tes telah diselesaikan.");
         
         // Bersihkan session
         sessionStorage.removeItem("current_participant");

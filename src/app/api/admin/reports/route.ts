@@ -16,17 +16,25 @@ export async function GET(req: Request) {
     if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { searchParams } = new URL(req.url);
-    const purpose = searchParams.get('purpose');
+    const purposeLabel = searchParams.get('purpose');
 
-    if (!purpose) {
+    if (!purposeLabel) {
       return NextResponse.json({ error: 'Purpose is required' }, { status: 400 });
     }
+
+    // Map UI label ke nilai purpose yang tersimpan di DB
+    const purposeMap: Record<string, string> = {
+      CHILD: 'KEMATANGAN',
+      STU:   'PENJURUSAN',
+      EMP:   'REKRUTMEN',
+    };
+    const purposeDb = purposeMap[purposeLabel] ?? purposeLabel;
 
     let query = supabase
       .from("tokens")
       .select("id, token_code, created_at, clients(*), status, respondent_type")
       .eq("respondent_type", "SELF")
-      .eq("purpose", purpose)
+      .eq("purpose", purposeDb)
       .order("created_at", { ascending: false });
 
     if (payload.role === 'Org_Admin' && payload.organization_id) {

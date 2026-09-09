@@ -80,6 +80,7 @@ export default function WviTestPage() {
 
         clearAnswers();
         // WVI is the last test for EMP package
+        alert("Asesmen Tata Nilai Kerja (WVI) Selesai! Seluruh Rangkaian Tes telah diselesaikan. Terima kasih atas partisipasi Anda.");
         router.push('/selesai');
         
       } catch (err) {

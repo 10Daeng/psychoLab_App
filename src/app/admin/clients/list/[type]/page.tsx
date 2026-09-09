@@ -13,6 +13,7 @@ export default function AdminClients() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [hasDataIssue, setHasDataIssue] = useState(false);
   
   // Modals state untuk Aksi Penilaian
   const [dapModalOpen, setDapModalOpen] = useState(false);
@@ -47,23 +48,56 @@ export default function AdminClients() {
   const currentPurpose = config.purpose;
 
   useEffect(() => {
-    fetchClients();
+    fetchClients(currentPurpose);
   }, [type]);
 
-  const fetchClients = async () => {
+  const fetchClients = async (purpose?: string) => {
+    const purposeToFetch = purpose || currentPurpose;
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/clients?purpose=${currentPurpose}`);
+      console.log('[Debug] Fetching clients with purpose:', purposeToFetch);
+      const res = await fetch(`/api/admin/clients?purpose=${purposeToFetch}`);
       const data = await res.json();
+      console.log('[Debug] API response status:', res.status, '| data:', data);
       if (!res.ok) throw new Error(data.error);
       setClients(data);
+      // Jika data kosong, cek apakah ada data lama yang butuh diperbaiki
+      if (data.length === 0 && purposeToFetch === 'CHILD') {
+        const checkRes = await fetch('/api/admin/fix-purpose');
+        const checkData = await checkRes.json();
+        if (checkData.clientsNeedingFix > 0) setHasDataIssue(true);
+      } else {
+        setHasDataIssue(false);
+      }
     } catch (err: any) {
-      console.error(err);
+      console.error('[Debug] fetchClients error:', err);
       alert("Gagal memuat klien: " + err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleFixPurpose = async () => {
+    if (!confirm(`Ditemukan data klien dengan kategori yang tidak valid (null/kosong). Perbaiki semua data tersebut sebagai "${config.title}"?`)) return;
+    setIsUploading(true);
+    try {
+      const res = await fetch('/api/admin/fix-purpose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetPurpose: currentPurpose })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert(data.message);
+      setHasDataIssue(false);
+      fetchClients(currentPurpose);
+    } catch (err: any) {
+      alert('Gagal memperbaiki data: ' + err.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
 
   const handleDownloadTemplate = () => {
     const ws = XLSX.utils.json_to_sheet([
@@ -285,6 +319,15 @@ export default function AdminClients() {
           <p className="text-slate-400 mt-2">Kelola data peserta tes secara manual maupun massal, serta generate token tes tertutup.</p>
         </div>
         <div className="flex gap-3 flex-wrap">
+          {hasDataIssue && (
+            <button
+              onClick={handleFixPurpose}
+              disabled={isUploading}
+              className="flex items-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-400 px-4 py-2.5 rounded-xl transition text-sm font-semibold backdrop-blur-md shadow-[0_0_10px_rgba(245,158,11,0.2)] animate-pulse"
+            >
+              ⚠️ Perbaiki Data Lama
+            </button>
+          )}
           <button 
             onClick={handleDownloadTemplate}
             className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 px-4 py-2.5 rounded-xl transition text-sm font-semibold backdrop-blur-md"

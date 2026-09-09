@@ -16,8 +16,8 @@ export default function Raven2TestPage() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   
-  // Global Timer (45 Menit = 2700 Detik)
-  const [remainingTime, setRemainingTime] = useState(2700);
+  // Global Timer (24 Menit = 1440 Detik) — 1 menit per soal × 24 soal
+  const [remainingTime, setRemainingTime] = useState(1440);
   const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function Raven2TestPage() {
         setQuestions(data);
         setIsLoaded(true);
         
-        // Initialize Web Worker Timer for Raven 2 (45 Minutes)
+        // Initialize Web Worker Timer for Raven 2 (24 Minutes — 1 menit per soal)
         workerRef.current = new Worker(new URL("/workers/timer.js", window.location.origin));
         workerRef.current.onmessage = (e: MessageEvent) => {
           if (e.data.type === "TICK") {
@@ -42,7 +42,7 @@ export default function Raven2TestPage() {
             handleTimeout();
           }
         };
-        workerRef.current.postMessage({ command: "START", seconds: 2700 });
+        workerRef.current.postMessage({ command: "START", seconds: 1440 });
       })
       .catch(err => {
         console.error("Gagal memuat soal", err);
@@ -98,7 +98,7 @@ export default function Raven2TestPage() {
   };
 
   const handleTimeout = () => {
-    alert("Waktu pengerjaan tes Raven 2 (45 Menit) telah habis. Jawaban akan disimpan secara otomatis.");
+    alert("Waktu pengerjaan tes Raven 2 (24 Menit) telah habis. Jawaban akan disimpan secara otomatis.");
     handleSubmit(true);
   };
 

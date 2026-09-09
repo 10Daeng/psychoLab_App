@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { expectedScoresTable } from "@/lib/cpm-analysis";
 
 export default function CPMFinishPage() {
   const router = useRouter();
@@ -19,6 +20,36 @@ export default function CPMFinishPage() {
         if (!testResultId || !resultsLogStr) {
           throw new Error("Data hasil tidak lengkap atau sesi berakhir.");
         }
+
+        // --- Cek Discrepancy (Warning Invalid) ---
+        let isInvalid = false;
+        try {
+          const results = JSON.parse(resultsLogStr);
+          let setA = 0, setAb = 0, setB = 0;
+          results.forEach((item: any) => {
+            const isCorrect = item.isFirstAttemptCorrect || item.isSecondAttemptCorrect;
+            if (isCorrect) {
+              if (item.questionId.startsWith("AB")) setAb++;
+              else if (item.questionId.startsWith("B")) setB++;
+              else setA++;
+            }
+          });
+          const expected = expectedScoresTable[setA + setAb + setB];
+          if (expected) {
+            if (Math.abs(setA - expected[0]) > 2 || Math.abs(setAb - expected[1]) > 2 || Math.abs(setB - expected[2]) > 2) {
+              isInvalid = true;
+            }
+          }
+        } catch (e) {
+          console.error("Gagal cek discrepancy", e);
+        }
+        
+        if (isInvalid) {
+          sessionStorage.setItem("cpm_invalid_warning", "true");
+        } else {
+          sessionStorage.removeItem("cpm_invalid_warning");
+        }
+        // -----------------------------------------
 
         const payload = {
           test_result_id: testResultId,

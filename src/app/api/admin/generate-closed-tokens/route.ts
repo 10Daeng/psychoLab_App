@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { cookies } from 'next/headers';
+import { verifyAdminSession } from '@/lib/auth-helpers';
 
 const generateTokenString = (prefix: string) => {
   const array = new Uint8Array(4);
@@ -10,11 +12,19 @@ const generateTokenString = (prefix: string) => {
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const session = cookieStore.get('admin_session');
+    if (!session) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    
+    const payload = await verifyAdminSession(session.value);
+    if (!payload) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { clientIds, purpose } = await request.json();
     
     if (!clientIds || clientIds.length === 0 || !purpose) {
       return NextResponse.json({ success: false, error: "Invalid data" }, { status: 400 });
     }
+
 
     // Ambil test IDs
     const { data: dbTests } = await supabaseAdmin.from('tests').select('id, code');

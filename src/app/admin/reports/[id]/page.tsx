@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Download, ArrowLeft } from "lucide-react";
+import { Download, ArrowLeft, FileJson } from "lucide-react";
 
 import ChildReportView from "@/components/reports/ChildReportView";
 import StudentReportView from "@/components/reports/StudentReportView";
@@ -100,11 +100,20 @@ export default function LenteraReportPage() {
                 </button>
               </>
             )}
+            <a
+              href={`/api/admin/reports/${reportId}`}
+              target="_blank"
+              download={`RawData_${report?.token_code || "Unknown"}.json`}
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md active:scale-95"
+            >
+              <FileJson className="w-4 h-4" /> Data Mentah
+            </a>
             <button
               onClick={handleDownloadPDF}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md"
+              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-md active:scale-95"
             >
-              <Download className="w-4 h-4" /> Cetak / PDF
+              <Download className="w-4 h-4" /> Unduh PDF
             </button>
           </div>
         </div>

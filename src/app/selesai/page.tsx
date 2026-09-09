@@ -40,6 +40,7 @@ export default function SelesaiPage() {
   const [testType, setTestType] = useState("");
   const [showConfetti, setShowConfetti] = useState(false);
   const [timeStr, setTimeStr] = useState("");
+  const [cpmInvalid, setCpmInvalid] = useState(false);
 
   useEffect(() => {
     // Baca info dari session storage
@@ -68,11 +69,16 @@ export default function SelesaiPage() {
     // Trigger confetti setelah sedikit delay
     setTimeout(() => setShowConfetti(true), 300);
 
+    if (sessionStorage.getItem("cpm_invalid_warning") === "true") {
+      setCpmInvalid(true);
+    }
+
     // Bersihkan session storage setelah ambil data
     const keysToRemove = [
       "current_token_id", "token_code", "test_code",
       "token_type", "client_data", "test_result_id",
       "cpmGameResults", "cpmTotalTime", "client_name",
+      "cpm_invalid_warning"
     ];
     keysToRemove.forEach((k) => sessionStorage.removeItem(k));
   }, []);
@@ -229,6 +235,32 @@ export default function SelesaiPage() {
                   </div>
                   <p className="text-amber-500/70 text-xs mt-2 text-center">
                     Catat atau foto kode ini sebelum menutup halaman
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Warning CPM Invalid */}
+            <AnimatePresence>
+              {cpmInvalid && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ delay: 0.9 }}
+                  className="bg-red-950/40 border-2 border-red-500/50 rounded-2xl p-5"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl">⚠️</span>
+                    <p className="font-bold text-red-400 text-sm uppercase tracking-widest">
+                      Peringatan Validitas Tes
+                    </p>
+                  </div>
+                  <p className="text-slate-300 text-xs leading-relaxed">
+                    Hasil tes anak menunjukkan inkonsistensi jawaban yang signifikan (selisih skor Set melebihi kewajaran). 
+                    Anak kemungkinan menjawab acak, kehilangan fokus, atau tidak mengerti instruksi. 
+                    <br/><br/>
+                    <strong>TINDAKAN PENGUJI:</strong> Harap berikan jeda istirahat dan pertimbangkan untuk <strong>mengulang tes (buat token baru)</strong> secara langsung sebelum klien pulang.
                   </p>
                 </motion.div>
               )}

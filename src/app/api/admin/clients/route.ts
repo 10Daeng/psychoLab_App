@@ -13,7 +13,9 @@ export async function GET(req: Request) {
     }
 
     const payload = await verifyAdminSession(session.value);
-    if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!payload) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { searchParams } = new URL(req.url);
     const purpose = searchParams.get('purpose');
@@ -38,11 +40,12 @@ export async function GET(req: Request) {
     
     const decryptedData = data?.map((client: any) => decryptClientData(client));
     
-    return NextResponse.json(decryptedData);
+    return NextResponse.json(decryptedData ?? []);
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
+
 
 export async function POST(req: Request) {
   try {

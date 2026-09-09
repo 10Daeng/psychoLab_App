@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, KeySquare, Users, FileBarChart2, Menu, X, Rocket, ShieldAlert, LogOut, Activity, ClipboardCheck } from "lucide-react";
+import { Home, KeySquare, Users, FileBarChart2, Menu, X, Rocket, ShieldAlert, LogOut, Activity, ClipboardCheck, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarHidden, setIsSidebarHidden] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -54,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-screen bg-slate-950 overflow-hidden relative">
+    <div className="flex h-screen bg-slate-950 overflow-hidden relative print:block print:h-auto print:overflow-visible print:bg-white">
       {/* Background Ornaments (Mesh Gradient) */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-0 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
         <motion.div 
@@ -88,22 +89,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900/40 backdrop-blur-3xl border-r border-white/10 text-white flex flex-col transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0 shadow-[0_0_40px_rgba(0,0,0,0.5)]" : "-translate-x-full"}`}>
-        <div className="h-20 flex items-center justify-between px-8 border-b border-white/5">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-slate-900/40 backdrop-blur-3xl border-r border-white/10 text-white flex flex-col transition-transform duration-300 ease-in-out md:static print:hidden ${isMobileMenuOpen ? "translate-x-0 shadow-[0_0_40px_rgba(0,0,0,0.5)]" : (isSidebarHidden ? "md:absolute md:-translate-x-full md:z-40 -translate-x-full" : "md:translate-x-0 -translate-x-full")}`}>
+        <div className="h-20 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
           <div className="flex items-center gap-3">
              <div className="flex items-center gap-3">
-	               <img src="/logo-lentera-batin.png" alt="Lentera Batin" className="w-9 h-9 object-contain" />
-	               <div>
-	                 <span className="font-black text-2xl tracking-tighter text-white">Lentera Batin</span>
-	                 <div className="text-[10px] text-teal-400 -mt-1 font-medium">ASSESSMENT</div>
-	               </div>
-	             </div>
+                 <img src="/logo-lentera-batin.png" alt="Lentera Batin" className="w-9 h-9 object-contain" />
+                 <div>
+                   <span className="font-black text-2xl tracking-tighter text-white">Lentera Batin</span>
+                   <div className="text-[10px] text-teal-400 -mt-1 font-medium">ASSESSMENT</div>
+                 </div>
+               </div>
           </div>
           <button
-            className="md:hidden text-slate-400 hover:text-white transition-colors"
+            className="md:hidden text-slate-400 hover:text-white transition-colors ml-2"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <X className="w-6 h-6" />
+          </button>
+          <button
+            className="hidden md:block text-slate-400 hover:text-white transition-colors ml-2"
+            onClick={() => setIsSidebarHidden(true)}
+            title="Autohide Sidebar"
+          >
+            <PanelLeftClose className="w-5 h-5" />
           </button>
         </div>
 
@@ -159,9 +167,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative z-10">
+      <div className="flex-1 flex flex-col h-full overflow-hidden w-full relative z-10 transition-all duration-300 print:block print:h-auto print:overflow-visible">
+        
+        {/* Floating Menu Toggle (Desktop only, shown when sidebar is hidden) */}
+        <AnimatePresence>
+          {isSidebarHidden && (
+            <motion.button
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              onClick={() => setIsSidebarHidden(false)}
+              className="hidden md:flex absolute top-5 left-5 z-40 p-2.5 bg-slate-800/80 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white hover:bg-slate-700/80 rounded-xl shadow-lg transition-colors items-center justify-center group"
+              title="Show Sidebar"
+            >
+              <PanelLeftOpen className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
         {/* Mobile Header */}
-        <header className="h-16 bg-slate-900/40 backdrop-blur-2xl border-b border-white/10 flex items-center px-4 md:hidden shrink-0 gap-3">
+        <header className="h-16 bg-slate-900/40 backdrop-blur-2xl border-b border-white/10 flex items-center px-4 md:hidden shrink-0 gap-3 print:hidden">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="p-2 -ml-2 text-slate-400 hover:text-slate-200 rounded-lg transition-colors"
@@ -171,7 +196,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <span className="font-bold text-lg text-white">Lentera Batin Assessment</span>
         </header>
 
-        <main className="flex-1 overflow-y-auto w-full relative">
+        <main className="flex-1 overflow-y-auto w-full relative print:overflow-visible">
           <AnimatePresence mode="wait">
             <motion.div
               key={pathname}

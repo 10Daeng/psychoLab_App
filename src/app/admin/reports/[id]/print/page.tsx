@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import html2canvas from "html2canvas-pro";
-import { jsPDF } from "jspdf";
 
 import ChildPrintView from "@/components/reports/ChildPrintView";
 import StudentPrintView from "@/components/reports/StudentPrintView";
@@ -33,56 +31,10 @@ export default function PrintReportPage() {
     }
   }, [report, autoDownload]);
 
-  const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-    setIsGeneratingPdf(true);
-    
-    try {
-      const element = reportRef.current;
-      
-      // html2canvas config for high quality
-      const canvas = await html2canvas(element, {
-        scale: 2, // 2x resolution
-        useCORS: true,
-        logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-      });
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.95);
-      
-      // A4 format: 210 x 297 mm
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      let heightLeft = pdfHeight;
-      let position = 0;
-
-      // Add first page
-      pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pdf.internal.pageSize.getHeight();
-
-      // Add subsequent pages if content is longer than one page
-      while (heightLeft >= 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pdf.internal.pageSize.getHeight();
-      }
-
-      const safeName = (client?.name || "Klien").replace(/[^a-zA-Z0-9]/g, "_");
-      pdf.save(`Laporan_LenteraBatin_${safeName}.pdf`);
-      
-      if (autoDownload) {
-        // Attempt to close the tab automatically
-        window.close();
-      }
-    } catch (error) {
-      console.error("Gagal generate PDF:", error);
-      alert("Terjadi kesalahan saat membuat file PDF.");
-    } finally {
-      setIsGeneratingPdf(false);
+  const handleDownloadPDF = () => {
+    window.print();
+    if (autoDownload) {
+      setTimeout(() => window.close(), 1000);
     }
   };
 
@@ -164,35 +116,73 @@ export default function PrintReportPage() {
   return (
     <div className="bg-white min-h-screen text-slate-900">
       <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         @media print {
-          body { background-color: white; padding: 0; margin: 0; font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          body { background-color: white; padding: 0; margin: 0; font-family: 'Times New Roman', Times, serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
-          @page { margin: 15mm; }
-          .page-break { page-break-before: always; }
-          .keep-together { page-break-inside: avoid; }
+          @page {
+            margin: 18mm 15mm 20mm 15mm;
+            size: A4 portrait;
+            /* Footer per halaman dengan timestamp */
+            @bottom-center {
+              content: 'Dokumen Rahasia | Lentera Batin Assessment | Dicetak: ${dateStr}';
+              font-size: 7pt;
+              color: #94a3b8;
+              font-family: Helvetica, Arial, sans-serif;
+            }
+            @bottom-right {
+              content: 'Halaman ' counter(page);
+              font-size: 7pt;
+              color: #94a3b8;
+              font-family: Helvetica, Arial, sans-serif;
+            }
+          }
+          .page-break { page-break-before: always; break-before: page; }
+          .break-before-page { page-break-before: always; break-before: page; }
+          .keep-together { page-break-inside: avoid; break-inside: avoid; }
+          /* Watermark RAHASIA di pojok kanan atas setiap halaman */
+          .print-watermark {
+            position: fixed;
+            top: 8mm;
+            right: 12mm;
+            font-size: 9pt;
+            font-weight: bold;
+            color: #dc2626;
+            font-family: Helvetica, Arial, sans-serif;
+            letter-spacing: 0.5px;
+          }
+          .print-watermark { display: block !important; }
+          .print-watermark-hidden { display: none !important; }
+          /* Print color untuk psikogram */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+        @media screen {
+          .print-watermark { display: none; }
         }
       `}} />
 
       {/* KONTROL CETAK (hanya di layar) */}
       <div className="no-print sticky top-0 z-50 mb-8 bg-white p-4 border-b border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mt-4 rounded-xl">
-        <div>
-          <h3 className="font-bold text-slate-800">Mode Laporan Cetak</h3>
-          <p className="text-xs text-slate-500">Pilih versi laporan yang akan dicetak</p>
+        <div className="flex-1">
+          <h3 className="font-bold text-slate-800">Laporan Cetak</h3>
+          <p className="text-xs text-slate-500">Pratinjau dokumen sebelum mencetak</p>
         </div>
-        <div className="flex bg-slate-100 p-1 rounded-lg">
-          <button
-            onClick={() => setViewMode("CLEAN")}
-            className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${viewMode === "CLEAN" ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:text-slate-800"}`}
-          >
-            👨‍👩‍👧 {cleanModeLabel}
-          </button>
-          <button
-            onClick={() => setViewMode("FULL")}
-            className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${viewMode === "FULL" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-600 hover:text-slate-800"}`}
-          >
-            🏫 {fullModeLabel} (Lengkap)
-          </button>
-        </div>
+        {segment !== "CHI" && (
+          <div className="flex bg-slate-100 p-1 rounded-lg mr-4">
+            <button
+              onClick={() => setViewMode("CLEAN")}
+              className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${viewMode === "CLEAN" ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:text-slate-800"}`}
+            >
+              👨‍👩‍👧 {cleanModeLabel}
+            </button>
+            <button
+              onClick={() => setViewMode("FULL")}
+              className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${viewMode === "FULL" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-600 hover:text-slate-800"}`}
+            >
+              🏫 {fullModeLabel} (Lengkap)
+            </button>
+          </div>
+        )}
         <button
           onClick={handleDownloadPDF}
           disabled={isGeneratingPdf}
@@ -202,19 +192,30 @@ export default function PrintReportPage() {
         </button>
       </div>
 
+      {/* Watermark RAHASIA — hanya tampil saat print di setiap halaman */}
+      <div className="print-watermark" aria-hidden="true">⬛ SANGAT RAHASIA</div>
+
       {/* KONTEN LAPORAN */}
       <div ref={reportRef} className="max-w-4xl mx-auto py-4 px-8 print:px-0 print:max-w-full bg-white">
         {/* KOP SURAT */}
-        <div className="text-center mb-8 border-b-4 border-slate-800 pb-6 keep-together">
-          <h2 className="text-base text-slate-500 font-semibold mb-0.5">Lembaga Konseling dan Psikoterapi Islam</h2>
-          <h1 className="text-3xl font-black text-slate-800 mb-1">Lentera Batin Assessment</h1>
-          <p className="text-xs text-slate-500">Jalan Potre Koneng II No. 31, Kolor, Sumenep 69417 | www.lenterabatin.co.id</p>
-          <div className="mt-6 border-t border-slate-300 pt-4">
-            <h2 className="text-lg font-bold uppercase tracking-wider">
-              {segment === "CHI" ? "Laporan Kesiapan Sekolah & Perkembangan" : segment === "STU" ? "Laporan Penjurusan & Minat Karir" : "Laporan Hasil Pemeriksaan Psikologis"}
+        <div className="text-center mb-8 border-b-4 border-double border-slate-800 pb-6 keep-together">
+          {/* Logo area */}
+          <div className="flex items-center justify-center gap-4 mb-3">
+            <div className="w-14 h-14 rounded-xl bg-slate-800 flex items-center justify-center shadow-sm" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as any}>
+              <span className="text-white text-2xl font-black">LB</span>
+            </div>
+            <div className="text-left">
+              <h2 className="text-[11px] text-slate-500 font-semibold tracking-widest uppercase">Lembaga Konseling dan Psikoterapi Islam</h2>
+              <h1 className="text-2xl font-black text-slate-800 leading-tight">LENTERA BATIN</h1>
+              <p className="text-[10px] text-slate-400">Jl. Potre Koneng II No. 31, Kolor, Sumenep 69417 &nbsp;|&nbsp; www.lenterabatin.co.id</p>
+            </div>
+          </div>
+          <div className="mt-5 border-t-2 border-slate-300 pt-4">
+            <h2 className="text-[15px] font-black uppercase tracking-widest text-slate-800">
+              {segment === "CHI" ? "Laporan Hasil Pemeriksaan Psikologis" : segment === "STU" ? "Laporan Penjurusan & Minat Karir" : "Laporan Hasil Pemeriksaan Psikologis"}
             </h2>
-            <p className="text-xs font-bold text-slate-500 mt-1">
-              RAHASIA — CONFIDENTIAL | Kode: {report.token_code}
+            <p className="text-[10px] font-bold text-slate-500 mt-2 tracking-wider">
+              DOKUMEN RAHASIA — CONFIDENTIAL &nbsp;|&nbsp; Kode: {report.token_code}
             </p>
           </div>
         </div>
@@ -223,7 +224,7 @@ export default function PrintReportPage() {
           <ChildPrintView 
             report={report} testResults={testResults} client={client} 
             ageYears={ageYears} ageMonths={ageMonths} dateStr={dateStr} 
-            viewMode={viewMode} aiNarrative={aiNarrative} notesData={notesData} 
+            aiNarrative={aiNarrative} notesData={notesData} 
             clientReports={clientReports}
           />
         )}

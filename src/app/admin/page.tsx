@@ -325,7 +325,7 @@ export default function AdminDashboard() {
                 <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={50}>
                   {chartData.map((entry, index) => (
                     <Cell
-                      key={`cell-\${index}`}
+                      key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
                     />
                   ))}

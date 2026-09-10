@@ -10,7 +10,12 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@react-pdf/renderer": "^4.9.0",
     "@supabase/supabase-js": "^2.109.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "@tiptap/pm": "^2.11.2",
+    "@tiptap/react": "^2.11.2",
+    "@tiptap/starter-kit": "^2.11.2",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.42.2",
     "html2canvas-pro": "^2.2.3",
@@ -25,11 +30,7 @@
     "react-to-print": "^3.3.0",
     "recharts": "^3.9.2",
     "xlsx": "^0.18.5",
-    "zod": "^4.4.3",
-    "@tiptap/react": "^2.11.2",
-    "@tiptap/pm": "^2.11.2",
-    "@tiptap/starter-kit": "^2.11.2",
-    "@tailwindcss/typography": "^0.5.16"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

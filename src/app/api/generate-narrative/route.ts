@@ -103,8 +103,8 @@ export async function POST(req: Request) {
     
     // 1. Pemetaan Konteks Laporan untuk Sistem AI
     const contextGuidelines = {
-      CHILD: "Fokus pada dinamika tumbuh kembang, keselarasan pengasuhan, dan regulasi emosi dasar.",
-      STUDENT: "Fokus pada rekomendasi penjurusan (IPA/IPS/Bahasa/Kejuruan), realisme minat bakat, dan ketahanan belajar.",
+      CHILD: "Fokus pada dinamika tumbuh kembang, keselarasan pengasuhan, regulasi emosi dasar, serta dinamika belajar dan kesimpulan kematangan dan ketahanan belajar di sekolah.",
+      STUDENT: "Fokus pada rekomendasi penjurusan (IPA/IPS/Bahasa/Kejuruan), realisme minat bakat, ketahanan belajar, dan berikan 3 saran bidang jurusan kuliah dan karier di masa depan.",
       EMPLOYEE: "Fokus pada kapabilitas profesional, ketahanan stres, dan culture fit di tempat kerja."
     };
 

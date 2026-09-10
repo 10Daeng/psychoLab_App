@@ -8,8 +8,9 @@ import { IQGauge } from "./SharedReportComponents";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
 import ClinicalWorkspace from "./ClinicalWorkspace";
 import { evaluateConflicts } from "@/lib/services/conflictEngine";
+import { AdvancedHexacoBox, hexacoStructure, getHexacoPct, AdvancedWVIGraph } from "./SharedReportComponents";
 
-const config = { label: "Siswa", color: "teal", accent: "bg-teal-500", light: "bg-teal-50", text: "text-teal-700", icon: "📚" };
+const config = { label: "Remaja", color: "teal", accent: "bg-teal-500", light: "bg-teal-50", text: "text-teal-700", icon: "🎓" };
 
 export default function StudentReportView({ report, testResults }: { report: any, testResults: any[] }) {
   const initialObs = report?.observations?.[0] || report?.observations;
@@ -26,6 +27,7 @@ export default function StudentReportView({ report, testResults }: { report: any
   const vakResult = testResults.find((r: any) => r.tests?.code === "VAK");
   const riasecResult = testResults.find((r: any) => ["SDS", "RIASEC"].includes(r.tests?.code));
   const wviResult = testResults.find((r: any) => r.tests?.code === "WVI");
+
   const hexacoResult = testResults.find((r: any) => r.tests?.code === "HEXACO");
 
   useEffect(() => {
@@ -59,7 +61,7 @@ export default function StudentReportView({ report, testResults }: { report: any
       const detectedFlags = evaluateConflicts('STUDENT', {
         cognitive: { ravenScore: cogScore.rawScore || cogScore.totalRawScore },
         sds: { topHollandCodes: riasecScore ? Object.entries(riasecScore).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({R:'Realistic',I:'Investigative',A:'Artistic',S:'Social',E:'Enterprising',C:'Conventional'})[x[0]]||x[0]) : [] },
-        wvi: wviScore ? { topValues: Object.entries(wviScore).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>x[0]) } : undefined,
+        wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined,
         hexaco: hexacoScore
       });
 
@@ -69,7 +71,7 @@ export default function StudentReportView({ report, testResults }: { report: any
         rawPayload: {
           cognitive: { ravenScore: cogScore.rawScore || cogScore.totalRawScore },
           sds: { topHollandCodes: riasecScore ? Object.entries(riasecScore).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({R:'Realistic',I:'Investigative',A:'Artistic',S:'Social',E:'Enterprising',C:'Conventional'})[x[0]]||x[0]) : [] },
-          wvi: wviScore ? { topValues: Object.entries(wviScore).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>x[0]) } : undefined,
+          wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined,
           hexaco: hexacoScore
         },
         conflictFlags: detectedFlags
@@ -94,6 +96,7 @@ export default function StudentReportView({ report, testResults }: { report: any
           .eq("id", targetToUpdate.id);
       }
     } catch (err: any) {
+      alert("Gagal AI: " + err.message);
       setAiError(err.message);
     } finally {
       setAiGenerating(false);
@@ -114,7 +117,8 @@ export default function StudentReportView({ report, testResults }: { report: any
     })) : [];
 
   const vakScore = vakResult?.calculated_score?.calculatedData || {};
-  const wviScore = wviResult?.calculated_score?.calculatedData || wviResult?.calculated_score;
+  const wviScore = wviResult?.calculated_score?.calculatedData || wviResult?.calculated_score || {};
+
   const hexacoScore = hexacoResult?.calculated_score?.calculatedData || hexacoResult?.calculated_score;
 
   return (
@@ -246,7 +250,29 @@ export default function StudentReportView({ report, testResults }: { report: any
         </div>
       )}
 
-      {/* 4. Profil Nilai Kerja (WVI) - Optional for students */}
+      {/* Profil Karakter (HEXACO) - Optional for students */}
+      {hexacoResult && hexacoScore.factorMeans && (
+        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Star className="w-5 h-5 text-purple-400" /> Profil Karakter (HEXACO 100)
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {hexacoStructure.map((group) => (
+              <AdvancedHexacoBox
+                key={group.factor}
+                group={group}
+                factorMean={hexacoScore.factorMeans?.[group.factor]}
+                facetMeans={hexacoScore.facetMeans}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 4. Profil Nilai Kerja (WVI) */}
       {wviResult && Object.keys(wviScore).length > 0 && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
@@ -255,46 +281,13 @@ export default function StudentReportView({ report, testResults }: { report: any
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-emerald-950/20 border border-emerald-900/50 p-5 rounded-xl">
-               <h3 className="text-emerald-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-emerald-900/50 pb-2">3 Nilai Paling Diutamakan</h3>
-               <div className="space-y-4">
-                 {(wviScore.top3 || []).map((v: any, i: number) => {
-                   const pct = Math.round((v.score / 5) * 100);
-                   return (
-                     <div key={i}>
-                       <div className="flex justify-between text-sm mb-1">
-                         <span className="text-slate-300">{v.name}</span>
-                         <span className="text-emerald-400 font-bold">{v.score}</span>
-                       </div>
-                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%`}}></div>
-                       </div>
-                     </div>
-                   );
-                 })}
-               </div>
-            </div>
-
-            <div className="bg-rose-950/20 border border-rose-900/50 p-5 rounded-xl">
-               <h3 className="text-rose-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-rose-900/50 pb-2">3 Nilai Paling Dihindari</h3>
-               <div className="space-y-4">
-                 {(wviScore.bottom3 || []).map((v: any, i: number) => {
-                   const pct = Math.round((v.score / 5) * 100);
-                   return (
-                     <div key={i}>
-                       <div className="flex justify-between text-sm mb-1">
-                         <span className="text-slate-300">{v.name}</span>
-                         <span className="text-rose-400 font-bold">{v.score}</span>
-                       </div>
-                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-rose-500 rounded-full" style={{ width: `${pct}%`}}></div>
-                       </div>
-                     </div>
-                   );
-                 })}
-               </div>
-            </div>
+          <div className="mb-4">
+             <AdvancedWVIGraph scores={
+                wviScore.scores || 
+                Object.fromEntries(
+                   Object.entries(wviScore).filter(([k, v]) => typeof v === 'number')
+                )
+             } />
           </div>
         </div>
       )}
@@ -347,7 +340,7 @@ export default function StudentReportView({ report, testResults }: { report: any
                 conflictFlags={evaluateConflicts('STUDENT', {
                   cognitive: { ravenScore: cogScore.rawScore || cogScore.totalRawScore },
                   sds: { topHollandCodes: riasecScore ? Object.entries(riasecScore).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({R:'Realistic',I:'Investigative',A:'Artistic',S:'Social',E:'Enterprising',C:'Conventional'})[x[0]]||x[0]) : [] },
-                  wvi: wviScore ? { topValues: Object.entries(wviScore).sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>x[0]) } : undefined,
+                  wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined,
                   hexaco: hexacoScore
                 })}
                 onSave={async (finalHtml) => {

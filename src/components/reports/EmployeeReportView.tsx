@@ -8,6 +8,7 @@ import { IQGauge } from "./SharedReportComponents";
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import ClinicalWorkspace from "./ClinicalWorkspace";
 import { evaluateConflicts } from "@/lib/services/conflictEngine";
+import { AdvancedHexacoBox, AdvancedDiscBar, hexacoStructure, getHexacoPct, AdvancedWVIGraph } from "./SharedReportComponents";
 
 const config = { label: "Karyawan", color: "violet", accent: "bg-violet-600", light: "bg-violet-50", text: "text-violet-700", icon: "💼" };
 
@@ -34,11 +35,16 @@ export default function EmployeeReportView({ report, testResults }: { report: an
 
   const client = report?.clients as any;
   const cogResult = testResults.find((r: any) => ["CPM", "RAVEN2"].includes(r.tests?.code));
-  const discResult = testResults.find((r: any) => r.tests?.code === "DISC");
-  const hexacoResult = testResults.find((r: any) => r.tests?.code === "HEXACO");
   const wviResult = testResults.find((r: any) => r.tests?.code === "WVI");
+  const hexacoResult = testResults.find((r: any) => r.tests?.code === "HEXACO");
+  const discResult = testResults.find((r: any) => r.tests?.code === "DISC");
   const graphologyResult = testResults.find((r: any) => r.tests?.code === "GRAPHOLOGY");
   const warteggResult = testResults.find((r: any) => r.tests?.code === "WARTEGG");
+
+  const cogScore = cogResult?.calculated_score || {};
+  const wviScore = wviResult?.calculated_score?.calculatedData || wviResult?.calculated_score || {};
+  const hexacoScore = hexacoResult?.calculated_score?.calculatedData || hexacoResult?.calculated_score || {};
+  const discScore = discResult?.calculated_score?.calculatedData || discResult?.calculated_score || {};
 
   useEffect(() => {
     const aiSrc = cogResult?.calculated_score?.ai_narrative || discResult?.calculated_score?.ai_narrative;
@@ -75,20 +81,20 @@ export default function EmployeeReportView({ report, testResults }: { report: an
 
     try {
       const detectedFlags = evaluateConflicts('EMPLOYEE', {
-        hexaco: hexacoResult?.calculated_score?.calculatedData,
-        disc: discResult?.calculated_score?.calculatedData,
+        hexaco: hexacoScore,
+        disc: discScore,
         projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
-        wvi: wviResult?.calculated_score?.calculatedData
+        wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined
       });
 
       const payload = {
         clientName: client.name,
         context: 'EMPLOYEE',
         rawPayload: {
-          hexaco: hexacoResult?.calculated_score?.calculatedData,
-          disc: discResult?.calculated_score?.calculatedData,
+          hexaco: hexacoScore,
+          disc: discScore,
           projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
-          wvi: wviResult?.calculated_score?.calculatedData
+          wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined
         },
         conflictFlags: detectedFlags,
         observationData: (obsData && Object.keys(obsData.anamnesa || {}).length > 0) ? obsData : null
@@ -113,16 +119,15 @@ export default function EmployeeReportView({ report, testResults }: { report: an
           .eq("id", targetToUpdate.id);
       }
     } catch (err: any) {
+      alert("Gagal AI: " + err.message);
       setAiError(err.message);
     } finally {
       setAiGenerating(false);
     }
   };
 
-  const cogScore = cogResult?.calculated_score || {};
   const iqValue = cogScore.iq || cogScore.calculatedData?.iq || 0;
   
-  const discScore = discResult?.calculated_score?.calculatedData || {};
   const discRadarData = discScore.primary_trait ? [
     { trait: "Dominance (D)", value: discScore.D || 24 },
     { trait: "Influence (I)", value: discScore.I || 24 },
@@ -130,7 +135,7 @@ export default function EmployeeReportView({ report, testResults }: { report: an
     { trait: "Compliance (C)", value: discScore.C || 24 },
   ] : [];
 
-  const hexacoScore = hexacoResult?.calculated_score?.calculatedData || {};
+
   const hexacoBars = hexacoScore.H !== undefined ? [
     { key: "H", label: "Honesty-Humility", value: hexacoScore.H || 0, color: "#8b5cf6" },
     { key: "E", label: "Emotionality", value: hexacoScore.E || 0, color: "#ef4444" },
@@ -140,7 +145,6 @@ export default function EmployeeReportView({ report, testResults }: { report: an
     { key: "O", label: "Openness", value: hexacoScore.O || 0, color: "#14b8a6" },
   ] : [];
 
-  const wviScore = wviResult?.calculated_score?.calculatedData || {};
 
   return (
     <div className="space-y-8 pb-20">
@@ -246,65 +250,27 @@ export default function EmployeeReportView({ report, testResults }: { report: an
       )}
 
       {/* 3. Profil Gaya Kerja (DISC) */}
-      {discResult && discRadarData.length > 0 && (
+      {discResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Target className="w-5 h-5 text-blue-400" /> Profil Gaya Kerja (DISC)
             </h2>
             <div className="bg-blue-500/20 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-sm font-bold">
-              Pola: {discScore.archetype || "-"}
+              Pola: {discScore.pattern || discScore.archetype || "-"}
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-             {/* We only have 1 combined radar chart in current data, but to mimic Lentera Batin, we'll show it in center */}
-             <div className="lg:col-start-2">
-               <ResponsiveContainer width="100%" height={250}>
-                  <RadarChart data={discRadarData}>
-                    <PolarGrid stroke="#334155" />
-                    <PolarAngleAxis dataKey="trait" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                    <PolarRadiusAxis domain={[0, 48]} tick={false} axisLine={false} />
-                    <Radar dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} />
-                  </RadarChart>
-                </ResponsiveContainer>
-             </div>
-          </div>
-
-          {/* Skor Tabel DISC */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left text-slate-300">
-              <thead className="text-xs uppercase bg-slate-950 text-slate-500 border-y border-slate-800">
-                <tr>
-                  <th className="px-4 py-3">Dimensi</th>
-                  <th className="px-4 py-3 text-center">Skor (Aktual)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                <tr className="hover:bg-slate-800/30">
-                  <td className="px-4 py-3 font-semibold text-red-400">Dominance (D)</td>
-                  <td className="px-4 py-3 text-center">{discScore.D || 24}</td>
-                </tr>
-                <tr className="hover:bg-slate-800/30">
-                  <td className="px-4 py-3 font-semibold text-yellow-400">Influence (I)</td>
-                  <td className="px-4 py-3 text-center">{discScore.I || 24}</td>
-                </tr>
-                <tr className="hover:bg-slate-800/30">
-                  <td className="px-4 py-3 font-semibold text-green-400">Steadiness (S)</td>
-                  <td className="px-4 py-3 text-center">{discScore.S || 24}</td>
-                </tr>
-                <tr className="hover:bg-slate-800/30">
-                  <td className="px-4 py-3 font-semibold text-blue-400">Compliance (C)</td>
-                  <td className="px-4 py-3 text-center">{discScore.C || 24}</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <AdvancedDiscBar title="Grafik 1 — Publik (Mask)" scores={discScore.discMost || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} />
+            <AdvancedDiscBar title="Grafik 2 — Pribadi (Core)" scores={discScore.discLeast || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} />
+            <AdvancedDiscBar title="Grafik 3 — Aktual (Composite)" scores={discScore.discComposite || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} />
           </div>
         </div>
       )}
 
       {/* 4. Profil Karakter (HEXACO) */}
-      {hexacoResult && hexacoBars.length > 0 && (
+      {hexacoResult && hexacoScore.factorMeans && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -313,26 +279,27 @@ export default function EmployeeReportView({ report, testResults }: { report: an
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {hexacoBars.map(bar => {
-              // Convert 1-5 score to 1-100 percentage
-              const percent = Math.round((bar.value / 5) * 100);
-              return (
-                <div key={bar.key} className="bg-slate-950 p-5 rounded-xl border border-slate-800">
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-bold text-white">{bar.label}</h3>
-                    <span className="text-sm font-bold" style={{ color: bar.color }}>{percent}%</span>
-                  </div>
-                  <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden mb-3">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${percent}%`, backgroundColor: bar.color }}></div>
-                  </div>
-                  {/* Facets mock since we don't have facet data extracted directly in the standard calc yet */}
-                  <div className="flex justify-between items-center text-xs text-slate-500 px-1">
-                    <span>Skor Dimensi</span>
-                    <span className="font-bold text-slate-400">{bar.value.toFixed(2)} / 5.00</span>
-                  </div>
+            {hexacoStructure.map((group) => (
+              <AdvancedHexacoBox
+                key={group.factor}
+                group={group}
+                factorMean={hexacoScore.factorMeans?.[group.factor]}
+                facetMeans={hexacoScore.facetMeans}
+              />
+            ))}
+            
+            {/* Altruisme (Tambahan) */}
+            {hexacoScore.facetMeans?.['altr'] && (
+              <div className="md:col-span-2 bg-slate-950/80 p-5 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
+                <h3 className="font-bold text-white text-[13px] uppercase tracking-wider w-1/3">Altruisme (Tambahan)</h3>
+                <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden relative mx-6">
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${getHexacoPct(hexacoScore.facetMeans['altr'])}%`, backgroundColor: '#e67e22', opacity: 0.9 }} />
                 </div>
-              );
-            })}
+                <span className="text-xs font-bold text-white px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#e67e22' }}>
+                  {Math.round(getHexacoPct(hexacoScore.facetMeans['altr']))}%
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -346,46 +313,13 @@ export default function EmployeeReportView({ report, testResults }: { report: an
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-emerald-950/20 border border-emerald-900/50 p-5 rounded-xl">
-               <h3 className="text-emerald-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-emerald-900/50 pb-2">3 Nilai Paling Diutamakan</h3>
-               <div className="space-y-4">
-                 {(wviScore.top3 || []).map((v: any, i: number) => {
-                   const pct = Math.round((v.score / 5) * 100);
-                   return (
-                     <div key={i}>
-                       <div className="flex justify-between text-sm mb-1">
-                         <span className="text-slate-300">{v.name}</span>
-                         <span className="text-emerald-400 font-bold">{v.score}</span>
-                       </div>
-                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%`}}></div>
-                       </div>
-                     </div>
-                   );
-                 })}
-               </div>
-            </div>
-
-            <div className="bg-rose-950/20 border border-rose-900/50 p-5 rounded-xl">
-               <h3 className="text-rose-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-rose-900/50 pb-2">3 Nilai Paling Dihindari</h3>
-               <div className="space-y-4">
-                 {(wviScore.bottom3 || []).map((v: any, i: number) => {
-                   const pct = Math.round((v.score / 5) * 100);
-                   return (
-                     <div key={i}>
-                       <div className="flex justify-between text-sm mb-1">
-                         <span className="text-slate-300">{v.name}</span>
-                         <span className="text-rose-400 font-bold">{v.score}</span>
-                       </div>
-                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-rose-500 rounded-full" style={{ width: `${pct}%`}}></div>
-                       </div>
-                     </div>
-                   );
-                 })}
-               </div>
-            </div>
+          <div className="mb-4">
+             <AdvancedWVIGraph scores={
+                wviScore.scores || 
+                Object.fromEntries(
+                   Object.entries(wviScore).filter(([k, v]) => typeof v === 'number')
+                )
+             } />
           </div>
         </div>
       )}
@@ -403,6 +337,18 @@ export default function EmployeeReportView({ report, testResults }: { report: an
         </div>
         
         <div className="p-6">
+          {aiError && (
+            <div className="mb-6 p-4 bg-red-950/30 border border-red-900 rounded-xl flex items-start gap-3 text-red-400 text-sm">
+              <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <p className="font-bold">Gagal Membuat Interpretasi AI</p>
+                <p className="mt-1 opacity-80">{aiError}</p>
+              </div>
+            </div>
+          )}
+          
           {aiNarrative ? (
             <div className="space-y-6">
               <ClinicalWorkspace 
@@ -413,7 +359,7 @@ export default function EmployeeReportView({ report, testResults }: { report: an
                   hexaco: hexacoScore,
                   disc: discScore,
                   projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
-                  wvi: wviResult?.calculated_score?.calculatedData
+                  wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined,
                 })}
                 onSave={async (finalHtml) => {
                   try {

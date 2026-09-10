@@ -7,18 +7,22 @@ import Image from 'next/image';
 
 export default function Raven2TestPage() {
   const router = useRouter();
-  const [currentQuestionIdx, setCurrentQuestionIdx, clearIdx] = useAutoSave('RAVEN_INDEX', 0);
-  const [answers, setAnswers, clearAnswers] = useAutoSave<Record<number, { answer: string, time_taken_ms: number }>>('RAVEN_ANSWERS', {});
+  const [currentQuestionIdx, setCurrentQuestionIdx, clearIdx, idxInit] = useAutoSave('RAVEN_INDEX', 0);
+  const [answers, setAnswers, clearAnswers, ansInit] = useAutoSave<Record<number, { answer: string, time_taken_ms: number }>>('RAVEN_ANSWERS', {});
+  // Global Timer (24 Menit = 1440 Detik)
+  const [remainingTime, setRemainingTime, clearTime, timeInit] = useAutoSave('RAVEN_TIMER', 1440);
+  
   const answersRef = useRef(answers);
   const [startTime, setStartTime] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTimeUp, setIsTimeUp] = useState(false);
 
   const [questions, setQuestions] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [workerStarted, setWorkerStarted] = useState(false);
   
-  // Global Timer (24 Menit = 1440 Detik) — 1 menit per soal × 24 soal
-  const [remainingTime, setRemainingTime] = useState(1440);
   const workerRef = useRef<Worker | null>(null);
+  const allStateLoaded = idxInit && ansInit && timeInit;
 
   useEffect(() => {
     answersRef.current = answers;
@@ -32,17 +36,6 @@ export default function Raven2TestPage() {
         if (data.error) throw new Error(data.error);
         setQuestions(data);
         setIsLoaded(true);
-        
-        // Initialize Web Worker Timer for Raven 2 (24 Minutes — 1 menit per soal)
-        workerRef.current = new Worker(new URL("/workers/timer.js", window.location.origin));
-        workerRef.current.onmessage = (e: MessageEvent) => {
-          if (e.data.type === "TICK") {
-            setRemainingTime(e.data.remainingSeconds);
-          } else if (e.data.type === "TIMEOUT") {
-            handleTimeout();
-          }
-        };
-        workerRef.current.postMessage({ command: "START", seconds: 1440 });
       })
       .catch(err => {
         console.error("Gagal memuat soal", err);
@@ -56,12 +49,34 @@ export default function Raven2TestPage() {
     };
   }, []);
 
+  // Memulai timer hanya ketika semua state lokal tersimpan sudah berhasil dimuat (isInitialized)
   useEffect(() => {
-    // Mulai timer ketika komponen/soal render
-    if (isLoaded) setStartTime(performance.now());
-  }, [currentQuestionIdx, isLoaded]);
+    if (isLoaded && allStateLoaded && !workerStarted) {
+      workerRef.current = new Worker(new URL("/workers/timer.js", window.location.origin));
+      workerRef.current.onmessage = (e: MessageEvent) => {
+        if (e.data.type === "TICK") {
+          setRemainingTime(e.data.remainingSeconds);
+        } else if (e.data.type === "TIMEOUT") {
+          handleTimeout();
+        }
+      };
+      
+      // Jika waktu sebelumnya sudah habis, langsung trigger timeout
+      if (remainingTime <= 0) {
+        handleTimeout();
+      } else {
+        workerRef.current.postMessage({ command: "START", seconds: remainingTime });
+        setWorkerStarted(true);
+      }
+    }
+  }, [isLoaded, allStateLoaded, workerStarted, remainingTime]);
 
-  if (!isLoaded || questions.length === 0) {
+  useEffect(() => {
+    // Mulai timer soal ketika komponen/soal render
+    if (isLoaded && allStateLoaded) setStartTime(performance.now());
+  }, [currentQuestionIdx, isLoaded, allStateLoaded]);
+
+  if (!isLoaded || !allStateLoaded || questions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="animate-pulse flex flex-col items-center">
@@ -98,7 +113,7 @@ export default function Raven2TestPage() {
   };
 
   const handleTimeout = () => {
-    alert("Waktu pengerjaan tes Raven 2 (24 Menit) telah habis. Jawaban akan disimpan secara otomatis.");
+    setIsTimeUp(true);
     handleSubmit(true);
   };
 
@@ -132,7 +147,8 @@ export default function Raven2TestPage() {
 
         clearIdx();
         clearAnswers();
-        alert("Tes Kognitif Selesai!");
+        clearTime();
+
 
         const tokenCode = sessionStorage.getItem("token_code") || "";
         const tokenId = sessionStorage.getItem("valid_token_id") || sessionStorage.getItem("current_token_id");
@@ -265,8 +281,34 @@ export default function Raven2TestPage() {
             )}
           </div>
         </div>
-
       </div>
+
+      {/* Layar Transisi Waktu Habis / Submitting */}
+      {(isTimeUp || isSubmitting) && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+           <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl animate-fade-in-up">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                 {isTimeUp ? (
+                   <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                   </svg>
+                 ) : (
+                   <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                   </svg>
+                 )}
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">
+                {isTimeUp ? "Waktu Habis!" : "Menyimpan..."}
+              </h3>
+              <p className="text-slate-500 text-sm">
+                {isTimeUp 
+                  ? "Batas waktu pengerjaan tes ini telah habis. Sistem sedang menyimpan jawaban Anda secara otomatis..."
+                  : "Mohon tunggu sebentar, sistem sedang memproses dan menyimpan jawaban Anda."}
+              </p>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

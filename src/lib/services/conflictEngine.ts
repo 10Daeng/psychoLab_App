@@ -21,7 +21,7 @@ interface CognitiveData { ravenScore?: number; cpmScore?: number; datScores?: { 
 interface PersonalityData { E: number; X: number; A: number; C: number; O: number; H: number } // HEXACO
 interface DiscData { D: number; I: number; S: number; C: number }
 interface SdsData { topHollandCodes: string[] } // misal: ['Investigative', 'Social']
-interface WviData { topValues: string[] }
+interface WviData { top3: {name: string, score: number}[] }
 interface ProjectiveData { slant?: string; baseline?: string; tBar?: string; warteggAnomalies?: string[] }
 interface ClinicalObservation { showsSeparationAnxiety?: boolean; emotionalRegulation?: 'POOR' | 'FAIR' | 'GOOD' }
 interface ParentQuestionnaire { claimsIndependent?: boolean; reportsNoStress?: boolean }
@@ -183,7 +183,10 @@ function evaluateEmployee(data: AssessmentPayload): ConflictFlag[] {
   }
 
   // 3. Uji Kecocokan Budaya (WVI vs DISC)
-  if (wvi?.topValues.includes('Kemandirian') && disc && (disc.C > 75 || disc.S > 75)) {
+  // wvi memiliki struktur { top3: [{name: string, score: number}], bottom3: ... }
+  const topValuesNames = wvi?.top3 ? wvi.top3.map((v: any) => v.name) : [];
+  
+  if (topValuesNames.includes('Kemandirian') && disc && (disc.C > 75 || disc.S > 75)) {
     flags.push({
       dimension: "Ekspektasi Otonomi vs Kebutuhan Struktur",
       sourceA_Label: "Nilai Kerja Utama (WVI)",

@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 
-import ChildPrintView from "@/components/reports/ChildPrintView";
-import StudentPrintView from "@/components/reports/StudentPrintView";
-import EmployeePrintView from "@/components/reports/EmployeePrintView";
+const PDFExport = dynamic(() => import("@/components/pdf/PDFExport"), { ssr: false });
 
 export default function PrintReportPage() {
   const params = useParams();
@@ -23,20 +22,6 @@ export default function PrintReportPage() {
   
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (report && autoDownload) {
-      const timer = setTimeout(() => handleDownloadPDF(), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [report, autoDownload]);
-
-  const handleDownloadPDF = () => {
-    window.print();
-    if (autoDownload) {
-      setTimeout(() => window.close(), 1000);
-    }
-  };
 
   useEffect(() => {
     if (!reportId) return;
@@ -110,158 +95,51 @@ export default function PrintReportPage() {
 
   const dateStr = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(new Date());
 
-  const cleanModeLabel = segment === "CHI" ? "Mode Orangtua" : segment === "STU" ? "Mode Orangtua/Siswa" : "Mode Publik";
-  const fullModeLabel = segment === "EMP" ? "Mode Perusahaan" : "Mode Guru & Sekolah";
+  // Kumpulkan props untuk PDFExport
+  const pdfProps = {
+    report,
+    testResults,
+    client,
+    ageYears,
+    ageMonths,
+    dateStr,
+    aiNarrative,
+    clientReports
+  };
 
   return (
-    <div className="bg-white min-h-screen text-slate-900">
-      <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        @media print {
-          body { background-color: white; padding: 0; margin: 0; font-family: 'Times New Roman', Times, serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .no-print { display: none !important; }
-          @page {
-            margin: 18mm 15mm 20mm 15mm;
-            size: A4 portrait;
-            /* Footer per halaman dengan timestamp */
-            @bottom-center {
-              content: 'Dokumen Rahasia | Lentera Batin Assessment | Dicetak: ${dateStr}';
-              font-size: 7pt;
-              color: #94a3b8;
-              font-family: Helvetica, Arial, sans-serif;
-            }
-            @bottom-right {
-              content: 'Halaman ' counter(page);
-              font-size: 7pt;
-              color: #94a3b8;
-              font-family: Helvetica, Arial, sans-serif;
-            }
-          }
-          .page-break { page-break-before: always; break-before: page; }
-          .break-before-page { page-break-before: always; break-before: page; }
-          .keep-together { page-break-inside: avoid; break-inside: avoid; }
-          /* Watermark RAHASIA di pojok kanan atas setiap halaman */
-          .print-watermark {
-            position: fixed;
-            top: 8mm;
-            right: 12mm;
-            font-size: 9pt;
-            font-weight: bold;
-            color: #dc2626;
-            font-family: Helvetica, Arial, sans-serif;
-            letter-spacing: 0.5px;
-          }
-          .print-watermark { display: block !important; }
-          .print-watermark-hidden { display: none !important; }
-          /* Print color untuk psikogram */
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        }
-        @media screen {
-          .print-watermark { display: none; }
-        }
-      `}} />
-
-      {/* KONTROL CETAK (hanya di layar) */}
-      <div className="no-print sticky top-0 z-50 mb-8 bg-white p-4 border-b border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mt-4 rounded-xl">
-        <div className="flex-1">
-          <h3 className="font-bold text-slate-800">Laporan Cetak</h3>
-          <p className="text-xs text-slate-500">Pratinjau dokumen sebelum mencetak</p>
+    <div className="bg-slate-50 min-h-screen text-slate-900 py-12 px-4 flex flex-col items-center">
+      <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 text-center space-y-6">
+        <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
         </div>
-        {segment !== "CHI" && (
-          <div className="flex bg-slate-100 p-1 rounded-lg mr-4">
-            <button
-              onClick={() => setViewMode("CLEAN")}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${viewMode === "CLEAN" ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:text-slate-800"}`}
-            >
-              👨‍👩‍👧 {cleanModeLabel}
-            </button>
-            <button
-              onClick={() => setViewMode("FULL")}
-              className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${viewMode === "FULL" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-600 hover:text-slate-800"}`}
-            >
-              🏫 {fullModeLabel} (Lengkap)
-            </button>
-          </div>
-        )}
-        <button
-          onClick={handleDownloadPDF}
-          disabled={isGeneratingPdf}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+        
+        <h2 className="text-2xl font-bold text-slate-800">
+          Laporan Cetak (PDF)
+        </h2>
+        
+        <div className="text-sm text-slate-500 bg-slate-50 p-4 rounded-xl text-left space-y-2 border border-slate-100">
+          <p><strong>Klien:</strong> {client?.name}</p>
+          <p><strong>Kode Laporan:</strong> {report?.token_code}</p>
+          <p><strong>Status:</strong> Siap untuk diunduh.</p>
+        </div>
+        
+        <p className="text-slate-600 text-sm">
+          Sistem cetak kini menggunakan engine PDF native untuk memastikan hasil yang rapi dan konsisten (mengadopsi standar <strong>Lentera Batin</strong>).
+        </p>
+
+        <div className="pt-4 border-t border-slate-100">
+          <PDFExport {...pdfProps} />
+        </div>
+
+        <button 
+          onClick={() => window.close()} 
+          className="mt-4 text-slate-400 hover:text-slate-600 text-sm font-medium transition-colors"
         >
-          {isGeneratingPdf ? "⏳ Menyusun PDF..." : "🖨️ Cetak / Simpan PDF"}
+          Kembali / Tutup Halaman
         </button>
-      </div>
-
-      {/* Watermark RAHASIA — hanya tampil saat print di setiap halaman */}
-      <div className="print-watermark" aria-hidden="true">⬛ SANGAT RAHASIA</div>
-
-      {/* KONTEN LAPORAN */}
-      <div ref={reportRef} className="max-w-4xl mx-auto py-4 px-8 print:px-0 print:max-w-full bg-white">
-        {/* KOP SURAT */}
-        <div className="text-center mb-8 border-b-4 border-double border-slate-800 pb-6 keep-together">
-          {/* Logo area */}
-          <div className="flex items-center justify-center gap-4 mb-3">
-            <div className="w-14 h-14 rounded-xl bg-slate-800 flex items-center justify-center shadow-sm" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' } as any}>
-              <span className="text-white text-2xl font-black">LB</span>
-            </div>
-            <div className="text-left">
-              <h2 className="text-[11px] text-slate-500 font-semibold tracking-widest uppercase">Lembaga Konseling dan Psikoterapi Islam</h2>
-              <h1 className="text-2xl font-black text-slate-800 leading-tight">LENTERA BATIN</h1>
-              <p className="text-[10px] text-slate-400">Jl. Potre Koneng II No. 31, Kolor, Sumenep 69417 &nbsp;|&nbsp; www.lenterabatin.co.id</p>
-            </div>
-          </div>
-          <div className="mt-5 border-t-2 border-slate-300 pt-4">
-            <h2 className="text-[15px] font-black uppercase tracking-widest text-slate-800">
-              {segment === "CHI" ? "Laporan Hasil Pemeriksaan Psikologis" : segment === "STU" ? "Laporan Penjurusan & Minat Karir" : "Laporan Hasil Pemeriksaan Psikologis"}
-            </h2>
-            <p className="text-[10px] font-bold text-slate-500 mt-2 tracking-wider">
-              DOKUMEN RAHASIA — CONFIDENTIAL &nbsp;|&nbsp; Kode: {report.token_code}
-            </p>
-          </div>
-        </div>
-
-        {segment === "CHI" && (
-          <ChildPrintView 
-            report={report} testResults={testResults} client={client} 
-            ageYears={ageYears} ageMonths={ageMonths} dateStr={dateStr} 
-            aiNarrative={aiNarrative} notesData={notesData} 
-            clientReports={clientReports}
-          />
-        )}
-        
-        {segment === "STU" && (
-          <StudentPrintView 
-            report={report} testResults={testResults} client={client} 
-            ageYears={ageYears} ageMonths={ageMonths} dateStr={dateStr} 
-            viewMode={viewMode} aiNarrative={aiNarrative} notesData={notesData} 
-            clientReports={clientReports}
-          />
-        )}
-        
-        {segment === "EMP" && (
-          <EmployeePrintView 
-            report={report} testResults={testResults} client={client} 
-            ageYears={ageYears} ageMonths={ageMonths} dateStr={dateStr} 
-            viewMode={viewMode} aiNarrative={aiNarrative} notesData={notesData}
-            clientReports={clientReports}
-          />
-        )}
-
-        {/* TANDA TANGAN */}
-        <div className="mt-16 flex justify-end keep-together">
-          <div className="text-center w-64">
-            <p className="text-sm mb-20">Sumenep, {dateStr}</p>
-            <p className="font-bold border-b border-black pb-1 mb-1">
-              Psikolog / Asesor Pemeriksa
-            </p>
-            <p className="text-xs text-slate-500">SIPP: ___________________</p>
-          </div>
-        </div>
-
-        {/* FOOTER */}
-        <div className="mt-12 pt-4 border-t border-slate-300 text-center text-[10px] text-slate-500">
-          Laporan ini diterbitkan secara otomatis oleh sistem asesmen Lentera Batin | Dibuat: {dateStr} | www.lenterabatin.co.id
-        </div>
       </div>
     </div>
   );

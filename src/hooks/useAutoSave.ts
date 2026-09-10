@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export function useAutoSave<T>(testCode: string, initialValue: T): [T, (val: T | ((prev: T) => T)) => void, () => void] {
+export function useAutoSave<T>(testCode: string, initialValue: T): [T, (val: T | ((prev: T) => T)) => void, () => void, boolean] {
   const [value, setValue] = useState<T>(initialValue);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -48,5 +48,5 @@ export function useAutoSave<T>(testCode: string, initialValue: T): [T, (val: T |
     }
   }, [testCode]);
 
-  return [value, setValue, clearAutoSave];
+  return [value, setValue, clearAutoSave, isInitialized];
 }

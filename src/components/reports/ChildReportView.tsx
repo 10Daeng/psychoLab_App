@@ -99,6 +99,7 @@ export default function ChildReportView({ report, testResults }: { report: any, 
           .eq("id", cogResult.id);
       }
     } catch (err: any) {
+      alert("Gagal AI: " + err.message);
       setAiError(err.message);
     } finally {
       setAiGenerating(false);
@@ -187,58 +188,7 @@ export default function ChildReportView({ report, testResults }: { report: any, 
         </div>
       )}
 
-      {/* 3. WVI (If Available for older children) */}
-      {wviResult && Object.keys(wviScore).length > 0 && (
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Star className="w-5 h-5 text-amber-500" /> Profil Nilai Kerja (WVI)
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-emerald-950/20 border border-emerald-900/50 p-5 rounded-xl">
-               <h3 className="text-emerald-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-emerald-900/50 pb-2">3 Nilai Paling Diutamakan</h3>
-               <div className="space-y-4">
-                 {(wviScore.top3 || []).map((v: any, i: number) => {
-                   const pct = Math.round((v.score / 5) * 100);
-                   return (
-                     <div key={i}>
-                       <div className="flex justify-between text-sm mb-1">
-                         <span className="text-slate-300">{v.name}</span>
-                         <span className="text-emerald-400 font-bold">{v.score}</span>
-                       </div>
-                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%`}}></div>
-                       </div>
-                     </div>
-                   );
-                 })}
-               </div>
-            </div>
 
-            <div className="bg-rose-950/20 border border-rose-900/50 p-5 rounded-xl">
-               <h3 className="text-rose-400 font-bold mb-4 uppercase tracking-wider text-sm border-b border-rose-900/50 pb-2">3 Nilai Paling Dihindari</h3>
-               <div className="space-y-4">
-                 {(wviScore.bottom3 || []).map((v: any, i: number) => {
-                   const pct = Math.round((v.score / 5) * 100);
-                   return (
-                     <div key={i}>
-                       <div className="flex justify-between text-sm mb-1">
-                         <span className="text-slate-300">{v.name}</span>
-                         <span className="text-rose-400 font-bold">{v.score}</span>
-                       </div>
-                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                         <div className="h-full bg-rose-500 rounded-full" style={{ width: `${pct}%`}}></div>
-                       </div>
-                     </div>
-                   );
-                 })}
-               </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 4. Kuesioner Orang Tua */}
       {parentQScore && (

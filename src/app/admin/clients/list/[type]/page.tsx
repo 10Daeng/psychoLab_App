@@ -448,22 +448,7 @@ export default function AdminClients() {
                                    <LayoutDashboard size={10} /> Kelola Penilaian
                                  </button>
                                )}
-                               {t.respondent_type === 'SELF' && currentPurpose === 'EMP' && (
-                                 <button 
-                                   onClick={() => { setActiveToken(t); setActiveClient(client); setRecruitmentObsModalOpen(true); }}
-                                   className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
-                                 >
-                                   <ClipboardCheck size={10} /> Observasi
-                                 </button>
-                               )}
-                               {t.respondent_type === 'SELF' && currentPurpose === 'STU' && (
-                                 <button 
-                                   onClick={() => { setActiveToken(t); setActiveClient(client); setObsModalOpen(true); }}
-                                   className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
-                                 >
-                                   <ClipboardCheck size={10} /> Observasi
-                                 </button>
-                               )}
+
                                {t.status !== 'COMPLETED' && (
                                  <button 
                                    onClick={() => handleFinalizeToken(t.id)}
@@ -520,6 +505,22 @@ export default function AdminClients() {
                                    </div>
                                    
                                    <div className="flex items-center gap-1.5">
+                                     {t.respondent_type === 'SELF' && currentPurpose === 'EMP' && (
+                                       <button 
+                                         onClick={() => { setActiveToken(t); setActiveClient(client); setRecruitmentObsModalOpen(true); }}
+                                         className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                       >
+                                         <ClipboardCheck size={10} /> Observasi
+                                       </button>
+                                     )}
+                                     {t.respondent_type === 'SELF' && currentPurpose === 'STU' && (
+                                       <button 
+                                         onClick={() => { setActiveToken(t); setActiveClient(client); setObsModalOpen(true); }}
+                                         className="text-[10px] bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 border border-teal-500/30 px-2 py-1 rounded transition flex items-center gap-1 font-semibold"
+                                       >
+                                         <ClipboardCheck size={10} /> Observasi
+                                       </button>
+                                     )}
                                      {t.status !== 'COMPLETED' && (
                                        <button 
                                          onClick={() => handleFinalizeToken(t.id)}

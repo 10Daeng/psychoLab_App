@@ -2,6 +2,7 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { getDiscPatternName } from '@/lib/scoring';
 import { calculateValidityIndex } from '@/lib/validity_engine';
+import { normalizeDiscScore } from '@/lib/utils/disc_utils';
 
 // ==========================================
 // COLORS
@@ -166,7 +167,8 @@ export default function AssessmentPDF({ report, testResults, client, ageYears, a
   const wviResult = testResults.find((r: any) => r.tests?.code === "WVI");
 
   const cogScore = cogResult?.calculated_score || {};
-  const discScore = discResult?.calculated_score?.calculatedData || discResult?.calculated_score || {};
+  const discScore = normalizeDiscScore(discResult?.calculated_score) || {} as any;
+
   const hexacoScore = hexacoResult?.calculated_score?.calculatedData || hexacoResult?.calculated_score || {};
   const wviScore = wviResult?.calculated_score?.calculatedData || wviResult?.calculated_score || {};
 

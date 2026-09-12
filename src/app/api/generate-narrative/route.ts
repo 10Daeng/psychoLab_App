@@ -180,10 +180,10 @@ export async function POST(req: Request) {
     // 6. Mengembalikan respons HTML ke Frontend
     return NextResponse.json({ htmlContent: cleanHtml });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Generation Error:", error);
     return NextResponse.json(
-      { error: "Terjadi kesalahan saat menyintesis draf laporan." }, 
+      { error: "Terjadi kesalahan saat menyintesis draf laporan: " + (error.message || error.toString()) }, 
       { status: 500 }
     );
   }

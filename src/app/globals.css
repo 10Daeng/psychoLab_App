@@ -25,3 +25,35 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media print {
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+  
+  .keep-together {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  .page-wrapper {
+    min-height: 25cm;
+    position: relative;
+  }
+  
+  /* Hilangkan scrollbar dan elemen navigasi jika ada */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}

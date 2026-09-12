@@ -86,7 +86,7 @@ export default function LenteraReportPage() {
           <div className="flex items-center gap-2">
             {/* Buttons Graphology and Wartegg removed as per request to decouple them */}
             <a
-              href={`/api/admin/reports/${reportId}`}
+              href={`/api/admin/reports/${reportId}?download=1`}
               target="_blank"
               download={`RawData_${report?.token_code || "Unknown"}.json`}
               rel="noopener noreferrer"

@@ -71,6 +71,36 @@ export function PrintBar({ label, value, max = 5, color = "#3b82f6" }: { label: 
   );
 }
 
+export function PrintHexacoBox({ group, factorMean, facetMeans }: { group: any, factorMean: number, facetMeans: any }) {
+  const getHexacoPct = (mean: number) => Math.max(0, Math.min(100, (((mean || 1) - 1) / 4) * 100));
+  const factorPct = getHexacoPct(factorMean);
+  
+  return (
+    <div className="keep-together border border-slate-200 rounded-xl p-3 bg-white">
+      <div className="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
+        <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">{group.name}</h3>
+        <span className="text-[10px] font-bold text-white px-2 py-1 rounded-full" style={{ backgroundColor: group.color, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' as any }}>{Math.round(factorPct)}%</span>
+      </div>
+      
+      <div className="space-y-2">
+        {group.facets.map((facet: any) => {
+          const fm = facetMeans?.[facet.k] || 1;
+          const fp = getHexacoPct(fm);
+          return (
+            <div key={facet.k} className="flex items-center gap-2">
+              <span className="text-[9px] text-slate-600 font-medium w-24 truncate" title={facet.n}>{facet.n}</span>
+              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden print:border print:border-slate-200">
+                <div className="h-full rounded-full print-exact-color" style={{ width: `${fp}%`, backgroundColor: group.color, WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' as any }} />
+              </div>
+              <span className="text-[9px] font-bold text-slate-700 w-8 text-right">{Math.round(fp)}%</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // === ADVANCED REPORT COMPONENTS (DARK MODE) === //
 
 export const hexacoStructure = [
@@ -113,8 +143,7 @@ export function AdvancedHexacoBox({ group, factorMean, facetMeans }: { group: an
   );
 }
 
-export function AdvancedDiscBar({ title, scores }: { title: string, scores: any }) {
-  const getDiscPct = (raw: number) => Math.max(0, Math.min(100, (((raw || 0) + 24) / 48) * 100));
+export function AdvancedDiscBar({ title, scores, type = 'composite' }: { title: string, scores: any, type?: 'composite' | 'most' | 'least' }) {
   const traits = [
     { key: 'D', name: 'Dominance', color: '#e74c3c' },
     { key: 'I', name: 'Influence', color: '#f1c40f' },
@@ -122,22 +151,23 @@ export function AdvancedDiscBar({ title, scores }: { title: string, scores: any 
     { key: 'C', name: 'Compliance', color: '#3498db' },
   ];
 
+  const maxVal = type === 'composite' ? 48 : 24;
+
   return (
     <div className="bg-slate-950/80 p-5 rounded-2xl border border-slate-800 shadow-md hover:border-slate-700 transition-colors">
       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 text-center">{title}</h3>
       <div className="space-y-4">
         {traits.map(trait => {
           const raw = scores?.[trait.key] || 0;
-          const pct = getDiscPct(raw);
+          const pct = Math.max(0, Math.min(100, (raw / maxVal) * 100));
           return (
             <div key={trait.key} className="flex items-center gap-3">
               <span className="text-xs font-bold w-20 text-right" style={{ color: trait.color }}>{trait.name}</span>
               <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden relative">
-                {/* Center Line for Zero point */}
-                <div className="absolute left-1/2 top-0 w-px h-full bg-slate-500/50 z-10" />
+                {type === 'composite' && <div className="absolute left-1/2 top-0 w-px h-full bg-slate-500/50 z-10" />}
                 <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: trait.color }} />
               </div>
-              <span className="text-xs text-white font-mono w-8 text-right">{raw > 0 ? `+${raw}` : raw}</span>
+              <span className="text-xs text-white font-mono w-8 text-right">{raw}</span>
             </div>
           );
         })}

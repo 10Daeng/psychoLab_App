@@ -9,6 +9,7 @@ import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadius
 import ClinicalWorkspace from "./ClinicalWorkspace";
 import { evaluateConflicts } from "@/lib/services/conflictEngine";
 import { AdvancedHexacoBox, AdvancedDiscBar, hexacoStructure, getHexacoPct, AdvancedWVIGraph } from "./SharedReportComponents";
+import { normalizeDiscScore } from "@/lib/utils/disc_utils";
 
 const config = { label: "Karyawan", color: "violet", accent: "bg-violet-600", light: "bg-violet-50", text: "text-violet-700", icon: "💼" };
 
@@ -44,7 +45,15 @@ export default function EmployeeReportView({ report, testResults }: { report: an
   const cogScore = cogResult?.calculated_score || {};
   const wviScore = wviResult?.calculated_score?.calculatedData || wviResult?.calculated_score || {};
   const hexacoScore = hexacoResult?.calculated_score?.calculatedData || hexacoResult?.calculated_score || {};
-  const discScore = discResult?.calculated_score?.calculatedData || discResult?.calculated_score || {};
+  const discScore = normalizeDiscScore(discResult?.calculated_score) || {} as any;
+
+  // Utilitas: membangun payload asesmen untuk conflictEngine & AI, satu definisi saja
+  const buildAssessmentPayload = () => ({
+    hexaco: hexacoScore,
+    disc: discScore,
+    projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
+    wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined
+  });
 
   useEffect(() => {
     const aiSrc = cogResult?.calculated_score?.ai_narrative || discResult?.calculated_score?.ai_narrative;
@@ -80,22 +89,13 @@ export default function EmployeeReportView({ report, testResults }: { report: an
     setAiError("");
 
     try {
-      const detectedFlags = evaluateConflicts('EMPLOYEE', {
-        hexaco: hexacoScore,
-        disc: discScore,
-        projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
-        wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined
-      });
+      const assessmentData = buildAssessmentPayload();
+      const detectedFlags = evaluateConflicts('EMPLOYEE', assessmentData);
 
       const payload = {
         clientName: client.name,
         context: 'EMPLOYEE',
-        rawPayload: {
-          hexaco: hexacoScore,
-          disc: discScore,
-          projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
-          wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined
-        },
+        rawPayload: assessmentData,
         conflictFlags: detectedFlags,
         observationData: (obsData && Object.keys(obsData.anamnesa || {}).length > 0) ? obsData : null
       };
@@ -110,14 +110,6 @@ export default function EmployeeReportView({ report, testResults }: { report: an
       if (!res.ok) throw new Error(data.error || "Gagal generate narasi");
 
       setAiNarrative(data.htmlContent);
-
-      const targetToUpdate = cogResult || discResult;
-      if (targetToUpdate?.id) {
-        await supabase
-          .from("test_results")
-          .update({ calculated_score: { ...targetToUpdate.calculated_score, ai_narrative: data.htmlContent } })
-          .eq("id", targetToUpdate.id);
-      }
     } catch (err: any) {
       alert("Gagal AI: " + err.message);
       setAiError(err.message);
@@ -262,9 +254,9 @@ export default function EmployeeReportView({ report, testResults }: { report: an
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <AdvancedDiscBar title="Grafik 1 — Publik (Mask)" scores={discScore.discMost || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} />
-            <AdvancedDiscBar title="Grafik 2 — Pribadi (Core)" scores={discScore.discLeast || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} />
-            <AdvancedDiscBar title="Grafik 3 — Aktual (Composite)" scores={discScore.discComposite || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} />
+            <AdvancedDiscBar title="Grafik 1 — Publik (Mask)" scores={discScore.discMost} type="most" />
+            <AdvancedDiscBar title="Grafik 2 — Pribadi (Core)" scores={discScore.discLeast} type="least" />
+            <AdvancedDiscBar title="Grafik 3 — Aktual (Composite)" scores={discScore.discComposite || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} type="composite" />
           </div>
         </div>
       )}
@@ -355,12 +347,7 @@ export default function EmployeeReportView({ report, testResults }: { report: an
                 reportType="EMPLOYEE"
                 clientName={client?.name}
                 aiDraft={aiNarrative} 
-                conflictFlags={evaluateConflicts('EMPLOYEE', {
-                  hexaco: hexacoScore,
-                  disc: discScore,
-                  projective: graphologyResult?.calculated_score?.calculatedData || warteggResult?.calculated_score?.calculatedData,
-                  wvi: wviScore ? { top3: Object.entries(wviScore.scores || wviScore).filter(([k,v])=>typeof v === 'number').sort((a,b)=>Number(b[1])-Number(a[1])).slice(0,3).map(x=>({name: x[0], score: Number(x[1])})) } : undefined,
-                })}
+                conflictFlags={evaluateConflicts('EMPLOYEE', buildAssessmentPayload())}
                 onSave={async (finalHtml) => {
                   try {
                     // Cek apakah draf sudah pernah tersimpan sebelumnya untuk report ini

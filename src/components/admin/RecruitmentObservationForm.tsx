@@ -146,7 +146,7 @@ export default function RecruitmentObservationForm({ initialData, onSave }: Prop
       {inputType === "text" ? (
         <input
           type="text"
-          className="w-full text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 bg-slate-50"
+          className="w-full text-slate-800 text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 bg-slate-50"
           placeholder="Jawaban kandidat..."
           value={anamnesa[`${qKey}_ans`] || ""}
           onChange={e => setAnaVal(`${qKey}_ans`, e.target.value)}
@@ -154,7 +154,7 @@ export default function RecruitmentObservationForm({ initialData, onSave }: Prop
       ) : (
         <textarea
           rows={2}
-          className="w-full text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 bg-slate-50"
+          className="w-full text-slate-800 text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 bg-slate-50"
           placeholder="Jawaban kandidat..."
           value={anamnesa[`${qKey}_ans`] || ""}
           onChange={e => setAnaVal(`${qKey}_ans`, e.target.value)}
@@ -280,7 +280,7 @@ export default function RecruitmentObservationForm({ initialData, onSave }: Prop
           <p className="font-semibold text-slate-700 text-sm mb-2">Catatan Observasi Tambahan</p>
           <textarea
             rows={2}
-            className="w-full text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-teal-400 bg-slate-50"
+            className="w-full text-slate-800 text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-teal-400 bg-slate-50"
             placeholder="Hal-hal spesifik yang perlu dicatat selama sesi tes..."
             value={obs.obs_notes || ""}
             onChange={e => setObsVal("obs_notes", e.target.value)}
@@ -448,7 +448,7 @@ export default function RecruitmentObservationForm({ initialData, onSave }: Prop
           <p className="font-semibold text-slate-700 text-sm mb-2">Catatan Bebas Psikolog</p>
           <textarea
             rows={5}
-            className="w-full text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-rose-400"
+            className="w-full text-slate-800 text-sm p-3 border border-slate-200 rounded-lg focus:outline-none focus:border-rose-400 bg-white"
             placeholder="Red flag, inkonsistensi data, hal unik, atau informasi kontekstual yang penting untuk interpretasi AI..."
             value={notes}
             onChange={e => setNotes(e.target.value)}

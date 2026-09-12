@@ -13,10 +13,20 @@ export class DiscEngine extends BaseTestEngine {
   }
 
   async calculateScores(answers: Record<number, { most?: string, least?: string }>, clientData?: any): Promise<AssessmentResult> {
-    const D = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'D' ? 1 : 0) - (ans.least === 'D' ? 1 : 0), 0) + 24;
-    const I = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'I' ? 1 : 0) - (ans.least === 'I' ? 1 : 0), 0) + 24;
-    const S = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'S' ? 1 : 0) - (ans.least === 'S' ? 1 : 0), 0) + 24;
-    const C = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'C' ? 1 : 0) - (ans.least === 'C' ? 1 : 0), 0) + 24;
+    const dMost = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'D' ? 1 : 0), 0);
+    const iMost = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'I' ? 1 : 0), 0);
+    const sMost = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'S' ? 1 : 0), 0);
+    const cMost = Object.values(answers).reduce((acc, ans) => acc + (ans.most === 'C' ? 1 : 0), 0);
+
+    const dLeast = Object.values(answers).reduce((acc, ans) => acc + (ans.least === 'D' ? 1 : 0), 0);
+    const iLeast = Object.values(answers).reduce((acc, ans) => acc + (ans.least === 'I' ? 1 : 0), 0);
+    const sLeast = Object.values(answers).reduce((acc, ans) => acc + (ans.least === 'S' ? 1 : 0), 0);
+    const cLeast = Object.values(answers).reduce((acc, ans) => acc + (ans.least === 'C' ? 1 : 0), 0);
+
+    const D = (dMost - dLeast) + 24;
+    const I = (iMost - iLeast) + 24;
+    const S = (sMost - sLeast) + 24;
+    const C = (cMost - cLeast) + 24;
 
     // 1. Determine aspects >= 30 (Based on the custom logic in disc_patterns.py)
     const aspects = [
@@ -76,6 +86,10 @@ export class DiscEngine extends BaseTestEngine {
       rawScore: D + I + S + C,
       calculatedData: {
         raw_scores: answers,
+        D, I, S, C,
+        discMost: { D: dMost, I: iMost, S: sMost, C: cMost },
+        discLeast: { D: dLeast, I: iLeast, S: sLeast, C: cLeast },
+        discComposite: { D, I, S, C },
         primary_trait: primary,
         secondary_trait: secondary,
         pattern_key: patternKey,

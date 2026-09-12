@@ -7,6 +7,8 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const url = new URL(req.url);
+  const isDownload = url.searchParams.get("download") === "1";
   try {
     const cookieStore = await cookies();
     const session = cookieStore.get('admin_session');
@@ -47,11 +49,24 @@ export async function GET(
       tokenData.clients = decryptClientData(tokenData.clients);
     }
 
-    return NextResponse.json({
+    const responseData = {
       report: tokenData,
       testResults: results || [],
       clientReports: clientReports || []
-    });
+    };
+
+    if (isDownload) {
+      const fileName = `RawData_${tokenData.token_code || id}.json`;
+      return new NextResponse(JSON.stringify(responseData, null, 2), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Disposition': `attachment; filename="${fileName}"`,
+        },
+      });
+    }
+
+    return NextResponse.json(responseData);
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }

@@ -95,6 +95,7 @@ export default function EmployeeReportView({ report, testResults }: { report: an
       const payload = {
         clientName: client.name,
         context: 'EMPLOYEE',
+        occupation: client.grade || client.occupation || 'Karyawan',
         rawPayload: assessmentData,
         conflictFlags: detectedFlags,
         observationData: (obsData && Object.keys(obsData.anamnesa || {}).length > 0) ? obsData : null

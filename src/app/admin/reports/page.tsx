@@ -150,13 +150,24 @@ export default function ReportsIndexPage() {
             ))}
           </div>
           
-          <button
-            onClick={handleExportExcel}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/50"
-            title="Unduh Rekap Peserta ke Excel"
-          >
-            <Download size={16} /> Export Excel
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                window.location.href = `/api/admin/reports/bulk-download?purpose=${selectedPurpose}&institution=${institutionFilter}`;
+              }}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-indigo-900/50"
+              title="Unduh Semua Data Mentah JSON"
+            >
+              <Download size={16} /> Raw JSON
+            </button>
+            <button
+              onClick={handleExportExcel}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/50"
+              title="Unduh Rekap Peserta ke Excel"
+            >
+              <FileBarChart2 size={16} /> Rekap Excel
+            </button>
+          </div>
         </div>
       </div>
 

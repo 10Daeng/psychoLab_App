@@ -9,6 +9,7 @@ interface GenerateNarrativeRequest {
   context: ReportContext;
   rawPayload: AssessmentPayload;
   conflictFlags: ConflictFlag[];
+  occupation?: string;
   observationData?: {
     observation?: Record<string, any>;
     anamnesa?: Record<string, string>;
@@ -20,7 +21,7 @@ interface GenerateNarrativeRequest {
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as GenerateNarrativeRequest;
-    const { clientName, context, rawPayload, conflictFlags, observationData } = body;
+    const { clientName, context, rawPayload, conflictFlags, observationData, occupation } = body;
 
     // --- Format data observasi menjadi teks untuk injeksi AI ---
     let observationBlock = "";
@@ -105,7 +106,12 @@ export async function POST(req: Request) {
     const contextGuidelines = {
       CHILD: "Fokus pada dinamika tumbuh kembang, keselarasan pengasuhan, regulasi emosi dasar, serta dinamika belajar dan kesimpulan kematangan dan ketahanan belajar di sekolah.",
       STUDENT: "Fokus pada rekomendasi penjurusan (IPA/IPS/Bahasa/Kejuruan), realisme minat bakat, ketahanan belajar, dan berikan 3 saran bidang jurusan kuliah dan karier di masa depan.",
-      EMPLOYEE: "Fokus pada kapabilitas profesional, ketahanan stres, dan culture fit di tempat kerja."
+      EMPLOYEE: `Anda bertindak sebagai "Psychological Report Engine".
+Lakukan langkah berikut secara berurutan dalam pemikiran Anda:
+1. Norm/Interpretation: Maknai skor mentah kandidat (Kognitif, DISC, HEXACO, WVI).
+2. Position Competency Mapping: Nilai tingkat kecocokan (Fit) antara profil kandidat dengan tuntutan posisi "${occupation || 'Karyawan'}".
+3. Cross-Test Synthesis: Sintesis kelebihan kognitif dengan kepribadian (misal: IQ tinggi namun C rendah di DISC) dan bagaimana dampaknya saat bekerja.
+Fokus pada kapabilitas profesional, ketahanan stres, dan rekomendasi pengelolaan bawahan (managerial advice).`
     };
 
     // 2. Persona Sistem (Menggabungkan Psikologi Modern & Ghazalian)
@@ -117,10 +123,10 @@ export async function POST(req: Request) {
       Target Analisis: ${contextGuidelines[context]}
       
       ATURAN FORMAT (STRICT RULES):
-      1. Output HARUS murni dalam format HTML (gunakan <h2>, <h3>, <p>, <ul>, <li>, <strong>).
-      2. JANGAN gunakan tag pembungkus Markdown seperti \`\`\`html. Langsung mulai dengan <h2>.
+      1. Output HARUS murni dalam format HTML (gunakan <h2>, <h3>, <p>, <ul>, <li>, <strong>). JANGAN gunakan Markdown.
+      2. JANGAN gunakan tag pembungkus seperti \`\`\`html. Langsung mulai dengan <h2>.
       3. Terjemahkan angka/skor menjadi deskripsi perilaku. Jangan menulis "Skor Raven 92" atau "HEXACO E 40", melainkan "Kapasitas penalaran abstrak berada pada taraf rata-rata" atau "Memiliki kecenderungan introvert".
-      4. Bahasa harus profesional, empatik, memberdayakan, dan tidak menghakimi.
+      4. Bahasa harus profesional, empatik, memberdayakan, dan berorientasi bisnis/klinis sesuai konteks.
     `;
 
     // 3. Injeksi Conflict Engine (Validasi Silang)

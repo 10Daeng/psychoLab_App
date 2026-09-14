@@ -173,34 +173,46 @@ export default function EmployeeReportView({ report, testResults }: { report: an
       </div>
 
       {/* 2. Kognitif (RAVEN/CPM) */}
-      {cogResult && iqValue > 0 && (
+      {cogResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Brain className="w-5 h-5 text-violet-400" /> Kapasitas Kognitif ({cogResult.tests?.code})
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
-            <div className="col-span-1 flex justify-center">
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 w-full max-w-[200px] flex justify-center">
-                 {/* Re-using IQGauge but in dark mode wrapper if possible */}
-                 <div className="scale-75 md:scale-90 origin-center"><IQGauge iq={iqValue} /></div>
+          {!cogResult.end_time || iqValue <= 0 ? (
+            <div className="bg-red-950/30 border border-red-900/50 p-5 rounded-xl flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-red-900/40 flex items-center justify-center shrink-0">
+                <span className="text-red-500 text-xl">⚠️</span>
+              </div>
+              <div>
+                <h3 className="text-red-400 font-bold mb-1">Data Kognitif Tidak Tersedia</h3>
+                <p className="text-red-300/80 text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan skor tidak dapat ditampilkan.</p>
               </div>
             </div>
-            <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", color: "text-blue-400" },
-                { label: "Persentil", value: cogScore.percentile || "-", color: "text-emerald-400" },
-                { label: "IQ Estimasi", value: iqValue || "-", color: "text-violet-400" },
-                { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", color: "text-amber-400" },
-              ].map((item) => (
-                <div key={item.label} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center text-center">
-                  <p className="text-xs font-bold text-slate-500 uppercase mb-2">{item.label}</p>
-                  <p className={`text-xl md:text-2xl font-black ${item.color}`}>{item.value}</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+              <div className="col-span-1 flex justify-center">
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 w-full max-w-[200px] flex justify-center">
+                   {/* Re-using IQGauge but in dark mode wrapper if possible */}
+                   <div className="scale-75 md:scale-90 origin-center"><IQGauge iq={iqValue} /></div>
                 </div>
-              ))}
+              </div>
+              <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", color: "text-blue-400" },
+                  { label: "Persentil", value: cogScore.percentile || "-", color: "text-emerald-400" },
+                  { label: "IQ Estimasi", value: iqValue || "-", color: "text-violet-400" },
+                  { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", color: "text-amber-400" },
+                ].map((item) => (
+                  <div key={item.label} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center text-center">
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-2">{item.label}</p>
+                    <p className={`text-xl md:text-2xl font-black ${item.color}`}>{item.value}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -249,21 +261,35 @@ export default function EmployeeReportView({ report, testResults }: { report: an
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Target className="w-5 h-5 text-blue-400" /> Profil Gaya Kerja (DISC)
             </h2>
-            <div className="bg-blue-500/20 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-sm font-bold">
-              Pola: {discScore.pattern || discScore.archetype || "-"}
-            </div>
+            {discResult.end_time && (
+              <div className="bg-blue-500/20 border border-blue-500/30 text-blue-400 px-3 py-1.5 rounded-lg text-sm font-bold">
+                Pola: {discScore.pattern || discScore.archetype || "-"}
+              </div>
+            )}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <AdvancedDiscBar title="Grafik 1 — Publik (Mask)" scores={discScore.discMost} type="most" />
-            <AdvancedDiscBar title="Grafik 2 — Pribadi (Core)" scores={discScore.discLeast} type="least" />
-            <AdvancedDiscBar title="Grafik 3 — Aktual (Composite)" scores={discScore.discComposite || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} type="composite" />
-          </div>
+          {!discResult.end_time ? (
+            <div className="bg-red-950/30 border border-red-900/50 p-5 rounded-xl flex items-start gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-red-900/40 flex items-center justify-center shrink-0">
+                <span className="text-red-500 text-xl">⚠️</span>
+              </div>
+              <div>
+                <h3 className="text-red-400 font-bold mb-1">Data DISC Tidak Tersedia</h3>
+                <p className="text-red-300/80 text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <AdvancedDiscBar title="Grafik 1 — Publik (Mask)" scores={discScore.discMost} type="most" />
+              <AdvancedDiscBar title="Grafik 2 — Pribadi (Core)" scores={discScore.discLeast} type="least" />
+              <AdvancedDiscBar title="Grafik 3 — Aktual (Composite)" scores={discScore.discComposite || {D: discScore.D, I: discScore.I, S: discScore.S, C: discScore.C}} type="composite" />
+            </div>
+          )}
         </div>
       )}
 
       {/* 4. Profil Karakter (HEXACO) */}
-      {hexacoResult && hexacoScore.factorMeans && (
+      {hexacoResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -271,34 +297,46 @@ export default function EmployeeReportView({ report, testResults }: { report: an
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {hexacoStructure.map((group) => (
-              <AdvancedHexacoBox
-                key={group.factor}
-                group={group}
-                factorMean={hexacoScore.factorMeans?.[group.factor]}
-                facetMeans={hexacoScore.facetMeans}
-              />
-            ))}
-            
-            {/* Altruisme (Tambahan) */}
-            {hexacoScore.facetMeans?.['altr'] && (
-              <div className="md:col-span-2 bg-slate-950/80 p-5 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
-                <h3 className="font-bold text-white text-[13px] uppercase tracking-wider w-1/3">Altruisme (Tambahan)</h3>
-                <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden relative mx-6">
-                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${getHexacoPct(hexacoScore.facetMeans['altr'])}%`, backgroundColor: '#e67e22', opacity: 0.9 }} />
-                </div>
-                <span className="text-xs font-bold text-white px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#e67e22' }}>
-                  {Math.round(getHexacoPct(hexacoScore.facetMeans['altr']))}%
-                </span>
+          {!hexacoResult.end_time || !hexacoScore.factorMeans ? (
+            <div className="bg-red-950/30 border border-red-900/50 p-5 rounded-xl flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-red-900/40 flex items-center justify-center shrink-0">
+                <span className="text-red-500 text-xl">⚠️</span>
               </div>
-            )}
-          </div>
+              <div>
+                <h3 className="text-red-400 font-bold mb-1">Data HEXACO Tidak Tersedia</h3>
+                <p className="text-red-300/80 text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {hexacoStructure.map((group) => (
+                <AdvancedHexacoBox
+                  key={group.factor}
+                  group={group}
+                  factorMean={hexacoScore.factorMeans?.[group.factor]}
+                  facetMeans={hexacoScore.facetMeans}
+                />
+              ))}
+              
+              {/* Altruisme (Tambahan) */}
+              {hexacoScore.facetMeans?.['altr'] && (
+                <div className="md:col-span-2 bg-slate-950/80 p-5 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
+                  <h3 className="font-bold text-white text-[13px] uppercase tracking-wider w-1/3">Altruisme (Tambahan)</h3>
+                  <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden relative mx-6">
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${getHexacoPct(hexacoScore.facetMeans['altr'])}%`, backgroundColor: '#e67e22', opacity: 0.9 }} />
+                  </div>
+                  <span className="text-xs font-bold text-white px-3 py-1.5 rounded-lg" style={{ backgroundColor: '#e67e22' }}>
+                    {Math.round(getHexacoPct(hexacoScore.facetMeans['altr']))}%
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
       {/* 5. Profil Nilai Kerja (WVI) */}
-      {wviResult && Object.keys(wviScore).length > 0 && (
+      {wviResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -306,14 +344,26 @@ export default function EmployeeReportView({ report, testResults }: { report: an
             </h2>
           </div>
           
-          <div className="mb-4">
-             <AdvancedWVIGraph scores={
-                wviScore.scores || 
-                Object.fromEntries(
-                   Object.entries(wviScore).filter(([k, v]) => typeof v === 'number')
-                )
-             } />
-          </div>
+          {!wviResult.end_time || Object.keys(wviScore).length === 0 ? (
+            <div className="bg-red-950/30 border border-red-900/50 p-5 rounded-xl flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-red-900/40 flex items-center justify-center shrink-0">
+                <span className="text-red-500 text-xl">⚠️</span>
+              </div>
+              <div>
+                <h3 className="text-red-400 font-bold mb-1">Data WVI Tidak Tersedia</h3>
+                <p className="text-red-300/80 text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-4">
+               <AdvancedWVIGraph scores={
+                  wviScore.scores || 
+                  Object.fromEntries(
+                     Object.entries(wviScore).filter(([k, v]) => typeof v === 'number')
+                  )
+               } />
+            </div>
+          )}
         </div>
       )}
 

@@ -168,7 +168,7 @@ Fokus pada kapabilitas profesional, ketahanan stres, dan rekomendasi pengelolaan
 
     // 5. Eksekusi ke LLM
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: systemInstruction 
     });
     

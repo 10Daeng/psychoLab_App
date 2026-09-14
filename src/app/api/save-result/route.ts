@@ -105,6 +105,36 @@ export async function POST(request: Request) {
       }
     }
 
+    // 5. AUTO FINALIZE: Cek apakah semua tes yang ditugaskan ke token ini sudah selesai
+    const { data: tokenData } = await supabase
+      .from('tokens')
+      .select('test_ids')
+      .eq('id', currentTestResult.token_id)
+      .single();
+
+    if (tokenData && tokenData.test_ids && Array.isArray(tokenData.test_ids)) {
+      // Ambil semua test_results untuk token ini
+      const { data: allTestResults } = await supabase
+        .from('test_results')
+        .select('test_id, end_time')
+        .eq('token_id', currentTestResult.token_id);
+
+      if (allTestResults) {
+        // Cek apakah setiap test_id di token.test_ids sudah ada di test_results dan memiliki end_time
+        const allCompleted = tokenData.test_ids.every(testId => {
+          const res = allTestResults.find((tr: any) => tr.test_id === testId);
+          return res && res.end_time;
+        });
+
+        if (allCompleted) {
+          await supabase
+            .from('tokens')
+            .update({ status: 'COMPLETED' })
+            .eq('id', currentTestResult.token_id);
+        }
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
       result: assessmentResult,

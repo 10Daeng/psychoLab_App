@@ -64,15 +64,32 @@ export default function AssessmentHubModal({ isOpen, onClose, client, onSuccess 
     }
   };
 
-  const handleFinalizeToken = async (tokenId: string) => {
-    if (!confirm("Tandai token ini sebagai selesai? Peserta tidak akan bisa login lagi dengan token ini.")) return;
+  const handleFinalizeToken = async (tokenId: string, forceFinalize = false) => {
+    const confirmMsg = forceFinalize
+      ? "⚠️ DATA TES KOSONG! Laporan AI tidak akan dapat digenerate untuk kandidat ini. Tetap selesaikan token?"
+      : "Tandai token ini sebagai selesai? Peserta tidak akan bisa login lagi dengan token ini.";
+    
+    if (!confirm(confirmMsg)) return;
+    
     try {
       const res = await fetch('/api/admin/finalize-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tokenId })
+        body: JSON.stringify({ tokenId, force: forceFinalize })
       });
       const data = await res.json();
+      
+      // Backend mendeteksi data kosong, minta konfirmasi paksa dari Admin
+      if (res.status === 409 && data.requiresForce) {
+        toast.error(
+          `⚠️ ${data.incompleteCount} dari ${data.totalCount} tes belum ada jawaban!`,
+          { duration: 5000 }
+        );
+        // Panggil ulang dengan force=true setelah Admin konfirmasi
+        await handleFinalizeToken(tokenId, true);
+        return;
+      }
+      
       if (!data.success) throw new Error(data.error);
       toast.success("Token berhasil diselesaikan!");
       if (onSuccess) onSuccess();

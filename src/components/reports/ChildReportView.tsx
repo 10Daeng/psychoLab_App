@@ -145,33 +145,40 @@ export default function ChildReportView({ report, testResults }: { report: any, 
       </div>
 
       {/* 2. Kognitif (CPM/RAVEN2) */}
-      {cogResult && iqValue > 0 && (
+      {cogResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Brain className="w-5 h-5 text-orange-400" /> Profil Kognitif ({cogResult.tests?.code})
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center mb-6">
-            <div className="col-span-1 flex justify-center">
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 w-full max-w-[200px] flex justify-center">
-                 <div className="scale-75 md:scale-90 origin-center"><IQGauge iq={iqValue} /></div>
+          {iqValue === 0 ? (
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 flex flex-col gap-2">
+              <p className="font-bold">⚠️ Data Kognitif Tidak Tersedia</p>
+              <p className="text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center mb-6">
+              <div className="col-span-1 flex justify-center">
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 w-full max-w-[200px] flex justify-center">
+                   <div className="scale-75 md:scale-90 origin-center"><IQGauge iq={iqValue} /></div>
+                </div>
+              </div>
+              <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", color: "text-blue-400" },
+                  { label: "Persentil", value: cogScore.percentile || "-", color: "text-emerald-400" },
+                  { label: "IQ Estimasi", value: iqValue || "-", color: "text-orange-400" },
+                  { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", color: "text-amber-400" },
+                ].map((item) => (
+                  <div key={item.label} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center text-center">
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-2">{item.label}</p>
+                    <p className={`text-xl md:text-2xl font-black ${item.color}`}>{item.value}</p>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", color: "text-blue-400" },
-                { label: "Persentil", value: cogScore.percentile || "-", color: "text-emerald-400" },
-                { label: "IQ Estimasi", value: iqValue || "-", color: "text-orange-400" },
-                { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", color: "text-amber-400" },
-              ].map((item) => (
-                <div key={item.label} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center text-center">
-                  <p className="text-xs font-bold text-slate-500 uppercase mb-2">{item.label}</p>
-                  <p className={`text-xl md:text-2xl font-black ${item.color}`}>{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
           {cogScore.setScores && (
             <div>
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-t border-slate-800 pt-4">Skor per Bagian ({cogResult.tests?.code})</p>
@@ -191,28 +198,35 @@ export default function ChildReportView({ report, testResults }: { report: any, 
 
 
       {/* 4. Kuesioner Orang Tua */}
-      {parentQScore && (
+      {parentQResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <ClipboardCheck className="w-5 h-5 text-teal-400" /> Hasil Kuesioner Orang Tua
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { title: '1. Riwayat Kehamilan & Kelahiran', key: 'kehamilan' },
-              { title: '2. Motorik Kasar & Halus', key: 'motorikKasar' },
-              { title: '3. Perkembangan Bahasa', key: 'bahasa' },
-              { title: '4. Sosial & Pertemanan', key: 'sosial' },
-              { title: '5. Kematangan Emosi', key: 'emosi' },
-              { title: '6. Catatan Tambahan', key: 'catatan' }
-            ].map(item => (
-              <div key={item.key} className="bg-slate-950 p-5 rounded-xl border border-slate-800 shadow-sm">
-                <h4 className="font-bold text-sm text-teal-400 mb-2 uppercase tracking-wider">{item.title}</h4>
-                <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
-                  {parentQScore[item.key] || <span className="italic text-slate-600">Tidak diisi</span>}
-                </p>
-              </div>
-            ))}
-          </div>
+          {!parentQScore ? (
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 flex flex-col gap-2">
+              <p className="font-bold">⚠️ Data Kuesioner Tidak Tersedia</p>
+              <p className="text-sm">Orang tua/wali belum menyelesaikan kuesioner ini secara valid atau belum menekan tombol Kirim Observasi.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { title: '1. Riwayat Kehamilan & Kelahiran', key: 'kehamilan' },
+                { title: '2. Motorik Kasar & Halus', key: 'motorikKasar' },
+                { title: '3. Perkembangan Bahasa', key: 'bahasa' },
+                { title: '4. Sosial & Pertemanan', key: 'sosial' },
+                { title: '5. Kematangan Emosi', key: 'emosi' },
+                { title: '6. Catatan Tambahan', key: 'catatan' }
+              ].map(item => (
+                <div key={item.key} className="bg-slate-950 p-5 rounded-xl border border-slate-800 shadow-sm">
+                  <h4 className="font-bold text-sm text-teal-400 mb-2 uppercase tracking-wider">{item.title}</h4>
+                  <p className="text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
+                    {parentQScore[item.key] || <span className="italic text-slate-600">Tidak diisi</span>}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

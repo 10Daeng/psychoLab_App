@@ -68,7 +68,7 @@ export default function WviTestPage() {
         const testResultId = sessionStorage.getItem("test_result_id");
         const clientDataStr = sessionStorage.getItem("client_data");
         
-        await fetch("/api/save-result", {
+        const res = await fetch("/api/save-result", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -77,6 +77,11 @@ export default function WviTestPage() {
             clientData: clientDataStr ? JSON.parse(clientDataStr) : {}
           })
         });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Gagal menyimpan hasil tes");
+        }
 
         clearAnswers();
         // WVI is the last test for EMP package

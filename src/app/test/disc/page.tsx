@@ -82,7 +82,7 @@ export default function DiscTestPage() {
         const clientDataStr = sessionStorage.getItem("client_data");
         
         // 1. Simpan hasil DISC
-        await fetch("/api/save-result", {
+        const res = await fetch("/api/save-result", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -91,6 +91,11 @@ export default function DiscTestPage() {
             clientData: clientDataStr ? JSON.parse(clientDataStr) : {}
           })
         });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Gagal menyimpan hasil tes");
+        }
 
         clearAnswers();
         alert("Asesmen Gaya Kerja (DISC) Selesai!");

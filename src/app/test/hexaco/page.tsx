@@ -70,7 +70,7 @@ export default function HexacoTestPage() {
         const clientDataStr = sessionStorage.getItem("client_data");
         
         // Simpan hasil HEXACO
-        await fetch("/api/save-result", {
+        const res = await fetch("/api/save-result", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -79,6 +79,11 @@ export default function HexacoTestPage() {
             clientData: clientDataStr ? JSON.parse(clientDataStr) : {}
           })
         });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Gagal menyimpan hasil tes");
+        }
 
         clearAnswers();
         

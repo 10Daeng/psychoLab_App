@@ -29,7 +29,7 @@ export const saveBiodataSchema = z.object({
 
 export const saveResultSchema = z.object({
   test_result_id: z.string().uuid("ID Hasil Tes tidak valid"),
-  resultsLog: z.array(z.any()).min(1, "Log hasil tidak boleh kosong"),
+  resultsLog: z.any(),
   clientData: z.any().optional()
 });
 

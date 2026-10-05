@@ -155,33 +155,40 @@ export default function StudentReportView({ report, testResults }: { report: any
       </div>
 
       {/* 2. Kognitif (RAVEN/CPM) */}
-      {cogResult && iqValue > 0 && (
+      {cogResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               <Brain className="w-5 h-5 text-teal-400" /> Profil Kognitif ({cogResult.tests?.code})
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
-            <div className="col-span-1 flex justify-center">
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 w-full max-w-[200px] flex justify-center">
-                 <div className="scale-75 md:scale-90 origin-center"><IQGauge iq={iqValue} /></div>
+          {iqValue === 0 ? (
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 flex flex-col gap-2">
+              <p className="font-bold">⚠️ Data Kognitif Tidak Tersedia</p>
+              <p className="text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+              <div className="col-span-1 flex justify-center">
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 w-full max-w-[200px] flex justify-center">
+                   <div className="scale-75 md:scale-90 origin-center"><IQGauge iq={iqValue} /></div>
+                </div>
+              </div>
+              <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", color: "text-blue-400" },
+                  { label: "Persentil", value: cogScore.percentile || "-", color: "text-emerald-400" },
+                  { label: "IQ Estimasi", value: iqValue || "-", color: "text-violet-400" },
+                  { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", color: "text-amber-400" },
+                ].map((item) => (
+                  <div key={item.label} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center text-center">
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-2">{item.label}</p>
+                    <p className={`text-xl md:text-2xl font-black ${item.color}`}>{item.value}</p>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: "Skor Mentah", value: cogScore.rawScore ?? cogScore.totalRawScore ?? "-", color: "text-blue-400" },
-                { label: "Persentil", value: cogScore.percentile || "-", color: "text-emerald-400" },
-                { label: "IQ Estimasi", value: iqValue || "-", color: "text-violet-400" },
-                { label: "Klasifikasi", value: cogScore.level?.level || cogScore.classification || "-", color: "text-amber-400" },
-              ].map((item) => (
-                <div key={item.label} className="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center text-center">
-                  <p className="text-xs font-bold text-slate-500 uppercase mb-2">{item.label}</p>
-                  <p className={`text-xl md:text-2xl font-black ${item.color}`}>{item.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -224,7 +231,7 @@ export default function StudentReportView({ report, testResults }: { report: any
       )}
 
       {/* 3. Minat & Bakat (RIASEC) */}
-      {riasecResult && riasecBars.length > 0 && (
+      {riasecResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -236,17 +243,24 @@ export default function StudentReportView({ report, testResults }: { report: any
               </div>
             )}
           </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={riasecBars} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-              <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
-              <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f8fafc', borderRadius: 8 }} />
-              <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
-                {riasecBars.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          {riasecBars.length === 0 ? (
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 flex flex-col gap-2">
+              <p className="font-bold">⚠️ Data RIASEC Tidak Tersedia</p>
+              <p className="text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={riasecBars} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+                <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', color: '#f8fafc', borderRadius: 8 }} />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                  {riasecBars.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
       )}
 
@@ -273,7 +287,7 @@ export default function StudentReportView({ report, testResults }: { report: any
       )}
 
       {/* 4. Profil Nilai Kerja (WVI) */}
-      {wviResult && Object.keys(wviScore).length > 0 && (
+      {wviResult && (
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -281,14 +295,21 @@ export default function StudentReportView({ report, testResults }: { report: any
             </h2>
           </div>
           
-          <div className="mb-4">
-             <AdvancedWVIGraph scores={
-                wviScore.scores || 
-                Object.fromEntries(
-                   Object.entries(wviScore).filter(([k, v]) => typeof v === 'number')
-                )
-             } />
-          </div>
+          {Object.keys(wviScore).length === 0 ? (
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 flex flex-col gap-2">
+              <p className="font-bold">⚠️ Data WVI Tidak Tersedia</p>
+              <p className="text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+            </div>
+          ) : (
+            <div className="mb-4">
+               <AdvancedWVIGraph scores={
+                  wviScore.scores || 
+                  Object.fromEntries(
+                     Object.entries(wviScore).filter(([k, v]) => typeof v === 'number')
+                  )
+               } />
+            </div>
+          )}
         </div>
       )}
 
@@ -298,23 +319,30 @@ export default function StudentReportView({ report, testResults }: { report: any
           <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             <BarChart2 className="w-5 h-5 text-emerald-500" /> Gaya Belajar (VAK)
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { key: "V", label: "Visual", color: "blue", border: "border-blue-500/50", bg: "bg-blue-500/10", text: "text-blue-400" },
-              { key: "A", label: "Auditory", color: "purple", border: "border-purple-500/50", bg: "bg-purple-500/10", text: "text-purple-400" },
-              { key: "K", label: "Kinesthetic", color: "emerald", border: "border-emerald-500/50", bg: "bg-emerald-500/10", text: "text-emerald-400" },
-            ].map(({ key, label, border, bg, text }) => {
-              const val = vakScore?.[key] || 0;
-              const isDominant = vakScore?.dominant === label || val === Math.max(vakScore?.V || 0, vakScore?.A || 0, vakScore?.K || 0);
-              return (
-                <div key={key} className={`rounded-xl p-6 text-center border ${isDominant ? `${border} ${bg}` : "border-slate-800 bg-slate-950"}`}>
-                  <p className={`text-4xl font-black ${isDominant ? text : "text-slate-500"}`}>{val}</p>
-                  <p className={`text-sm font-bold mt-2 ${isDominant ? text : "text-slate-400"}`}>{label}</p>
-                  {isDominant && <span className={`text-[10px] font-bold ${bg} ${text} border ${border} px-2 py-1 rounded-full mt-3 inline-block uppercase tracking-wider`}>Dominan</span>}
-                </div>
-              );
-            })}
-          </div>
+          {Object.keys(vakScore).length === 0 ? (
+            <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-red-400 flex flex-col gap-2">
+              <p className="font-bold">⚠️ Data VAK Tidak Tersedia</p>
+              <p className="text-sm">Kandidat belum menyelesaikan tes ini secara valid atau belum menekan tombol Submit. Indikator dan grafik tidak dapat ditampilkan.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { key: "V", label: "Visual", color: "blue", border: "border-blue-500/50", bg: "bg-blue-500/10", text: "text-blue-400" },
+                { key: "A", label: "Auditory", color: "purple", border: "border-purple-500/50", bg: "bg-purple-500/10", text: "text-purple-400" },
+                { key: "K", label: "Kinesthetic", color: "emerald", border: "border-emerald-500/50", bg: "bg-emerald-500/10", text: "text-emerald-400" },
+              ].map(({ key, label, border, bg, text }) => {
+                const val = vakScore?.[key] || 0;
+                const isDominant = vakScore?.dominant === label || val === Math.max(vakScore?.V || 0, vakScore?.A || 0, vakScore?.K || 0);
+                return (
+                  <div key={key} className={`rounded-xl p-6 text-center border ${isDominant ? `${border} ${bg}` : "border-slate-800 bg-slate-950"}`}>
+                    <p className={`text-4xl font-black ${isDominant ? text : "text-slate-500"}`}>{val}</p>
+                    <p className={`text-sm font-bold mt-2 ${isDominant ? text : "text-slate-400"}`}>{label}</p>
+                    {isDominant && <span className={`text-[10px] font-bold ${bg} ${text} border ${border} px-2 py-1 rounded-full mt-3 inline-block uppercase tracking-wider`}>Dominan</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
